@@ -1,0 +1,7 @@
+name: Application Block
+type: module
+description: Defines a Application Block
+core_version_requirement: ^8 || ^9
+package: custom
+dependencies:
+  - drupal:block

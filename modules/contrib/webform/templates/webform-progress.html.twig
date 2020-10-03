@@ -1,0 +1,115 @@
+{#
+/**
+ * @file
+ * Default theme implementation for webform wizard progress.
+ *
+ * Available variables:
+ * - webform: A webform.
+ * - pages: Array of wizard pages.
+ * - current_page: Current wizard page.
+ * - total_pages: Current wizard page.
+ * - summary: Summary of progress.
+ * - percentage: Percentage completed.
+ * - bar: A progress bar.
+ *
+ * @see template_preprocess_webform_progress()
+ *
+ * @ingroup themeable
+ */
+#}
+<style>
+#progress {
+    background-color: #D7DBF4;
+    border: 1px solid #3D50DF;
+    margin: 0 auto;
+    border-radius: 20px;
+ position: relative;
+}
+
+
+.webform-button--previous{
+    border: #3D50DF 2px solid !important; 
+    color: #3D50DF;
+    background-color: white;
+}
+.webform-button--draft{
+    border: #3D50DF 2px solid !important; 
+    color: #3D50DF;
+    background-color: white;
+}
+
+.webform-button--next{
+      background: #3D50DF;
+    border: #3D50DF 2px solid !important; 
+    color: white;
+}
+
+#bar {
+ height: 15px;
+ background-color: #3D50DF;
+    border-radius: 20px;
+}
+
+.webform-elements{
+      width: 50%;
+    margin: auto;
+}
+.webform-progress{
+  margin: auto;
+    width: 60%;
+    padding-bottom: 50px;
+}
+div.form-wrapper div.js-form-wrapper label.form-item__label{
+margin: 1rem 0 0.75rem;
+    font-size: 1.602rem;
+    font-weight: bold;
+    line-height: 1.3;
+}
+
+
+div.form-wrapper div.js-form-wrapper div.form-type-webform-markup{
+margin: 1rem 0 0.75rem;
+    font-size: 1.602rem;
+    font-weight: bold;
+    line-height: 1.3;
+}
+
+
+{# .webform-elements .form-wrapper{
+    margin: 0 auto;
+    display: table;
+} #}
+
+#edit-actions{
+     display: table;
+    margin: auto;
+}
+
+.path-webform{
+  background-color: #F7F7F8;
+}
+</style>
+{{ attach_library('webform/webform.progress') }}
+
+<div class="webform-progress">
+
+  {# {{ bar }} #}
+
+  <div id="progress">
+    <div id="bar" style="width:{{ percentage }};"></div>
+</div>
+
+  {# {% if summary or percentage %}
+    <div class="webform-progress__status">
+      {% if summary %}
+        <span class="webform-progress__summary" data-webform-progress-summary>{{ summary }}</span>
+        {% if percentage %}
+          <span class="webform-progress__percentage">(<span data-webform-progress-percentage>{{ percentage }}</span>)</span>
+        {% endif %}
+      {% else %}
+        <span class="webform-progress__percentage" data-webform-progress-percentage>{{ percentage }}</span>
+      {% endif %}
+    </div>
+  {% endif %} #}
+
+</div>

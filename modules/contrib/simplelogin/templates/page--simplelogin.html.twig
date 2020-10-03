@@ -1,0 +1,159 @@
+{#
+/**
+ * @file
+ * Theme "page__simplelogin" template.
+ *
+ * @see simplelogin_preprocess_simplelogin()
+ * @see simplelogin_theme_registry_alter()
+ */
+#}
+
+{% spaceless %}
+    <div id="header1">
+        <div style="display: flex; margin-left: 125px;">
+            <div style="margin-top: 14px;">
+                <a href="https://ppp.grmds.org/">
+                    <img
+                        alt="alc_logo" data-entity-type="file"
+                        data-entity-uuid="e337f9b1-4521-4271-90da-1d6bf8abca30"
+                        src="/sites/default/files/inline-images/ALC_logo.png"
+                        style="width: 25%;"
+                    >
+                </a>
+                <h5 style="display: inline; padding-left: 50px; font-size: 14px;">
+                    <a href="https://ppp.grmds.org/ppp">APPLY FOR PPP</a>
+                </h5>
+            </div>
+            <div style="display: flex; justify-content: flex-end; width: 100%; padding: 0; margin-right: 200px;">
+                <input
+                        class="nav_bar_links"
+                        onclick="window.location='/user/login';"
+                        style="margin-left: 10px; border: none; background: white; color: #3D50DF;
+                        -webkit-box-shadow: inset 0 0 5px white; margin-top: 15px;"
+                        type="button"
+                        value="Sign In"
+                />
+                <div style="margin-right: 25px;"></div>
+                <input
+                        class="nav_bar_links"
+                        onclick="window.location='/user/register';"
+                        style="background-color: #3D50DF; color: white; border: none; border-radius: 5px; margin-bottom: 15px;
+                        margin-top: 29px; width: 145px; padding: 12px;"
+                        type="button"
+                        value="Create an account"
+                />
+            </div>
+        </div>
+    </div>
+
+    {% if path == '/user/login' %}
+        <div id="header2">
+
+        </div>
+    {% endif %}
+
+    {% if path == '/user/login' %}
+
+        <div class="simplelogin-wrapper">
+
+            <div class="simplelogin-form" style="width: {{ wrapper_width }}px">
+                <div class="simplelogin-link">
+
+
+                    {% if path == '/user/login' %}
+                        <div class="signreg">{{ 'Sign In'|t }}</div>
+                        <div class="forgot-password">
+                            <a href="{{ base_path }}user/password">{{ 'Forgot your password?'|t }}</a>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="simplelogin-bg">
+
+                    {{ page.highlighted }}
+                    {{ page.content }}
+
+                </div>
+            </div>
+        </div>
+
+    {% endif %}
+
+    {% if path == '/user/login' %}
+        <div style="text-align: center; margin-bottom: 150px; margin-top: 40px;">
+            <p><strong>Not an American Lending Center member?<a href="/user/register"
+             style="margin-left: 20px; color: #3D50DF;">Create account</a></strong></p>
+        </div>
+    {% endif %}
+
+
+
+    {% if path == '/user/register' %}
+
+        <div class="simplelogin-wrapper">
+
+            <div class="simpleregister-form" style="width: {{ wrapper_width }}px">
+                <div class="simpleregister-link">
+
+                    <div>Let's start by creating an account</div>
+
+                </div>
+
+                <div class="simplelogin-bg">
+
+                    {{ page.highlighted }}
+                    {{ page.content }}
+                    <div>
+                        <small>By clicking Create Account you agree to our <a style="color: #3D50DF" href="https://americanlendingcenter.com/terms-and-conditions/">
+                                Terms of Service</a> and <a style="color: #3D50DF" href="https://americanlendingcenter.com/privacy-policy-2/">Privacy Policy</a>
+                        </small>
+                    </div>
+
+                    <div style="text-align: center">
+                        <p>Already have an account? <a style="color: #3D50DF;" href="/user/login">Sign In</a></p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+    {% endif %}
+
+    {% if path == '/user/password' %}
+
+        <div class="simplelogin-wrapper">
+
+            <div class="simplelogin-form" style="width: {{ wrapper_width }}px">
+                <div class="simplelogin-link">
+
+                    <div class="signreg">{{ 'Forgot Password'|t }}</div>
+
+                </div>
+
+                <div class="simplelogin-bg">
+
+                    {{ page.highlighted }}
+                    {{ page.content }}
+
+                </div>
+            </div>
+        </div>
+
+    {% endif %}
+
+    {#FOOTER GOES HERE#}
+    <footer>
+        <div>
+            <p style="color: #626262">American Lending Center @2020 All Rights Reserved</p>
+        </div>
+        <div style="display: flex">
+            <div><a style="color: #3D50DF" href="https://americanlendingcenter.com/terms-and-conditions/">Terms and Conditions</a></div>
+            <div style="margin-left: 25px;"><a style="color: #3D50DF" href="https://americanlendingcenter.com/privacy-policy-2/">Privacy Policy</a></div>
+        </div>
+    </footer>
+
+
+{% endspaceless %}
+
+

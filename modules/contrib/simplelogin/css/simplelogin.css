@@ -1,0 +1,296 @@
+/**
+ * @file
+ * The UserLogin screens, which controls the customized background image.
+ */
+
+html{
+  position: relative;
+  min-height: 100%;
+}
+
+body{
+  margin: 0 0 100px;
+  background-color: rgb(247, 247, 249) !important;
+  padding: 25px;
+}
+
+footer{
+  position: absolute;
+  left: 105px;
+  bottom: 0;
+  height: 100px;
+  width: 100%;
+  overflow: hidden;
+}
+
+#header1{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 89px;
+  z-index: 10;
+  background: rgb(255,255,255);
+}
+
+#header2{
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 250px;
+  background: rgb(62,80,224);
+}
+
+html {
+  height: 50%;
+}
+body.simplelogin {
+  min-height: 100%;
+  line-height: 1.5;
+  word-wrap: break-word;
+  font-size: 87.5%;
+}
+.simplelogin summary {
+  background: #dbdbdb;
+  color: #3b3b3b;
+  text-shadow: 0 1px 0 #fff;
+}
+.simplelogin .form-type-radio .description, .simplelogin .form-type-checkbox .description {
+  margin-left: 2px;
+}
+.simplelogin .form-type-radio label, .simplelogin .form-type-checkbox label {
+  margin-left: 4px;
+}
+.simplelogin .form-item label, .simplelogin .form-wrapper .label {
+  font-size: 0.929em;
+}
+.simplelogin h1, .simplelogin .heading-a {
+  margin: 1em 0 0.5em;
+  font-weight: inherit;
+}
+.simplelogin a, .simplelogin a.link {
+  text-decoration: none;
+  color: black;
+}
+.simplelogin input, .simplelogin textarea, .simplelogin select {
+  font-family: "Lucida Grande", "Lucida Sans Unicode", Verdana, sans-serif;
+}
+.simplelogin-wrapper {
+  padding: 8% 0 0;
+  margin: auto;
+}
+.simplelogin .region {
+  min-height: auto !important;
+}
+.simplelogin-logo {
+  text-align: center;
+}
+.simplelogin-logo img{
+  max-width: 100%;
+}
+.simplelogin .tabs.primary, .simplelogin .tabs--primary, .simplelogin .page-title {
+  display: none;
+}
+.simpleregister-form {
+  position: relative;
+  z-index: 1;
+  background: #FFFFFF;
+  /*margin: 0 auto 50px;*/
+  padding: 45px;
+  box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
+  height: 605px;
+  margin-bottom: 20px;
+}
+.user-register-form{
+  padding: 0 0 0 0 !important;
+}
+.simplelogin-form {
+  position: relative;
+  z-index: 1;
+  background: #FFFFFF;
+  /*margin: 0 auto 50px;*/
+  padding: 45px;
+  box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
+  height: 385px;
+}
+
+.simplelogin h1 {
+  font-size: 19px;
+  color: #545454;
+}
+.simplelogin .signreg {
+  float: left;
+  color: #3D50DF;
+  border-bottom: 0px;
+  font-weight: bold;
+  font-size: 25px;
+  margin-bottom: 20px;
+}
+
+.simplelogin form.user-pass p,.simplelogin-form .description { 
+  font-size: 13px;
+  color: #b4b4b4;
+  text-align: left; 
+}
+.simplelogin-form input {
+  outline: 0;
+  background: #f2f2f2;
+  border: 0;
+  margin: 0 0 6px;
+  padding: 15px;
+  box-sizing: border-box;
+  font-size: 14px;
+}
+.simpleregister-form input[type="submit"], .simpleregister-form button.form-submit {
+
+  outline: 0;
+  border: 0;
+  padding: 15px;
+  color: #FFFFFF;
+  font-size: 14px;
+  -webkit-transition: all 0.3 ease;
+  transition: all 0.3 ease;
+  cursor: pointer;
+  border-radius: 0.25em;
+  font-weight: bold;
+  width: 100%;
+
+}
+.simplelogin-form input[type="submit"], .simplelogin-form button.form-submit {
+
+  outline: 0;
+  border: 0;
+  padding: 15px;
+  color: #FFFFFF;
+  font-size: 14px;
+  -webkit-transition: all 0.3 ease;
+  transition: all 0.3 ease;
+  cursor: pointer;
+  border-radius: 0.25em;
+  font-weight: bold;
+
+}
+.simplelogin input.form-text, .simplelogin input.form-tel, .simplelogin input.form-email, .simplelogin input.form-url, .simplelogin input.form-search, .simplelogin input.form-file, .simplelogin input.form-number, .simplelogin input.form-color, .simplelogin textarea.form-textarea, .simplelogin select.form-select {
+  width: 100%;
+  border-radius: 0px;
+  border: 1px solid #cccccc;
+  color: #3b3b3b;
+  padding: 15px;
+  margin-bottom: 5px;
+}
+
+.nav_bar_links:hover{
+  cursor: pointer;
+}
+
+.simplelogin-bg{
+  margin-top: 15px;
+}
+
+.simplelogin-form .forgot-password {
+  float: right;
+  color: #b4b4b4;
+  font-size: 17px;
+  text-align: center;
+}
+.simplelogin-form .forgot-password a {
+  color: #3D50DF;
+  text-decoration: none;
+}
+.simplelogin .region-highlighted {
+  margin: 0;
+  width: 100%;
+}
+
+.simplelogin {
+  width: 100%;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  -ms-background-size: cover;
+  -o-background-size: cover;
+  -moz-background-size: cover;
+  -webkit-background-size: cover;
+  background-attachment: fixed;
+  position: relative;  
+} 
+.simplelogin .form-control {
+  height: inherit;
+}
+body.simplelogin.opacity::before {
+  content: "";
+  background-color: rgba(253, 253, 253, 0.5);  
+  display: block;
+  position: absolute;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+
+.simplelogin-form input{
+  outline: 0;
+  background-color: white;
+  border: 0;
+  margin: 0 0 6px;
+  padding: 15px;
+  box-sizing: border-box;
+  font-size: 14px;
+}
+
+.simpleregister-form input.form-submit, .simpleregister-form button.form-submit, .simpleregister-form input.form-submit:hover, .simpleregister-form input.form-submit:active, .simpleregister-form input.form-submit:focus, .simpleregister .link:hover, .simpleregister .link:focus{
+  background-color: #3D50DF;
+}
+
+.simplelogin-form input.form-submit, .simplelogin-form button.form-submit, .simplelogin-form input.form-submit:hover, .simplelogin-form input.form-submit:active, .simplelogin-form input.form-submit:focus, .simplelogin .link:hover, .simplelogin .link:focus{
+  background-color: #3D50DF;
+  width: 165px;
+}
+
+.simpleregister-link {
+  color: #3D50DF;
+  padding: 5px 0;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.simplelogin .simplelogin-link {
+  text-align: right;
+  padding: 5px 0;
+  font-size: 20px;
+}
+::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: #ababab;
+  opacity: 1; /* Firefox */
+}
+:-ms-input-placeholder { /* Internet Explorer 10-11 */
+  color: #ababab;
+}
+::-ms-input-placeholder { /* Microsoft Edge */
+  color: #ababab;
+}
+/* Portrait and Landscape */
+@media only screen 
+  and (max-device-width: 480px)
+  and (-webkit-min-device-pixel-ratio: 2) {
+  .simplelogin-form { 
+    width: 75% !important;
+    padding: 30px;
+  }
+  .simplelogin h1 {
+    font-size: 15px;
+  }
+  .simplelogin input.form-text, .simplelogin input.form-tel, .simplelogin input.form-email, .simplelogin input.form-url, .simplelogin input.form-search, .simplelogin input.form-file, .simplelogin input.form-number, .simplelogin input.form-color, .simplelogin textarea.form-textarea, .simplelogin select.form-select, .simplelogin-form input[type="submit"], .simplelogin-form button.form-submit {
+    padding: 10px;
+  }
+}

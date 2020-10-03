@@ -1,0 +1,72 @@
+<header>
+     <nav class="navbar navbar-expand-lg navbar-light navbar-fixed-top" id="mainNav">
+      <div class="container">
+        <a href="{{ path('<front>') }}"><img src="{{ logopath }}" alt="logo"></a>
+        <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive"  aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+          <i class="fa fa-bars"></i>
+        </button>
+        
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+         {{ page.primary_menu }}
+        </div>
+      </div>  
+      </nav>
+    </header>
+
+
+    <section class="top-banner mx-auto text-center">
+          <h4>{{ page.top_banner }}</h4>
+          {{ page.bread_crumb }}
+                <!--start:content -->
+    </section>
+
+ <section {{ content_attributes.addClass(content_classes) }}>
+
+        {# Content #}
+        {% block content %}
+          <a id="main-content"></a>
+          {{ page.content }}
+        {% endblock %}
+</section>
+
+
+
+<!-- FOOTER SECTION-->
+    <section id="footer">
+      <div class="container wow fadeInUp">
+        <div class="row">
+
+        <div class="col-md-3 col-sm-12 footer-columns">
+          {{ page.footer_col_1 }}
+        </div>  
+
+          <div class="col-md-3 col-sm-12 footer-columns">
+            <h6>INFO</h6>
+            {{ page.footer_col_2 }}
+          </div>
+
+          <div class="col-md-3 col-sm-12 footer-columns">
+            <h6>RECENT BLOG</h6>
+            {{ page.footer_col_3 }}
+          </div>      
+        
+          <div class="col-md-3 col-sm-12 footer-columns">
+            <h6>SOCIAL</h6>
+            <div class="social">
+                <a href="{{twitter}}" class="twitter"><i class="fa fa-twitter"></i></a>
+                <a href="{{facebook}}" class="facebook"><i class="fa fa-facebook"></i></a>
+                <a href="{{instagram}}" class="instagram"><i class="fa fa-instagram"></i></a>
+                <a href="#" class="google-plus"><i class="fa fa-google-plus"></i></a>
+                <a href="#" class="google-plus"><i class="fa fa-pinterest" aria-hidden="true"></i></a>
+            </div>
+          </div> 
+        </div>
+      </div>
+    </section>
+
+    <div class="copyright">
+          <p>&copy; 2018.<a href="{{yg_business_one_Template}}">YG Business One</a>. All Rights Reserved.
+          <br></p>
+          <p>Theme By<a href="{{drupal_developers}}"> Drupal Developers Studio</a>, A Division of <a href="{{youngglobes}}">Young Globes</a></p>
+    </div>
+<!-- END FOOTER SECTION -->

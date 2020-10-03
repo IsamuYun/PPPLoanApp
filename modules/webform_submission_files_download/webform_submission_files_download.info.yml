@@ -1,0 +1,11 @@
+name: 'Webform Submission Files Download'
+type: module
+description: 'Allow to download files attached to a single submission'
+# core: 8.x
+package: 'webform'
+
+# Information added by Drupal.org packaging script on 2019-04-04
+version: '8.x-1.0-alpha1+3-dev'
+core_version_requirement: ^8 || ^9
+project: 'webform_submission_files_download'
+datestamp: 1554384498

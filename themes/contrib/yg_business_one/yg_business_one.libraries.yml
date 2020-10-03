@@ -1,0 +1,24 @@
+global-styling:
+  css:
+    base:
+      'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css': { type: external, minified: true }
+      'https://fonts.googleapis.com/css?family=Roboto|Open+Sans': { type: external, minified: true }
+      'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css': { type: external, minified: true }
+      css/carousel.css: {}
+      css/animate.css: {}
+      css/style.css: {}
+      
+
+  js:
+    # 'https://code.jquery.com/jquery-3.1.1.slim.min.js': { type: external, minified: true }
+    'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js': { type: external, minified: true }
+    js/wow.min.js: {}
+    js/carousel.js: {}
+    js/main.js: {}
+
+
+  dependencies:
+    - core/jquery
+    - core/drupalSettings
+    - core/modernizr
+    - core/drupal
