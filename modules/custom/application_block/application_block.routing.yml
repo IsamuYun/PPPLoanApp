@@ -1,0 +1,7 @@
+application_block.content:
+    path: '/docusign'
+    defaults:
+        _controller: '\Drupal\application_block\Controller\ApplicationBlockController::content'
+        _title: 'DocuSign Test'
+    requirements:
+        _permission: 'access content'

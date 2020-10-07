@@ -17,7 +17,7 @@
     "require": {
         "chamilo/pclzip": "^2.8",
         "composer/installers": "^1.9",
-        "drupal/bootstrap_barrio": "^5.1",
+        "docusign/esign-client": "5.1.0",
         "drupal/core-composer-scaffold": "^9",
         "drupal/core-project-message": "^9",
         "drupal/core-recommended": "^9",
@@ -29,8 +29,9 @@
         "drupal/jquery_ui_tooltip": "^1.1",
         "drupal/simplelogin": "^6.0",
         "drupal/webform": "^6.0",
-        "drupal/yg_business_one": "^2.0",
-        "drush/drush": "^10.4"
+        "drush/drush": "^10.4",
+        "league/oauth2-client": "^2.5",
+        "mashape/unirest-php": "^3.0"
     },
     "conflict": {
         "drupal/drupal": "*"
