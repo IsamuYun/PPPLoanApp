@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Drupal\application_block\Service;
+namespace Drupal\application\Service;
 
 use DocuSign\eSign\Api\AccountsApi;
 use DocuSign\eSign\Api\BulkEnvelopesApi;

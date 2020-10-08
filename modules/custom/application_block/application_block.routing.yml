@@ -5,3 +5,12 @@ application_block.content:
         _title: 'DocuSign Test'
     requirements:
         _permission: 'access content'
+
+application_block.ds_envelope_list_form:
+    path: '/dsenvelopelistform'
+    defaults:
+        _form: '\Drupal\application_block\Form\DSEnvelopeListForm'
+        _title: 'DocuSign Envelope List Form'
+    requirements:
+        _permission: 'access content'
+

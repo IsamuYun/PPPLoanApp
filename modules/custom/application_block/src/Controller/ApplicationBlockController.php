@@ -13,9 +13,14 @@ use DocuSign\eSign\Model\Signer;
 use DocuSign\eSign\Model\SignHere;
 use DocuSign\eSign\Model\Tabs;
 
+use DocuSign\eSign\Api\EnvelopesApi\ListStatusChangesOptions;
+use DocuSign\eSign\Model\EnvelopesInformation;
+
 use Drupal\application_block\Service\ClientService;
 use Drupal\application_block\Service\JWTService;
 
+use Drupal\Core\Messenger\MessengerInterface;
+use Drupal\Core\Render\Markup;
 
 require_once __DIR__ . '/../ds_config.php';
 
@@ -85,6 +90,56 @@ class ApplicationBlockController extends ControllerBase {
     }
 
     /**
+     * Get specific template arguments
+     *
+     * @return array
+     */
+    private function getEnvelopeListTemplateArgs(): array
+    {
+        $args = [
+            'account_id' => $_SESSION['ds_account_id'],
+            'base_path' => $_SESSION['ds_base_path'],
+            'ds_access_token' => $_SESSION['ds_access_token'],
+        ];
+
+        return $args;
+    }
+
+
+    /**
+     * Do the work of the example
+     * 1. List the envelopes that have changed in the last 10 days
+     *
+     * @param  $args array
+     * @return EnvelopesInformation
+     * @throws ApiException for API problems and perhaps file access \Exception too.
+     */
+    # ***DS.snippet.0.start
+    private function envelopes_worker(array $args): EnvelopesInformation
+    {
+        # 1. call API method
+        # Exceptions will be caught by the calling function
+        # The Envelopes::listStatusChanges method has many options
+        # See https://developers.docusign.com/esign-rest-api/reference/Envelopes/Envelopes/listStatusChanges
+        # The list status changes call requires at least a from_date OR
+        # a set of envelope_ids. Here we filter using a from_date.
+        # Here we set the from_date to filter envelopes for the last 10 days
+        # Use ISO 8601 date format
+        $envelope_api = $this->clientService->getEnvelopeApi();
+        $from_date = date("c", (time() - (10 * 24 * 60 * 60)));
+        $options = new ListStatusChangesOptions();
+        $options->setFromDate($from_date);
+        try {
+            $results = $envelope_api->listStatusChanges($args['account_id'], $options);
+        } catch (ApiException $e) {
+            $this->clientService->showErrorTemplate($e);
+            exit;
+        }
+
+        return $results;
+    }
+
+    /**
      * Do the work of the example
      * 1. Create the envelope request object
      * 2. Send the envelope
@@ -105,10 +160,8 @@ class ApplicationBlockController extends ControllerBase {
         try {
             $results = $envelope_api->createEnvelope($args['account_id'], $envelope_definition);
         } catch (ApiException $e) {
-            
+            $this->clientService->showErrorTemplate($e);
             exit;
-            //$this->clientService->showErrorTemplate($e);
-            //exit;
         }
         
         return ['envelope_id' => $results->getEnvelopeId()];
@@ -226,15 +279,23 @@ class ApplicationBlockController extends ControllerBase {
         
         
  
-        $results = $this->worker($this->args);
+        //$results = $this->worker($this->args);
 
         $envelope_id = 0;
 
+        $envelopes_arg = $this->getEnvelopeListTemplateArgs();
+
+        $results = $this->envelopes_worker($envelopes_arg);
+
         if ($results) {
-            $_SESSION["envelope_id"] = $results["envelope_id"]; # Save for use by other examples
-            $envelope_id = $results["envelope_id"];
-            
+            # results is an object that implements ArrayAccess. Convert to a regular array:
+            $this->clientService->showDoneTemplate(
+                "Envelope list",
+                "List envelopes results",
+                "Results from the Envelopes::listStatusChanges method:",
+                $results);
         }
+        
         
         return [
              '#type' => 'markup',
