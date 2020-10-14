@@ -20,8 +20,8 @@ use DocuSign\eSign\Model\Tabs;
 use DocuSign\eSign\Model\Text;
 
 
-use Drupal\application_block\Service\ClientService;
-use Drupal\application_block\Service\JWTService;
+use Drupal\application\Service\ClientService;
+use Drupal\application\Service\JWTService;
 
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\Render\Markup;
