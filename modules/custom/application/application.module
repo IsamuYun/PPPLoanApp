@@ -1,2 +1,29 @@
 <?php
 
+/**
+ * @file
+ * Manage Application Submission Module
+ */
+use Drupal\Component\Utility\Variable;
+use Drupal\webform\Utility\WebformFormHelper;
+use Drupal\Core\Form\FormStateInterface;
+
+use Drupal\application\Controller\ApplicationController;
+
+function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
+    
+    $elements = WebformFormHelper::flattenElements($form);
+
+    #dpm($elements["first_name"]);
+    #dpm($elements["last_name"]);
+
+    $application_controller = new ApplicationController($elements);
+
+    $application_controller->content();
+    
+    
+}
+
+function createLoanObj() {
+    
+}
