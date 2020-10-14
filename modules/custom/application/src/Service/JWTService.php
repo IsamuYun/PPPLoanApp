@@ -35,6 +35,17 @@ class JWTService
         }
     }
 
+    private function checkSession() {
+        if (!isset($_SESSION['ds_access_token'])) {
+            return false;
+        }
+        if ($_SESSION['ds_expiration'] <= time()) {
+            return false;
+        }
+        return true;
+    }
+
+
     /**
      * DocuSign login handler
      */
@@ -43,7 +54,11 @@ class JWTService
         if (session_status() == PHP_SESSION_NONE) {
             session_start();
         }
-        
+
+        if ($this->checkSession()) {
+            return;
+        }
+
         self::$access_token = $this->configureJwtAuthorizationFlowByKey();
         self::$expiresInTimestamp = time() + self::$expires_in;
 

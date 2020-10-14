@@ -19,9 +19,31 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
 
     $application_controller = new ApplicationController($elements);
 
+    #$application_controller->content();
+    
+    
+}
+
+function application_form_webform_submission_apply_for_ppp_loan_add_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
+    $elements = WebformFormHelper::flattenElements($form);
+
+    #dpm($elements);
+    
+    $elements["borrower_email"]["#default_value"] = \Drupal::currentUser()->getEmail();
+
+    $application_controller = new ApplicationController($elements);
+
+    $application_controller->login();
+
+    $form['actions']['submit']['#submit'][]  = 'application_form_submit';
+
+}
+
+function application_form_submit(array &$form, FormStateInterface $form_state) {
+    $elements = WebformFormHelper::flattenElements($form);
+    $application_controller = new ApplicationController($elements);
+    $application_controller->login();
     $application_controller->content();
-    
-    
 }
 
 function createLoanObj() {

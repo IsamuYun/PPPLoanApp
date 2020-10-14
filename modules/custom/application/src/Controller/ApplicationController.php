@@ -2,14 +2,14 @@
 
 namespace Drupal\application\Controller;
 
-use Drupal\Core\Controller\ControllerBase;
+#use Drupal\Core\Controller\ControllerBase;
 
 use DocuSign\eSign\Client\ApiException;
 use DocuSign\eSign\Model\EnvelopeDefinition;
 use DocuSign\eSign\Model\CarbonCopy;
 use DocuSign\eSign\Model\Checkbox;
 use DocuSign\eSign\Model\Document;
-use DocuSign\eSign\Model\ModelList;
+use DocuSign\eSign\Model\InitialHere;
 use DocuSign\eSign\Model\Number;
 use DocuSign\eSign\Model\Radio;
 use DocuSign\eSign\Model\RadioGroup;
@@ -57,10 +57,13 @@ class ApplicationController {
      * @return void
      */
     public function __construct(&$elements) {
+        $this->elements = $elements;
         $this->args = $this->getTemplateArgs();
         $this->clientService = new ClientService($this->args);
         $this->authService = new JWTService();
-        $this->elements = $elements;
+    }
+
+    public function login() {
         $this->authService->login();
     }
 
@@ -76,8 +79,8 @@ class ApplicationController {
         #$cc_name      = preg_replace('/([^\w \-\@\.\,])+/', '', $_POST['cc_name'     ]);
         #$cc_email     = preg_replace('/([^\w \-\@\.\,])+/', '', $_POST['cc_email'    ]);
         
-        $signer_name = "BaiYu";
-        $signer_email = "baiyuchiyan@gmail.com";
+        $signer_name = $this->getPrintName();
+        $signer_email = $this->getBorrowerEmail();
         $cc_name = "Yun";
         $cc_email = "yunchunnan@gmail.com";
 
@@ -222,13 +225,11 @@ class ApplicationController {
         ]);
         
         
-        $user = \Drupal::currentUser();
-        $user_email = $user->getEmail();
         $email_text = new Text([
             'document_id' => "1", "page_number" => "1",
             "x_position" => "480", "y_position" => "178",
             "font" => "Arial", "font_size" => "size11",
-            "value" => $user_email,
+            "value" => $this->getBorrowerEmail(),
             "height" => "20", "width" => "140", "required" => "false"
         ]);
 
@@ -260,7 +261,7 @@ class ApplicationController {
             'document_id' => "1", "page_number" => "1",
             "x_position" => "40", "y_position" => "325",
             "font" => "Arial", "font_size" => "size10",
-            "value" => $this->getFirstName(),
+            "value" => $this->getPrintName(),
             "height" => "14", "width" => "100", "required" => "false"
         ]);
 
@@ -307,91 +308,13 @@ class ApplicationController {
         
         
 
-        $Initial_1 = new Text([
-            'document_id' => "1", "page_number" => "1",
-            "x_position" => "292", "y_position" => "590",
-            "font" => "Arial", "font_size" => "size10",
-            "value" => $this->getInitialName(),
-            "height" => "12", "width" => "40", "required" => "false"
-        ]);
-
-        $Initial_2 = new Text([
-            'document_id' => "1", "page_number" => "1",
-            "x_position" => "328", "y_position" => "658",
-            "font" => "Arial", "font_size" => "size10",
-            "value" => $this->getInitialName(),
-            "height" => "12", "width" => "40", "required" => "false"
-        ]);
         
-        $Initial_3 = new Text([
-            'document_id' => "1", "page_number" => "2",
-            "x_position" => "40", "y_position" => "350",
-            "font" => "Arial", "font_size" => "size10",
-            "value" => $this->getInitialName(),
-            "height" => "12", "width" => "40", "required" => "false"
-        ]);
-
-        $Initial_4 = new Text([
-            'document_id' => "1", "page_number" => "2",
-            "x_position" => "40", "y_position" => "380",
-            "font" => "Arial", "font_size" => "size10",
-            "value" => $this->getInitialName(),
-            "height" => "12", "width" => "40", "required" => "false"
-        ]);
-
-        $Initial_5 = new Text([
-            'document_id' => "1", "page_number" => "2",
-            "x_position" => "40", "y_position" => "406",
-            "font" => "Arial", "font_size" => "size10",
-            "value" => $this->getInitialName(),
-            "height" => "12", "width" => "40", "required" => "false"
-        ]);
-
-        $Initial_6 = new Text([
-            'document_id' => "1", "page_number" => "2",
-            "x_position" => "40", "y_position" => "445",
-            "font" => "Arial", "font_size" => "size10",
-            "value" => $this->getInitialName(),
-            "height" => "12", "width" => "40", "required" => "false"
-        ]);
-
-        $Initial_7 = new Text([
-            'document_id' => "1", "page_number" => "2",
-            "x_position" => "40", "y_position" => "490",
-            "font" => "Arial", "font_size" => "size10",
-            "value" => $this->getInitialName(),
-            "height" => "12", "width" => "40", "required" => "false"
-        ]);
-
-        $Initial_8 = new Text([
-            'document_id' => "1", "page_number" => "2",
-            "x_position" => "40", "y_position" => "524",
-            "font" => "Arial", "font_size" => "size10",
-            "value" => $this->getInitialName(),
-            "height" => "12", "width" => "40", "required" => "false"
-        ]);
-
-        $Initial_9 = new Text([
-            'document_id' => "1", "page_number" => "2",
-            "x_position" => "40", "y_position" => "554",
-            "font" => "Arial", "font_size" => "size10",
-            "value" => $this->getInitialName(),
-            "height" => "12", "width" => "40", "required" => "false"
-        ]);
-
-        $Initial_10 = new Text([
-            'document_id' => "1", "page_number" => "2",
-            "x_position" => "40", "y_position" => "618",
-            "font" => "Arial", "font_size" => "size10",
-            "value" => $this->getInitialName(),
-            "height" => "12", "width" => "40", "required" => "false"
-        ]);
 
         $today = new Text([
             'document_id' => "1", "page_number" => "2",
             "x_position" => "380", "y_position" => "670",
             "font" => "Arial", "font_size" => "size12",
-            "value" => date("j-m-Y"),
+            "value" => date("m-j-Y"),
             "height" => "20", "width" => "100", "required" => "false"
         ]);
         
@@ -429,7 +352,10 @@ class ApplicationController {
 
         $purpose_list = $this->getPurposeList();
 
+        $initial_here_list = $this->getInitialList();
+
         $signer->setTabs(new Tabs(['sign_here_tabs' => [$sign_here],
+            'initial_here_tabs' => $initial_here_list,
             'radio_group_tabs' => $radio_groups,
             'checkbox_tabs' => $purpose_list,
             'text_tabs' => [
@@ -446,16 +372,6 @@ class ApplicationController {
                 $average_monthly_payroll,
                 $loan_amount,
                 $another_business_name,
-                $Initial_1,
-                $Initial_2,
-                $Initial_3,
-                $Initial_4,
-                $Initial_5,
-                $Initial_6,
-                $Initial_7,
-                $Initial_8,
-                $Initial_9,
-                $Initial_10,
                 $today,
                 $print_name,
                 $job_title,
@@ -498,6 +414,11 @@ class ApplicationController {
      */
     public function content() {
         $results = $this->worker($this->args);
+    }
+
+    public function getBorrowerEmail() {
+        $email = $this->elements["borrower_email"]["#default_value"];
+        return $email;
     }
 
     private function getBusinessAddress() {
@@ -850,5 +771,84 @@ class ApplicationController {
         ];
 
         return $radio_groups;
+    }
+
+    private function getInitialList() {
+        $Initial_1 = new InitialHere([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "292", "y_position" => "590",
+            "height" => "12", "width" => "40", "required" => "false"
+        ]);
+
+        $Initial_2 = new InitialHere([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "328", "y_position" => "658",
+            "height" => "12", "width" => "40", "required" => "false"
+        ]);
+        
+        $Initial_3 = new InitialHere([
+            'document_id' => "1", "page_number" => "2",
+            "x_position" => "40", "y_position" => "350",
+            "height" => "12", "width" => "40", "required" => "false"
+        ]);
+
+        $Initial_4 = new InitialHere([
+            'document_id' => "1", "page_number" => "2",
+            "x_position" => "40", "y_position" => "380",
+            "height" => "12", "width" => "40", "required" => "false"
+        ]);
+
+        $Initial_5 = new InitialHere([
+            'document_id' => "1", "page_number" => "2",
+            "x_position" => "40", "y_position" => "406",
+            "height" => "12", "width" => "40", "required" => "false"
+        ]);
+
+        $Initial_6 = new InitialHere([
+            'document_id' => "1", "page_number" => "2",
+            "x_position" => "40", "y_position" => "445",
+            "font" => "Arial", "font_size" => "size10",
+            "value" => $this->getInitialName(),
+            "height" => "12", "width" => "40", "required" => "false"
+        ]);
+
+        $Initial_7 = new InitialHere([
+            'document_id' => "1", "page_number" => "2",
+            "x_position" => "40", "y_position" => "490",
+            "font" => "Arial", "font_size" => "size10",
+            "value" => $this->getInitialName(),
+            "height" => "12", "width" => "40", "required" => "false"
+        ]);
+
+        $Initial_8 = new InitialHere([
+            'document_id' => "1", "page_number" => "2",
+            "x_position" => "40", "y_position" => "524",
+            "height" => "12", "width" => "40", "required" => "false"
+        ]);
+
+        $Initial_9 = new InitialHere([
+            'document_id' => "1", "page_number" => "2",
+            "x_position" => "40", "y_position" => "554",
+            "height" => "12", "width" => "40", "required" => "false"
+        ]);
+
+        $Initial_10 = new InitialHere([
+            'document_id' => "1", "page_number" => "2",
+            "x_position" => "40", "y_position" => "618",
+            "height" => "12", "width" => "40", "required" => "false"
+        ]);
+
+        return [
+            $Initial_1,
+            $Initial_2,
+            $Initial_3,
+            $Initial_4,
+            $Initial_5,
+            $Initial_6,
+            $Initial_7,
+            $Initial_8,
+            $Initial_9,
+            $Initial_10,
+        ];
     }
 }
