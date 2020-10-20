@@ -6,22 +6,94 @@
  */
 use Drupal\Component\Utility\Variable;
 use Drupal\webform\Utility\WebformFormHelper;
+use Drupal\Core\Render\Element;
+use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\AlertCommand;
 use Drupal\Core\Form\FormStateInterface;
 
 use Drupal\application\Controller\ApplicationController;
 
-function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
-    
-    $elements = WebformFormHelper::flattenElements($form);
 
-    #dpm($elements["first_name"]);
+
+function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
+    $elements = WebformFormHelper::flattenElements($form);
+    #dpm($form["elements"]["request_document_1"]["1040_schedule_c"]);
+
+    /*
+    $file_id = $form["elements"]["request_document_1"]["1040_schedule_c"]["#default_value"][0];
+    
+    
+    if ($file_id) {
+        $filename = \Drupal\file\Entity\File::load($file_id);
+        #$oNewFile->setPermanent();
+    }
+    */
+
+
+
+    
+    /*
+    $form["elements"]["loan_officer_page"]["verified_net_earnings"]['#prefix'] = '<div id="loan-form-ajax-wrapper">';
+    $form["elements"]["loan_officer_page"]["verified_net_earnings"]['#suffix'] = '</div>';
+    
+    
+    
+
+    $form["elements"]["loan_officer_page"]["btn_verify"] = [
+        '#type' => 'button',
+        '#value' => t('Verify 1040 C'),
+        '#ajax' => [
+            'callback' => 'application_verify_net_earnings',
+            'event' => 'click',
+            'wrapper' => 'loan-form-ajax-wrapper',
+            'progress' => [
+                'type' => 'throbber',
+                'message' => "Verifying",
+            ],
+        ]
+    ];
+    */
     #dpm($elements["last_name"]);
 
-    $application_controller = new ApplicationController($elements);
+    //$application_controller = new ApplicationController($elements);
 
     #$application_controller->content();
+    /*
+    $form["elements"]["loan_officer_page"]["verify_1040_c"]["#ajax"] = [
+        'callback' => 'application_verify_net_earnings',
+        'event' => 'change',
+        'wrapper' => 'form-ajax-wrapper',
+        'progress' => [
+            'type' => 'throbber',
+            'message' => NULL,
+        ],
+    ];
+    */
+}
+
+function application_form_webform_submission_apply_for_ppp_loan_edit_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
+    #$elements = WebformFormHelper::flattenElements($form);
+    
+    $form["elements"]["loan_officer_page"]["verified_net_earnings"]['#prefix'] = '<div id="loan-form-ajax-wrapper">';
+    $form["elements"]["loan_officer_page"]["verified_net_earnings"]['#suffix'] = '</div>';
     
     
+
+    $form["elements"]["loan_officer_page"]["btn_verify"] = [
+        '#type' => 'button',
+        '#value' => t('Verify 1040 C'),
+        '#ajax' => [
+            'callback' => 'application_verify_net_earnings',
+            'event' => 'click',
+            'wrapper' => 'loan-form-ajax-wrapper',
+            'progress' => [
+                'type' => 'throbber',
+                'message' => "Verifying",
+            ],
+        ]
+    ];
+
+
 }
 
 function application_form_webform_submission_apply_for_ppp_loan_add_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
@@ -37,6 +109,9 @@ function application_form_webform_submission_apply_for_ppp_loan_add_form_alter(a
 
     $form['actions']['submit']['#submit'][]  = 'application_form_submit';
 
+
+    
+
 }
 
 function application_form_submit(array &$form, FormStateInterface $form_state) {
@@ -46,6 +121,41 @@ function application_form_submit(array &$form, FormStateInterface $form_state) {
     $application_controller->content();
 }
 
-function createLoanObj() {
+function application_verify_net_earnings(array &$form, FormStateInterface $form_state) {
+    #$response = new AjaxResponse();
+
+    #$elements = WebformFormHelper::flattenElements($form);
+
+    $file_id = $form["elements"]["request_document_1"]["1040_schedule_c"]["#default_value"][0];
+    
+    if ($file_id) {
+        $file = \Drupal\file\Entity\File::load($file_id);
+        #$oNewFile->setPermanent();
+        $filename = $file->getFilename();
+    }
+
+    $submission_id = $form["elements"]["request_document_1"]["1040_schedule_c"]["#webform_submission"];
+
+    $full_filename = $submission_id . '/' . $filename;
+
+    $client = \Drupal::httpClient();
+    $request = $client->post('http://161.35.226.185:8000/detect_1040_schedule_C', [
+        'form_params' => [
+            'filename' => $full_filename,
+        ],
+        'headers' => [
+            'Content-type' => 'application/x-www-form-urlencoded',
+        ],
+    ]);
+
+
+    $result = json_decode($request->getBody());
+    
+    #$form["elements"]["loan_officer_page"]["markup_verify"]["#default_value"] = $result->{"response"};
+    $form["elements"]["loan_officer_page"]["verified_net_earnings"]["#value"] = $result->{"response"};
+    #$elements["verified_net_earnings"]["#default_value"] = $result->{"response"};
+    #$response->addCommand(new AlertCommand($result->{"response"}));
+    
+    return $form["elements"]["loan_officer_page"]["verified_net_earnings"];
     
 }
