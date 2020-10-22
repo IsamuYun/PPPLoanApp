@@ -197,7 +197,7 @@ function application_json_builder(array &$elements) {
     $ChangeOfOwnership = new stdClass();
     $ChangeOfOwnership->action = "insert";
     $ChangeOfOwnership->Loan7aPymtAmt = "1884000.00";
-    $ChangeOfOwnership->TotalApprAmt = "1884000.00";
+    #$ChangeOfOwnership->TotalApprAmt = "1884000.00";
     $App->ChangeOfOwnership = [$ChangeOfOwnership];
     
     /*
