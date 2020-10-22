@@ -177,7 +177,19 @@ function application_json_builder(array &$elements) {
     $LoanApplication->action = "insert";
     $LoanApplication->_comment = "test app #155585";
     $LoanApplication->AgentInvolved = "N";
+    $LoanApplication->BusinessAgeCd = "0";
+    $LoanApplication->CollateralInd = "N";
+    #$LoanApplication->EligEvalInd = "N";
+    $LoanApplication->NAICSCd = "812210";
     $LoanApplication->ProcessingMethodCd = "7AG";
+    #$LoanApplication->ProcessingMethodCd = "ppp";
+    $LoanApplication->InjectionInd = "Y";
+    $LoanApplication->InterestStructureCd = "V";
+    $LoanApplication->LoanTermMnths = "120";
+    $LoanApplication->PymtAmt = "120000.00";
+    $LoanApplication->MnthsIntrstOnlyQty = "0";
+
+
     $App->LoanApplication = [$LoanApplication];
     
     $Borrower = new stdClass();
