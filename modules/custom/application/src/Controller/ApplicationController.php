@@ -48,8 +48,6 @@ class ApplicationController {
     /** Specific template arguments */
     private $args;
 
-    private $company_structure;
-
     private $elements;
     
     /**
