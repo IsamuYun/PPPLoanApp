@@ -26,12 +26,12 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
 function application_form_webform_submission_apply_for_ppp_loan_edit_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
     #$elements = WebformFormHelper::flattenElements($form);
     
-    $form["elements"]["loan_officer_page"]["verified_net_earnings"]['#prefix'] = '<div id="loan-form-ajax-wrapper">';
-    $form["elements"]["loan_officer_page"]["verified_net_earnings"]['#suffix'] = '</div>';
+    #$form["elements"]["loan_officer_page"]["verified_net_earnings"]['#prefix'] = '<div id="loan-form-ajax-wrapper">';
+    #$form["elements"]["loan_officer_page"]["verified_net_earnings"]['#suffix'] = '</div>';
     
     $form["elements"]["loan_officer_page"]["sba_response"]["#prefix"] = '<div id="sba-response-ajax-wrapper">';
     $form["elements"]["loan_officer_page"]["sba_response"]["#suffix"] = "</div>";
-
+    /*
     $form["elements"]["loan_officer_page"]["btn_verify"] = [
         '#type' => 'button',
         '#value' => t('Verify 1040 C'),
@@ -45,6 +45,7 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_form_alter(
             ],
         ]
     ];
+    */
 
     $form["elements"]["loan_officer_page"]["btn_send_to_sba"] = [
         '#type' => 'button',
