@@ -92,6 +92,11 @@ function application_verify_netearnings(array &$form, FormStateInterface $form_s
 
     $elements = WebformFormHelper::flattenElements($form);
 
+    
+    if (floatval($elements["verified_net_earnings"]["#default_value"]) > 0) {
+        return;
+    }
+
     $file_id = $form["elements"]["request_document_1"]["1040_schedule_c"]["#default_value"][0];
     
     if ($file_id) {
@@ -111,7 +116,7 @@ function application_verify_netearnings(array &$form, FormStateInterface $form_s
                 'Content-type' => 'application/x-www-form-urlencoded',
             ],
         ]);
-
+        
 
         $result = json_decode($request->getBody());
     
@@ -119,16 +124,6 @@ function application_verify_netearnings(array &$form, FormStateInterface $form_s
         $form["elements"]["loan_officer_page"]["verified_net_earnings"]["#default_value"] = $result->{"response"};
         $elements["verified_net_earnings"]["#default_value"] = $result->{"response"};
     }
-
-    #$form["elements"]["loan_officer_page"]["verified_net_earnings"]["#value"] = "500000.00";
-    #$form["elements"]["loan_officer_page"]["verified_net_earnings"]["#default_value"] = "800000.00";
-    #$form_state->setValue("verified_net_earnings", "8888888.88");
-    #$form_state->setRebuild(true);
-    #dpm($form_state);
-    #$elements["verified_net_earnings"]["#default_value"] = "666.66";
-    #dpm($elements["verified_net_earnings"]["#default_value"]);
-    #return $form["elements"]["loan_officer_page"]["verified_net_earnings"];
-    
 }
 
 function application_cancel_loan(array &$form, FormStateInterface $form_state) {
