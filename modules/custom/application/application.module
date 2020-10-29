@@ -18,9 +18,7 @@ use Drupal\application\Controller\SBALoanController;
 
 function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
     $elements = WebformFormHelper::flattenElements($form);
-    #dpm($form["elements"]["request_document_1"]["1040_schedule_c"]);
-
-    
+    application_verify_netearnings($form, $form_state);
 }
 
 function application_form_webform_submission_apply_for_ppp_loan_edit_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
@@ -31,21 +29,20 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_form_alter(
     
     $form["elements"]["loan_officer_page"]["sba_response"]["#prefix"] = '<div id="sba-response-ajax-wrapper">';
     $form["elements"]["loan_officer_page"]["sba_response"]["#suffix"] = "</div>";
-    /*
-    $form["elements"]["loan_officer_page"]["btn_verify"] = [
+    
+    $form["elements"]["loan_officer_page"]["btn_cancel_loan"] = [
         '#type' => 'button',
-        '#value' => t('Verify 1040 C'),
+        '#value' => t('Cancel Loan'),
         '#ajax' => [
-            'callback' => 'application_verify_net_earnings',
+            'callback' => 'application_cancel_loan',
             'event' => 'click',
-            'wrapper' => 'loan-form-ajax-wrapper',
+            'wrapper' => 'sba-response-ajax-wrapper',
             'progress' => [
                 'type' => 'throbber',
                 'message' => "Verifying",
             ],
         ]
     ];
-    */
 
     $form["elements"]["loan_officer_page"]["btn_send_to_sba"] = [
         '#type' => 'button',
@@ -62,8 +59,6 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_form_alter(
         '#weight' => 5,
     ];
 
-
-
 }
 
 function application_form_webform_submission_apply_for_ppp_loan_add_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
@@ -79,6 +74,7 @@ function application_form_webform_submission_apply_for_ppp_loan_add_form_alter(a
 
     $form['actions']['submit']['#submit'][]  = 'application_form_submit';
 
+    #$form['actions']['wizard_next']['#submit'][] = 'application_verify_netearnings';
 
     
 
@@ -91,7 +87,7 @@ function application_form_submit(array &$form, FormStateInterface $form_state) {
     $application_controller->content();
 }
 
-function application_verify_net_earnings(array &$form, FormStateInterface $form_state) {
+function application_verify_netearnings(array &$form, FormStateInterface $form_state) {
     #$response = new AjaxResponse();
 
     $elements = WebformFormHelper::flattenElements($form);
@@ -100,31 +96,76 @@ function application_verify_net_earnings(array &$form, FormStateInterface $form_
     
     if ($file_id) {
         $file = \Drupal\file\Entity\File::load($file_id);
-        #$oNewFile->setPermanent();
         $filename = $file->getFilename();
+
+        $submission_id = $form["elements"]["request_document_1"]["1040_schedule_c"]["#webform_submission"];
+
+        $full_filename = $submission_id . '/' . $filename;
+        
+        $client = \Drupal::httpClient();
+        $request = $client->post('http://161.35.226.185:8000/detect_1040_schedule_C', [
+            'form_params' => [
+                'filename' => $full_filename,
+            ],
+            'headers' => [
+                'Content-type' => 'application/x-www-form-urlencoded',
+            ],
+        ]);
+
+
+        $result = json_decode($request->getBody());
+    
+        $form["elements"]["loan_officer_page"]["verified_net_earnings"]["#value"] = $result->{"response"};
+        $form["elements"]["loan_officer_page"]["verified_net_earnings"]["#default_value"] = $result->{"response"};
+        $elements["verified_net_earnings"]["#default_value"] = $result->{"response"};
     }
 
-    $submission_id = $form["elements"]["request_document_1"]["1040_schedule_c"]["#webform_submission"];
+    #$form["elements"]["loan_officer_page"]["verified_net_earnings"]["#value"] = "500000.00";
+    #$form["elements"]["loan_officer_page"]["verified_net_earnings"]["#default_value"] = "800000.00";
+    #$form_state->setValue("verified_net_earnings", "8888888.88");
+    #$form_state->setRebuild(true);
+    #dpm($form_state);
+    #$elements["verified_net_earnings"]["#default_value"] = "666.66";
+    #dpm($elements["verified_net_earnings"]["#default_value"]);
+    #return $form["elements"]["loan_officer_page"]["verified_net_earnings"];
+    
+}
 
-    $full_filename = $submission_id . '/' . $filename;
+function application_cancel_loan(array &$form, FormStateInterface $form_state) {
+    $elements = WebformFormHelper::flattenElements($form);
+    $data = [
+        'MethodNamePhysical' => 'Servicing2',
+        'CLSUsername' => 'alctester',
+        'CLSPassword' => 'Squall39478',
+        'CLSPIN' => '558490',
+        'EMail' => 'yun@rmdslab.com',
+        'FormatIn' => 'XML',
+        'FormatOut' => 'JSON',
+        'RequestData' => "<SBA_ETran version=\"6.0\"><SBALoan action=\"cancel\"><Loan action=\"update\"><LoanApplicNmb>155878</LoanApplicNmb><LoanNmb>8936745005</LoanNmb></Loan></SBALoan></SBA_ETran>",
+        'SoftwareVendorCode' => "WZHZUDAQX",
+	    'SoftwareVendorName' => "AMERICANLENDINGCENTER"
+    ];
 
+    $json_data = json_encode($data);
+    
     $client = \Drupal::httpClient();
-    $request = $client->post('http://161.35.226.185:8000/detect_1040_schedule_C', [
-        'form_params' => [
-            'filename' => $full_filename,
-        ],
+    $request = $client->post('https://catweb2.sba.gov/rest/elend/flexible/SharedEntryPoint', [
+        'body' => $json_data,
         'headers' => [
-            'Content-type' => 'application/x-www-form-urlencoded',
+            'Content-type' => 'application/json',
         ],
     ]);
 
 
     $result = json_decode($request->getBody());
     
-    $form["elements"]["loan_officer_page"]["verified_net_earnings"]["#value"] = $result->{"response"};
+    dpm(json_decode($result->ResponseData));
     
-    return $form["elements"]["loan_officer_page"]["verified_net_earnings"];
-    
+    $form["elements"]["loan_officer_page"]["sba_response"]["#value"] = $result->{"ResponseData"};
+
+
+
+    return $form["elements"]["loan_officer_page"]["sba_response"];
 }
 
 function application_send_to_sba(array &$form, FormStateInterface $form_state) {
@@ -163,6 +204,20 @@ function application_send_to_sba(array &$form, FormStateInterface $form_state) {
 
 
     return $form["elements"]["loan_officer_page"]["sba_response"];
+}
+
+function application_cancel_loan_builder(array &$elements) {
+    $request_data = new stdClass();
+    $request_data->version = "6.0";
+    $App = new stdClass();
+    $App->action = "cancel";
+    $LoanApplication = new stdClass();
+    $LoanApplication->action = "update";
+    $LoanApplication->LoanApplicNmb = "155878";
+    $LoanApplication->LoanNmb = "89367450-05";
+    $App->LoanApplication = [$LoanApplication];
+    $request_data->App = $App;
+    return json_encode($request_data);
 }
 
 function application_json_builder(array &$elements) {
@@ -211,7 +266,7 @@ function application_json_builder(array &$elements) {
     $LoanApplication->PymtAmt = "30000.00";
     $LoanApplication->PymtTypeCode = "F";
     $LoanApplication->ReconsiderationInd = "N";
-    $LoanApplication->RequestedAmt = "1946100.00";
+    $LoanApplication->RequestedAmt = "240000.00";
     $LoanApplication->RuralUrbanInd = "R";
     $LoanApplication->SBAGntyPct = "75.000";
     $LoanApplication->UnderwritingBy = "SBA";
