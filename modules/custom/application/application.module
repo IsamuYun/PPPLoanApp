@@ -18,7 +18,42 @@ use Drupal\application\Controller\SBALoanController;
 
 function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
     $elements = WebformFormHelper::flattenElements($form);
+
     application_verify_netearnings($form, $form_state);
+
+    /*
+    $imapPath = '{outlook.office365.com:993/imap/ssl}INBOX';
+    $username = 'test@americanlendingcenter.com';
+    $password = 'Welcome1';
+
+    $inbox = imap_open($imapPath, $username, $password);
+    // search and get unseen emails, function will return email ids
+    $emails = imap_search($inbox, 'UNSEEN');
+
+    $output = '';
+
+    foreach ($emails as $mail) {
+        $headerInfo = imap_headerinfo($inbox, $mail);
+
+        $output .= $headerInfo->subject . '\n';
+        $output .= $headerInfo->toaddress . '\n';
+        $output .= $headerInfo->date . '\n';
+        $output .= $headerInfo->fromaddress . '\n';
+        $output .= $headerInfo->reply_toaddress . '\n';
+
+        $emailStructure = imap_fetchstructure($inbox, $mail);
+        if (!isset($emailStructure->parts)) {
+            $output .= imap_body($inbox, $mail, FT_PEEK);
+        }
+        else {
+            $output .= imap_body($inbox, $mail, FT_PEEK);
+        }
+    }
+    dpm($output);
+    // colse the connection
+    imap_expunge($inbox);
+    imap_close($inbox);
+    */
 }
 
 function application_form_webform_submission_apply_for_ppp_loan_edit_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
@@ -66,7 +101,9 @@ function application_form_webform_submission_apply_for_ppp_loan_add_form_alter(a
 
     #dpm($elements);
     
-    $elements["borrower_email"]["#default_value"] = \Drupal::currentUser()->getEmail();
+    #$elements["borrower_email"]["#default_value"] = \Drupal::currentUser()->getEmail();
+
+    $elements["borrower_email"]["#default_value"] = "yun@rmdslab.com";
 
     $application_controller = new ApplicationController($elements);
 
@@ -84,7 +121,9 @@ function application_form_submit(array &$form, FormStateInterface $form_state) {
     $elements = WebformFormHelper::flattenElements($form);
     $application_controller = new ApplicationController($elements);
     $application_controller->login();
-    $application_controller->content();
+    $result = $application_controller->content();
+
+    dpm($result);
 }
 
 function application_verify_netearnings(array &$form, FormStateInterface $form_state) {
@@ -92,7 +131,7 @@ function application_verify_netearnings(array &$form, FormStateInterface $form_s
 
     $elements = WebformFormHelper::flattenElements($form);
 
-    
+    /*
     if (floatval($elements["verified_net_earnings"]["#default_value"]) > 0) {
         return;
     }
@@ -124,6 +163,7 @@ function application_verify_netearnings(array &$form, FormStateInterface $form_s
         $form["elements"]["loan_officer_page"]["verified_net_earnings"]["#default_value"] = $result->{"response"};
         $elements["verified_net_earnings"]["#default_value"] = $result->{"response"};
     }
+    */
 }
 
 function application_cancel_loan(array &$form, FormStateInterface $form_state) {
@@ -480,4 +520,101 @@ function application_json_builder(array &$elements) {
     $request_data->App = [$App];
 
     return json_encode($request_data);
+}
+
+function application_form_webform_submission_forgiveness_form_add_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
+    $elements = WebformFormHelper::flattenElements($form);
+
+    #$elements["borrower_email"]["#default_value"] = \Drupal::currentUser()->getEmail();
+
+    $elements["borrower_email"]["#default_value"] = "yunforreg@gmail.com";
+
+    $application_controller = new ApplicationController($elements);
+
+    $application_controller->login();
+
+    #$form['actions']['submit']['#submit'][]  = 'application_forgiveness_form_submit';
+
+    #$form['actions']['wizard_next']['#submit'][] = 'application_verify_netearnings';
+
+    
+    $form["elements"]["envelope_id"]["#prefix"] = '<div id="envelope-id-ajax-wrapper">';
+    $form["elements"]["envelope_id"]["#suffix"] = "</div>";
+    
+    $form["elements"]["btn_create_envelope"] = [
+        '#type' => 'button',
+        '#value' => t('Create Envelope'),
+        '#ajax' => [
+            'callback' => 'application_create_envelope',
+            'event' => 'click',
+            'wrapper' => 'envelope-id-ajax-wrapper',
+            'progress' => [
+                'type' => 'throbber',
+                'message' => "Verifying",
+            ],
+        ]
+    ];
+    
+    $form["elements"]["document_name"]["#prefix"] = '<div id="document-name-ajax-wrapper">';
+    $form["elements"]["document_name"]["#suffix"] = '</div>';
+
+    $form["elements"]["btn_download_document"] = [
+        '#type' => 'button',
+        '#value' => t('Download Document'),
+        '#ajax' => [
+            'callback' => 'application_download_document',
+            'event' => 'click',
+            'wrapper' => 'document-name-ajax-wrapper',
+            'progress' => [
+                'type' => 'throbber',
+                'message' => "Verifying",
+            ],
+        ]
+    ];
+
+}
+
+function application_create_envelope(array &$form, FormStateInterface $form_state) {
+    $elements = WebformFormHelper::flattenElements($form);
+    
+    $application_controller = new ApplicationController($elements);
+    $application_controller->login();
+    $result = $application_controller->buildForgivenessForm();
+
+    $form["elements"]["envelope_id"]["#value"] = $result["envelope_id"];
+    $form["elements"]["envelope_id"]["#default_value"] = $result["envelope_id"];
+    
+    return $form["elements"]["envelope_id"];
+}
+
+function application_forgiveness_form_submit(array &$form, FormStateInterface $form_state) {
+    $elements = WebformFormHelper::flattenElements($form);
+    $application_controller = new ApplicationController($elements);
+    $application_controller->login();
+    #$result = $application_controller->buildForgivenessForm();
+
+    
+    #$elements["envelope_id"]["#default_value"] = $result["envelope_id"];
+    
+    #$entity = $form_state->getFormObject()->getEntity();
+    #$data = $entity->getData();
+    #$data["envelope_id"] = $result["envelope_id"];
+    #$entity->setData($data);
+    #$entity["#data"]["envelope_id"] = $result["envelope_id"];
+    #$entity->save();
+
+    $results = $application_controller->downloadForgivenessForm();
+}
+
+function application_download_document(array &$form, FormStateInterface $form_state) {
+    $elements = WebformFormHelper::flattenElements($form);
+    
+    $application_controller = new ApplicationController($elements);
+    $application_controller->login();
+    $results = $application_controller->downloadForgivenessForm();
+
+    $form["elements"]["document_name"]["#value"] = $results;
+    $form["elements"]["document_name"]["#default_value"] = $results;
+    
+    return $form["elements"]["document_name"];
 }

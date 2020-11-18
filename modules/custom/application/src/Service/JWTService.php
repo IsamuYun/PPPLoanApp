@@ -9,7 +9,7 @@ use DocuSign\eSign\Configuration;
 
 class JWTService
 {
-    const TOKEN_REPLACEMENT_IN_SECONDS = 600; # 10 minutes
+    const TOKEN_REPLACEMENT_IN_SECONDS = 3600; # 10 minutes
     protected static $expires_in;
     protected static $access_token;
     protected static $expiresInTimestamp;
@@ -58,8 +58,10 @@ class JWTService
         if ($this->checkSession()) {
             return;
         }
-
+        
         self::$access_token = $this->configureJwtAuthorizationFlowByKey();
+
+
         self::$expiresInTimestamp = time() + self::$expires_in;
 
         if (is_null(self::$account)) {
@@ -75,8 +77,8 @@ class JWTService
         // requests against the service provider's API.
         $_SESSION['ds_access_token'] = self::$access_token->getAccessToken();
         $_SESSION['ds_refresh_token'] = self::$access_token->getRefreshToken();
-        $_SESSION['ds_expiration'] = time() + (self::$access_token->getExpiresIn() * 1000); # expiration time.
-
+        #$_SESSION['ds_expiration'] = time() + (self::$access_token->getExpiresIn() * 1000); # expiration time.
+        $_SESSION['ds_expiration'] = time() + self::TOKEN_REPLACEMENT_IN_SECONDS;
         // Using the access token, we may look up details about the
         // resource owner.
         $_SESSION['ds_user_name'] = self::$account[0]->getName();
@@ -87,7 +89,7 @@ class JWTService
         $_SESSION['ds_account_id'] = $account_info[0]->getAccountId();
         $_SESSION['ds_account_name'] = $account_info[0]->getAccountName();
         $_SESSION['ds_base_path'] = $account_info[0]->getBaseUri() . $base_uri_suffix;
-
+        
         //self::authCallback($redirectUrl);
     }
 
@@ -107,7 +109,6 @@ class JWTService
                 $aud = $privateKey,
                 $aud = $GLOBALS['JWT_CONFIG']['jwt_scope']
             );
-
             return $response[0];    //code...
         } catch (\Throwable $th) {
 
