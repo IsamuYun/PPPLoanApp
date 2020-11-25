@@ -1,0 +1,4 @@
+current_user_id.user_orders:
+  weight: -50
+  menu_name: main
+  class: Drupal\current_user_id\Plugin\Menu\UserOrdersMenuLink

@@ -9,150 +9,209 @@
 #}
 
 {% spaceless %}
-    <div id="header1">
-        <div style="display: flex; margin-left: 125px;">
-            <div style="margin-top: 14px;">
-                <a href="https://ppp.grmds.org/">
-                    <img
-                        alt="alc_logo" data-entity-type="file"
-                        data-entity-uuid="e337f9b1-4521-4271-90da-1d6bf8abca30"
-                        src="/sites/default/files/inline-images/ALC_logo.png"
-                        style="width: 25%;"
-                    >
-                </a>
-                <h5 style="display: inline; padding-left: 50px; font-size: 14px;">
-                    <a href="https://ppp.grmds.org/ppp">APPLY FOR PPP</a>
-                </h5>
-            </div>
-            <div style="display: flex; justify-content: flex-end; width: 100%; padding: 0; margin-right: 200px;">
-                <input
-                        class="nav_bar_links"
-                        onclick="window.location='/user/login';"
-                        style="margin-left: 10px; border: none; background: white; color: #3D50DF;
+
+  <!-- CSS only -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+  <!--END CSS -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+
+  <div class="container">
+
+    <div class="row">
+
+      <nav id="my_nav_bar" class="navbar navbar-expand-lg navbar-light fixed-top" style="background-color: white;">
+
+
+          <a id="logo_link" style="display: flex; place-content: flex-end;" class="navbar-brand" href="https://alcppp.com/">
+            <img style="width: 35%;" src="/sites/default/files/inline-images/ALC_logo.png">
+          </a>
+
+
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+
+
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+
+              <li class="nav-item">
+                <a id="apply_for_ppp" class="nav-link" href="https://alcppp.com/ppp">APPLY FOR PPP</a>
+              </li>
+            </ul>
+            <form id="frm_login_create_account_links" class="form-inline my-2 my-lg-0" style="margin-right: 10%;">
+              <input
+                id="login_input"
+                class="nav_bar_links"
+                onclick="window.location='/user/login';"
+                style="margin-right: 25px; border: none; background: white; color: #3D50DF;
                         -webkit-box-shadow: inset 0 0 5px white; margin-top: 15px;"
-                        type="button"
-                        value="Sign In"
-                />
-                <div style="margin-right: 25px;"></div>
-                <input
-                        class="nav_bar_links"
-                        onclick="window.location='/user/register';"
-                        style="background-color: #3D50DF; color: white; border: none; border-radius: 5px; margin-bottom: 15px;
+                type="button"
+                value="Sign In"
+              />
+              <input
+                id="register_input"
+                class="nav_bar_links"
+                onclick="window.location='/user/register';"
+                style="background-color: #3D50DF; color: white; border: none; border-radius: 5px; margin-bottom: 15px;
                         margin-top: 29px; width: 145px; padding: 12px;"
-                        type="button"
-                        value="Create an account"
-                />
-            </div>
-        </div>
+                type="button"
+                value="Create an account"
+              />
+            </form>
+          </div>
+
+      </nav>
+
     </div>
 
+  </div>
+
     {% if path == '/user/login' %}
+
         <div id="header2">
 
         </div>
+
     {% endif %}
 
     {% if path == '/user/login' %}
 
-        <div class="simplelogin-wrapper">
+      <div class="container">
+        <div class="row">
 
-            <div class="simplelogin-form" style="width: {{ wrapper_width }}px">
-                <div class="simplelogin-link">
+          <div class="jumbotron" style="background-color: white; position: relative;
+                                      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2),
+                                      0 5px 5px 0 rgba(0, 0, 0, 0.24); margin-top: 100px;
+"         >
 
+           <div class="simplelogin-link">
+             <div class="signreg">{{ 'Sign In'|t }}</div>
+             <div class="forgot-password">
+               <a id="forgot_password" href="{{ base_path }}user/password">{{ 'Forgot your password?'|t }}</a>
+             </div>
+           </div>
 
-                    {% if path == '/user/login' %}
-                        <div class="signreg">{{ 'Sign In'|t }}</div>
-                        <div class="forgot-password">
-                            <a href="{{ base_path }}user/password">{{ 'Forgot your password?'|t }}</a>
-                        </div>
-                    {% endif %}
-                </div>
+            {{ page.highlighted }}
+            {{ page.content }}
 
-                <div class="simplelogin-bg">
-
-                    {{ page.highlighted }}
-                    {{ page.content }}
-
-                </div>
-            </div>
+          </div>
         </div>
 
+      </div>
+
     {% endif %}
 
     {% if path == '/user/login' %}
-        <div style="text-align: center; margin-bottom: 150px; margin-top: 40px;">
-            <p><strong>Not an American Lending Center member?<a href="/user/register"
+        <div style="text-align: center;">
+            <p style="font-size: 14px;"><strong>Not an American Lending Center member?<a href="/user/register"
              style="margin-left: 20px; color: #3D50DF;">Create account</a></strong></p>
         </div>
     {% endif %}
 
-
+{#-----------------------------------------------------------------------------------------#}
 
     {% if path == '/user/register' %}
 
-        <div class="simplelogin-wrapper">
+            <div class="container">
 
-            <div class="simpleregister-form" style="width: {{ wrapper_width }}px">
+              <div class="jumbotron" style="background-color: white; position: relative;
+                                      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2),
+                                      0 5px 5px 0 rgba(0, 0, 0, 0.24); margin-top: 100px;
+"             >
+
                 <div class="simpleregister-link">
 
-                    <div>Let's start by creating an account</div>
+                  <div>Let's start by creating an account</div>
 
                 </div>
 
-                <div class="simplelogin-bg">
-
                     {{ page.highlighted }}
                     {{ page.content }}
+
                     <div>
-                        <small>By clicking Create Account you agree to our <a style="color: #3D50DF" href="https://americanlendingcenter.com/terms-and-conditions/">
+                        <p class="terms_and_condition_sign_in">By clicking Create Account you agree to our <a style="color: #3D50DF" href="https://americanlendingcenter.com/terms-and-conditions/">
                                 Terms of Service</a> and <a style="color: #3D50DF" href="https://americanlendingcenter.com/privacy-policy-2/">Privacy Policy</a>
-                        </small>
+                        </p>
                     </div>
 
                     <div style="text-align: center">
-                        <p>Already have an account? <a style="color: #3D50DF;" href="/user/login">Sign In</a></p>
+                        <p class="terms_and_condition_sign_in">Already have an account? <a style="color: #3D50DF;" href="/user/login">Sign In</a></p>
                     </div>
 
                 </div>
             </div>
-        </div>
-
 
     {% endif %}
 
     {% if path == '/user/password' %}
 
-        <div class="simplelogin-wrapper">
 
-            <div class="simplelogin-form" style="width: {{ wrapper_width }}px">
-                <div class="simplelogin-link">
+      <div class="container">
 
-                    <div class="signreg">{{ 'Forgot Password'|t }}</div>
+        <div class="jumbotron" style="background-color: white; position: relative;
+                                      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2),
+                                      0 5px 5px 0 rgba(0, 0, 0, 0.24); margin-top: 100px;
+">
 
-                </div>
+          <div class="simplelogin-link">
 
-                <div class="simplelogin-bg">
+            <div class="signreg">{{ 'Forgot Password'|t }}</div>
 
-                    {{ page.highlighted }}
-                    {{ page.content }}
+          </div>
 
-                </div>
-            </div>
+          {{ page.highlighted }}
+          {{ page.content }}
+
+
         </div>
+      </div>
+
 
     {% endif %}
 
     {#FOOTER GOES HERE#}
-    <footer>
-        <div>
-            <p style="color: #626262">American Lending Center @2020 All Rights Reserved</p>
-        </div>
-        <div style="display: flex">
-            <div><a style="color: #3D50DF" href="https://americanlendingcenter.com/terms-and-conditions/">Terms and Conditions</a></div>
-            <div style="margin-left: 25px;"><a style="color: #3D50DF" href="https://americanlendingcenter.com/privacy-policy-2/">Privacy Policy</a></div>
-        </div>
-    </footer>
+  {% if( path == '/user/login' or path == '/user/register' or path == '/user/password' ) %}
+    <div class="footercontainer navbar fixed-bottom" style="padding-left: 10%;">
+      <div class="row">
+        <div class="col-sm-12" style="font-size: 14px;">
+          <p style="color: #626262">American Lending Center @2020 All Rights Reserved.</p>
 
+          <p style="color: #3276ED; display: inline-block;"><a href=" https://americanlendingcenter.com/terms-and-conditions/" style="color: #3D50DF;" target="_blank">Terms and Conditions</a>&nbsp;<a href=" https://americanlendingcenter.com/privacy-policy-2/" style="color: #3D50DF;" target="_blank">Privacy Policy</a></p>
+        </div>
+      </div>
+    </div>
+
+
+
+   {# <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet" />
+<style type="text/css">@media (max-width: 500px){
+
+.footercontainer{
+padding-left: 35px;
+}
+
+}
+
+.footercontainer{
+padding-left: 229px;
+}
+</style>
+<div class="footercontainer navbar navbar-fixed-bottom">
+<div class="row">
+<div class="col-sm-12" style="font-size: 14px;">
+<p style="color: #626262">American Lending Center @2020 All Rights Reserved.</p>
+
+<p style="color: #3276ED; display: inline-block;"><a href=" https://americanlendingcenter.com/terms-and-conditions/" style="color: #3D50DF;" target="_blank">Terms and Conditions</a>&nbsp;<a href=" https://americanlendingcenter.com/privacy-policy-2/" style="color: #3D50DF;" target="_blank">Privacy Policy</a></p>
+</div>
+</div>
+</div>
+  #}
+
+{% endif %}
 
 {% endspaceless %}
 

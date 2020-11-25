@@ -23,15 +23,15 @@ footer{
   overflow: hidden;
 }
 
-#header1{
+/*#header1{
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  height: 89px;
+  height: 94px;
   z-index: 10;
   background: rgb(255,255,255);
-}
+}*/
 
 #header2{
   position: absolute;
@@ -46,7 +46,6 @@ html {
   height: 50%;
 }
 body.simplelogin {
-  min-height: 100%;
   line-height: 1.5;
   word-wrap: break-word;
   font-size: 87.5%;
@@ -128,10 +127,10 @@ body.simplelogin {
   margin-bottom: 20px;
 }
 
-.simplelogin form.user-pass p,.simplelogin-form .description { 
+.simplelogin form.user-pass p,.simplelogin-form .description {
   font-size: 13px;
   color: #b4b4b4;
-  text-align: left; 
+  text-align: left;
 }
 .simplelogin-form input {
   outline: 0;
@@ -221,14 +220,14 @@ body.simplelogin {
   -moz-background-size: cover;
   -webkit-background-size: cover;
   background-attachment: fixed;
-  position: relative;  
-} 
+  position: relative;
+}
 .simplelogin .form-control {
   height: inherit;
 }
 body.simplelogin.opacity::before {
   content: "";
-  background-color: rgba(253, 253, 253, 0.5);  
+  background-color: rgba(253, 253, 253, 0.5);
   display: block;
   position: absolute;
   z-index: -1;
@@ -280,10 +279,10 @@ body.simplelogin.opacity::before {
   color: #ababab;
 }
 /* Portrait and Landscape */
-@media only screen 
+@media only screen
   and (max-device-width: 480px)
   and (-webkit-min-device-pixel-ratio: 2) {
-  .simplelogin-form { 
+  .simplelogin-form {
     width: 75% !important;
     padding: 30px;
   }
@@ -294,3 +293,92 @@ body.simplelogin.opacity::before {
     padding: 10px;
   }
 }
+
+/*
+@media (max-width: 500px) {
+
+  #header1{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 94px;
+    z-index: 10;
+    background: rgb(255,255,255);
+  }
+
+  #header2{
+
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 250px;
+    background: rgb(62,80,224);
+
+  }
+
+  #img_container_1{
+    margin-left: 0 !important;
+  }
+
+  #img_container_2{
+    margin-top: 0 !important;
+  }
+
+  #header_apply_for_ppp{
+    position: inherit !important;
+  }
+
+  a#link_apply_ppp{
+   margin-left: 0;
+    margin-top: 44px;
+    position: absolute;
+  }
+
+  body.simplelogin{
+    min-height: 0;
+    line-height: 1.5;
+    font-size: 87.5%;
+    margin-left: -138px;
+    position: fixed;
+  }
+
+  .simplelogin-form{
+    position: fixed;
+    z-index: 1;
+    background-color: #FFFFFF;
+    padding: 45px;
+    box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
+    margin-top: 85px;
+    height: 330px;
+    margin-right: 22px;
+    width: 300px !important;
+    margin-left: 117px;
+  }
+
+  #login_input{
+    margin-left: 135px !important;
+    !*border: none;
+    background: white;
+    color: #3D50DF;
+    margin-top: 15px;*!
+  }
+
+  #login_register_input_container{
+    display: flex !important;
+    justify-content: flex-end !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin-right: 10px !important;
+  }
+
+  footer{
+    position: fixed;
+    left: 45px;
+    bottom: 0;
+    height: 100px;
+    width: 100%;
+  }
+
+}*/

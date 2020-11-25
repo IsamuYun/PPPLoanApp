@@ -1,0 +1,5 @@
+name: Edit User Profile
+description: This module gets the current logged in user's id
+type: module
+core_version_requirement: ^8 || ^9
+project: 'current_user_id'

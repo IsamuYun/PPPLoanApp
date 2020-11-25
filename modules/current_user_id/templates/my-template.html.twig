@@ -1,0 +1,56 @@
+{# [module]/templates/my-template.html.twig #}
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+
+<link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
+
+{#<p>Test twig template!</p>#}
+
+
+
+    <nav id="my_nav_bar" class="navbar navbar-expand-lg navbar-light" style="background-color: white;">
+
+      <div class="container">
+
+        <div style="flex: auto" class="row">
+
+
+        {% set menu_items = simplify_menu('main') %}
+
+
+          <div class="col-sm-3 col-md-6 col-lg-6" id="logo_container"><a href="https://alcppp.com/"><img alt="alc_logo" data-entity-type="file" data-entity-uuid="e337f9b1-4521-4271-90da-1d6bf8abca30" id="alc_logo" src="https://alcppp.com/sites/default/files/inline-images/ALC_logo.png" style="width: 10%;" /></a></div>
+
+          <div id="drp_container" class="col-sm-6 col-md-6 col-lg-6" style="display: flex; justify-content: flex-end;">
+            <div class="dropdown" id="drp_div_btn">
+
+              <div href="#" data-toggle="dropdown">
+
+              <img class="img-responsive" id="drp_img" src="https://alcppp.com/sites/default/files/inline-images/ppp_account_icon.svg" />
+
+              <i id="down_arrow_icon" class="fas fa-angle-down fa-2x" style="color: #3D50DF; position: absolute; margin-top: 9px;"></i>
+
+              </div>
+              <ul class="dropdown-menu">
+
+                {% for menu_item in menu_items.menu_tree %}
+                  {% if(menu_item.text != 'Inaccessible' and menu_item.text != 'Home') %}
+                    <li class="nav-item navigation__item">
+                      <a class="nav-link" href="{{ menu_item.url }}">{{ menu_item.text }}</a>
+                    </li>
+                  {% endif %}
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+
+  </div>
+
+</div>
+</nav>
+{# <div class="jumbotron">
+    test_var: {{ test_var }}
+  </div>#}
+

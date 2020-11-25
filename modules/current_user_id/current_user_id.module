@@ -1,0 +1,15 @@
+<?php
+
+/**
+ *  Implements hook_theme().
+ */
+
+function current_user_id_theme($existing, $type, $theme, $path){
+
+  return [
+    'my_template' => [
+      'variables' => ['test_var' => NULL],
+    ],
+  ];
+
+}
