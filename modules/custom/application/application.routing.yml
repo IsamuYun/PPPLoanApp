@@ -1,0 +1,7 @@
+application.flp_search_form:
+  path: '/flp-search'
+  defaults:
+    _form:  '\Drupal\application\Form\FLPSearchForm'
+    _title: 'FLP form search'
+  requirements:
+    _permission: 'access content'
