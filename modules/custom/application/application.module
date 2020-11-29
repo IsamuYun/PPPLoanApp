@@ -12,7 +12,7 @@ use Drupal\Core\Ajax\AlertCommand;
 use Drupal\Core\Form\FormStateInterface;
 
 use Drupal\application\Controller\ApplicationController;
-use Drupal\application\Controller\SBALoanController;
+use Drupal\application\Controller\SBALFAController;
 
 
 
@@ -20,40 +20,6 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
     $elements = WebformFormHelper::flattenElements($form);
 
     application_verify_netearnings($form, $form_state);
-
-    /*
-    $imapPath = '{outlook.office365.com:993/imap/ssl}INBOX';
-    $username = 'test@americanlendingcenter.com';
-    $password = 'Welcome1';
-
-    $inbox = imap_open($imapPath, $username, $password);
-    // search and get unseen emails, function will return email ids
-    $emails = imap_search($inbox, 'UNSEEN');
-
-    $output = '';
-
-    foreach ($emails as $mail) {
-        $headerInfo = imap_headerinfo($inbox, $mail);
-
-        $output .= $headerInfo->subject . '\n';
-        $output .= $headerInfo->toaddress . '\n';
-        $output .= $headerInfo->date . '\n';
-        $output .= $headerInfo->fromaddress . '\n';
-        $output .= $headerInfo->reply_toaddress . '\n';
-
-        $emailStructure = imap_fetchstructure($inbox, $mail);
-        if (!isset($emailStructure->parts)) {
-            $output .= imap_body($inbox, $mail, FT_PEEK);
-        }
-        else {
-            $output .= imap_body($inbox, $mail, FT_PEEK);
-        }
-    }
-    dpm($output);
-    // colse the connection
-    imap_expunge($inbox);
-    imap_close($inbox);
-    */
 }
 
 function application_form_webform_submission_apply_for_ppp_loan_edit_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
@@ -117,13 +83,27 @@ function application_form_webform_submission_apply_for_ppp_loan_add_form_alter(a
 
 }
 
+function application_form_webform_submission_apply_for_flp_loan_add_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
+    $elements = WebformFormHelper::flattenElements($form);
+
+    $controller = new SBALFAController($elements);
+    $controller->login();
+    $form['actions']['submit']['#submit'][]  = 'application_send_fogive_form';
+}
+
 function application_form_submit(array &$form, FormStateInterface $form_state) {
     $elements = WebformFormHelper::flattenElements($form);
     $application_controller = new ApplicationController($elements);
     $application_controller->login();
     $result = $application_controller->content();
 
-    dpm($result);
+}
+
+function application_send_fogive_form(array &$form, FormStateInterface $form_state) {
+    $elements = WebformFormHelper::flattenElements($form);
+    $controller = new SBALFAController($elements);
+    $controller->login();
+    $controller->sendForm();
 }
 
 function application_verify_netearnings(array &$form, FormStateInterface $form_state) {
@@ -194,7 +174,7 @@ function application_cancel_loan(array &$form, FormStateInterface $form_state) {
 
     $result = json_decode($request->getBody());
     
-    dpm(json_decode($result->ResponseData));
+    #dpm(json_decode($result->ResponseData));
     
     $form["elements"]["loan_officer_page"]["sba_response"]["#value"] = $result->{"ResponseData"};
 
@@ -232,7 +212,7 @@ function application_send_to_sba(array &$form, FormStateInterface $form_state) {
 
     $result = json_decode($request->getBody());
     
-    dpm(json_decode($result->ResponseData));
+    #dpm(json_decode($result->ResponseData));
     
     $form["elements"]["loan_officer_page"]["sba_response"]["#value"] = $result->{"ResponseData"};
 
@@ -618,3 +598,4 @@ function application_download_document(array &$form, FormStateInterface $form_st
     
     return $form["elements"]["document_name"];
 }
+
