@@ -1,3 +1,11 @@
+application.content:
+    path: '/lfadraft'
+    defaults:
+        _controller: '\Drupal\application\Controller\LFADraftController::content'
+        _title: 'Create LFA Draft'
+    requirements:
+        _permission: 'access content'
+
 application.flp_search_form:
   path: '/flp-search'
   defaults:
