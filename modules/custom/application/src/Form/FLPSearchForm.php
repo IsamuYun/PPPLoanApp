@@ -4,6 +4,9 @@ namespace Drupal\application\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\webform\Entity\Webform;
+use Drupal\webform\WebformSubmissionForm;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
  * Implements the FLPSearchForm form controller.
@@ -33,15 +36,15 @@ class FLPSearchForm extends FormBase {
             '#markup' => $this->t('Please enter your Business Legal Name and email to fetch your saved application'),
         ];
 
-        $form['legel_name'] = [
+        $form['primary_name'] = [
             '#type' => 'textfield',
-            '#title' => $this->t('Business Legal Name'),
+            '#title' => $this->t('Primary Contact'),
             '#required' => TRUE,
         ];
 
-        $form['email'] = [
+        $form['ein'] = [
             '#type' => 'textfield',
-            '#title' => $this->t('Email'),
+            '#title' => $this->t('Business TIN (EIN, SSN)'),
             '#required' => TRUE,
         ];
 
@@ -85,10 +88,10 @@ class FLPSearchForm extends FormBase {
      *   Object describing the current state of the form.
      */
     public function validateForm(array &$form, FormStateInterface $form_state) {
-        $title = $form_state->getValue('legel_name');
-        if (strlen($title) < 5) {
-            // Set an error for the form element with a key of "title".
-            $form_state->setErrorByName('legel_name', $this->t('The title must be at least 5 characters long.'));
+        $ein = $form_state->getValue('ein');
+        if (strlen($ein) < 5) {
+            // Set an error for the form element with a key of "Business TIN (EIN, SSN)".
+            $form_state->setErrorByName('ein', $this->t('The Business TIN (EIN, SSN) must be at least 5 characters long.'));
         }
     }
 
@@ -107,8 +110,106 @@ class FLPSearchForm extends FormBase {
          * This would normally be replaced by code that actually does something
          * with the title.
          */
-        $title = $form_state->getValue('legel_name');
-        $this->messenger()->addMessage($this->t('Sorry, cannot find any saved application of %title. Please check it.', ['%title' => $title]));
+        $primary_name = $form_state->getValue('primary_name');
+        $ein = $form_state->getValue('ein');
+        $data = $this->searchFlpResult($primary_name, $ein);
+        if(empty($data)){
+            $this->messenger()->addMessage($this->t('Sorry, cannot find any saved application of %title. Please check it.', ['%title' => $primary_name]));
+        }else{
+            $ret = $this->createFlpWebformDraft($data);
+            if($ret){
+                $response = new RedirectResponse('flp');
+                $response->send();
+                return;
+            }else{
+                $this->messenger()->addMessage($this->t('Sorry, cannot find any saved application of %title. Please check it.', ['%title' => $primary_name]));
+            }
+
+        }
+    }
+
+    /**
+     * Search flp result from database.
+     *
+     * @param string $primary_name
+     *   The string value of Primary Contact.
+     * @param string $ein
+     *   The string value of Business TIN (EIN, SSN).
+     */
+    public function searchFlpResult($primary_name='', $ein=''){
+        $database = \Drupal::database();
+        $query = $database->query("SELECT * FROM {lfa_data} WHERE primary_name = :primary_name and ein = :ein", [
+            ':primary_name' => $primary_name,
+            ':ein' => $ein
+        ]);
+        $result = $query->fetch();
+        return $result;
+    }
+
+    /**
+     * Create draft FLP webform submission based flp result from database.
+     *
+     * @param string $data
+     *   Object describing the current user from database.
+     */
+    public function createFlpWebformDraft($data=NULL){
+        $ret = false;
+        if($data){
+            $current_user = $this->currentUser();
+            $uid = $current_user->id();
+            // Get submission values and data.
+            $values = [
+                'webform_id' => 'apply_for_flp_loan',
+                'entity_type' => NULL,
+                'entity_id' => NULL,
+                'in_draft' => TRUE,
+                'uid' => $uid,
+                'langcode' => 'en',
+                'token' => 'pgmJREX2l4geg2RGFp0p78Qdfm1ksLxe6IlZ-mN9GZI',
+                'uri' => '/flp',
+                'remote_addr' => '',
+                'data' => [
+                    'business_street_address' => $data->address_1,
+                    'business_street_address_2' => $data->address_2,
+                    'email_address' => $data->primary_email,
+                    'business_legal_name_borrower' => $data->entity_name,
+                    'business_tin_ein_ssn_' => $data->ein,
+                    'dba_or_trade_name_if_applicable' => $data->dba,
+                    'primary_contact' => $data->primary_name,
+                    'phone_number' => $data->phone_number,
+                    'sba_ppp_loan_number' => $data->sba_number,
+                    'lender_ppp_loan_number' => $data->ein,
+                    'ppp_loan_amount' => $data->ein,
+                    'ppp_loan_disbursement_date' => $data->funding_date,
+                    'employees_at_time_of_loan_application' => $data->forgive_fte_at_loan_application,
+                    'employees_at_time_of_forgiveness_application' => $data->forgive_fte_at_forgiveness_application,
+                    'eidl_application_number_if_applicable' => $data->forgive_eidl_application_number,
+                    'eidl_advance_amount_if_applicable_' => $data->forgive_eidl_amount,
+                    'forgiveness_calculation' => $data->forgive_amount,
+                ],
+            ];
+
+            // Check webform is open.
+            $webform = Webform::load($values['webform_id']);
+            $is_open = WebformSubmissionForm::isOpen($webform);
+            $web_submission_id = 0;
+            if ($is_open === TRUE) {
+                // Validate submission.
+                $errors = WebformSubmissionForm::validateFormValues($values);
+
+                // Check there are no validation errors.
+                if (!empty($errors)) {
+                    print($errors);
+                }
+                else {
+                    // Submit values and get submission ID.
+                    $webform_submission = WebformSubmissionForm::submitFormValues($values);
+                    $web_submission_id = $webform_submission->id();
+                }
+            }
+            $ret = $web_submission_id;
+        }
+        return $ret;
     }
 
 }
