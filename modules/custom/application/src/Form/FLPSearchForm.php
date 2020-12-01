@@ -175,7 +175,8 @@ class FLPSearchForm extends FormBase {
 
         if (count($results) == 1) {
             $result = reset($results);
-            $webform_submission = \Drupal\webform\entity\WebformSubmission::load($result->sid);
+
+            $webform_submission = \Drupal\webform\Entity\WebformSubmission::load($result->sid);
             $ret = $webform_submission->getToken();
 
         }
