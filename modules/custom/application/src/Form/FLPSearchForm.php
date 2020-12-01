@@ -8,12 +8,15 @@ use Drupal\webform\Entity\Webform;
 use Drupal\webform\WebformSubmissionForm;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
+define('FLP_WEBFORM_ID', 'apply_for_flp_loan');
+
 /**
  * Implements the FLPSearchForm form controller.
  *
  * @see \Drupal\Core\Form\FormBase
  */
 class FLPSearchForm extends FormBase {
+
 
     /**
      * Build the FLP Search form.
@@ -116,13 +119,16 @@ class FLPSearchForm extends FormBase {
         if(empty($data)){
             $this->messenger()->addMessage($this->t('Sorry, cannot find any saved application of %title. Please check it.', ['%title' => $primary_name]));
         }else{
-            $ret = $this->createFlpWebformDraft($data);
+            $ret = $this->checkFlpSubmission($ein);
+
+            if(empty($ret)) $ret = $this->createFlpWebformDraft($data);
+
             if($ret){
-                $response = new RedirectResponse('flp');
+                $response = new RedirectResponse("flp?token=$ret");
                 $response->send();
                 return;
             }else{
-                $this->messenger()->addMessage($this->t('Sorry, cannot find any saved application of %title. Please check it.', ['%title' => $primary_name]));
+                $this->messenger()->addMessage($this->t('Sorry, cannot find any saved application of %title. Please check it!', ['%title' => $primary_name]));
             }
 
         }
@@ -136,7 +142,7 @@ class FLPSearchForm extends FormBase {
      * @param string $ein
      *   The string value of Business TIN (EIN, SSN).
      */
-    public function searchFlpResult($primary_name='', $ein=''){
+    public function searchFlpResult($primary_name='', $ein='') :object {
         $database = \Drupal::database();
         $query = $database->query("SELECT * FROM {lfa_data} WHERE primary_name = :primary_name and ein = :ein", [
             ':primary_name' => $primary_name,
@@ -146,26 +152,58 @@ class FLPSearchForm extends FormBase {
         return $result;
     }
 
+
+    /**
+     * check flp result from webform submissions.
+     *
+     * @param string $primary_name
+     *   The string value of Primary Contact.
+     * @param string $ein
+     *   The string value of Business TIN (EIN, SSN).
+     */
+    public function checkFlpSubmission($ein='') :String {
+        $ret = '';
+        $database = \Drupal::service('database');
+        $select = $database->select('webform_submission_data', 'wsd')
+            ->fields('wsd', array('sid'))
+            ->condition('wsd.webform_id', FLP_WEBFORM_ID, '=')
+            ->condition('wsd.name', 'business_tin_ein_ssn_', '=')
+            ->condition('wsd.value', $ein, '=');
+        $executed = $select->execute();
+        // Get all the results.
+        $results = $executed->fetchAll();
+
+        if (count($results) == 1) {
+            $result = reset($results);
+            $webform_submission = \Drupal\webform\entity\WebformSubmission::load($result->sid);
+            $ret = $webform_submission->getToken();
+
+        }
+        return $ret;
+    }
+
+
+
+
     /**
      * Create draft FLP webform submission based flp result from database.
      *
      * @param string $data
      *   Object describing the current user from database.
      */
-    public function createFlpWebformDraft($data=NULL){
-        $ret = false;
+    public function createFlpWebformDraft($data=NULL) :String {
+        $ret = '';
         if($data){
             $current_user = $this->currentUser();
             $uid = $current_user->id();
             // Get submission values and data.
             $values = [
-                'webform_id' => 'apply_for_flp_loan',
+                'webform_id' => FLP_WEBFORM_ID,
                 'entity_type' => NULL,
                 'entity_id' => NULL,
                 'in_draft' => TRUE,
                 'uid' => $uid,
                 'langcode' => 'en',
-                'token' => 'pgmJREX2l4geg2RGFp0p78Qdfm1ksLxe6IlZ-mN9GZI',
                 'uri' => '/flp',
                 'remote_addr' => '',
                 'data' => [
@@ -174,7 +212,6 @@ class FLPSearchForm extends FormBase {
                     'email_address' => $data->primary_email,
                     'business_legal_name_borrower' => $data->entity_name,
                     'business_tin_ein_ssn_' => $data->ein,
-                    'dba_or_trade_name_if_applicable' => $data->dba,
                     'primary_contact' => $data->primary_name,
                     'phone_number' => $data->phone_number,
                     'sba_ppp_loan_number' => $data->sba_number,
@@ -204,10 +241,10 @@ class FLPSearchForm extends FormBase {
                 else {
                     // Submit values and get submission ID.
                     $webform_submission = WebformSubmissionForm::submitFormValues($values);
-                    $web_submission_id = $webform_submission->id();
+                    $web_submission_token = $webform_submission->getToken();
+                    $ret = $web_submission_token;
                 }
             }
-            $ret = $web_submission_id;
         }
         return $ret;
     }
