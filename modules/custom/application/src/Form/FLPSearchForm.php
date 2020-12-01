@@ -231,19 +231,11 @@ class FLPSearchForm extends FormBase {
             $is_open = WebformSubmissionForm::isOpen($webform);
             $web_submission_id = 0;
             if ($is_open === TRUE) {
-                // Validate submission.
-                $errors = WebformSubmissionForm::validateFormValues($values);
+                // Submit values and get submission ID.
+                $webform_submission = WebformSubmissionForm::submitFormValues($values);
+                $web_submission_token = $webform_submission->getToken();
+                $ret = $web_submission_token;
 
-                // Check there are no validation errors.
-                if (!empty($errors)) {
-                    print($errors);
-                }
-                else {
-                    // Submit values and get submission ID.
-                    $webform_submission = WebformSubmissionForm::submitFormValues($values);
-                    $web_submission_token = $webform_submission->getToken();
-                    $ret = $web_submission_token;
-                }
             }
         }
         return $ret;
