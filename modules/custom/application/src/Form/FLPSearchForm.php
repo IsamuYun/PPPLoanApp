@@ -6,6 +6,7 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\webform\Entity\Webform;
 use Drupal\webform\WebformSubmissionForm;
+use Drupal\webform\Entity\WebformSubmission;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 define('FLP_WEBFORM_ID', 'apply_for_flp_loan');
@@ -109,10 +110,6 @@ class FLPSearchForm extends FormBase {
      *   Object describing the current state of the form.
      */
     public function submitForm(array &$form, FormStateInterface $form_state) {
-        /*
-         * This would normally be replaced by code that actually does something
-         * with the title.
-         */
         $primary_name = $form_state->getValue('primary_name');
         $ein = $form_state->getValue('ein');
         $data = $this->searchFlpResult($primary_name, $ein);
@@ -163,7 +160,7 @@ class FLPSearchForm extends FormBase {
      */
     public function checkFlpSubmission($ein='') :String {
         $ret = '';
-        $database = \Drupal::service('database');
+        $database = \Drupal::database();
         $select = $database->select('webform_submission_data', 'wsd')
             ->fields('wsd', array('sid'))
             ->condition('wsd.webform_id', FLP_WEBFORM_ID, '=')
@@ -176,7 +173,7 @@ class FLPSearchForm extends FormBase {
         if (count($results) == 1) {
             $result = reset($results);
 
-            $webform_submission = \Drupal\webform\Entity\WebformSubmission::load($result->sid);
+            $webform_submission = WebformSubmission::load($result->sid);
             $ret = $webform_submission->getToken();
 
         }
@@ -204,7 +201,6 @@ class FLPSearchForm extends FormBase {
                 'entity_id' => NULL,
                 'in_draft' => TRUE,
                 'uid' => $uid,
-                'langcode' => 'en',
                 'uri' => '/flp',
                 'remote_addr' => '',
                 'data' => [
@@ -230,7 +226,6 @@ class FLPSearchForm extends FormBase {
             // Check webform is open.
             $webform = Webform::load($values['webform_id']);
             $is_open = WebformSubmissionForm::isOpen($webform);
-            $web_submission_id = 0;
             if ($is_open === TRUE) {
                 // Submit values and get submission ID.
                 $webform_submission = WebformSubmissionForm::submitFormValues($values);
