@@ -195,6 +195,26 @@ class FLPSearchForm extends FormBase {
             $current_user = $this->currentUser();
             $uid = $current_user->id();
             // Get submission values and data.
+            $value_data = [
+                'business_street_address' => $data->address_1,
+                'city_state_zip' => $data->address_2,
+                'email_address' => $data->primary_email,
+                'business_legal_name_borrower' => $data->entity_name,
+                'business_tin_ein_ssn_' => $data->ein,
+                'primary_contact' => $data->primary_name,
+                'phone_number' => $data->phone_number,
+                'sba_ppp_loan_number' => $data->sba_number,
+                'lender_ppp_loan_number' => $data->loan_number,
+                'ppp_loan_amount' => $data->bank_notional_amount,
+                'ppp_loan_disbursement_date' => $data->funding_date,
+                'employees_at_time_of_loan_application' => $data->forgive_fte_at_loan_application,
+                'eidl_application_number_if_applicable' => $data->forgive_eidl_application_number,
+                'eidl_advance_amount_if_applicable_' => $data->forgive_eidl_amount,
+                'forgiveness_calculation' => $data->forgive_amount,
+            ];
+
+            if($data->forgive_fte_at_forgiveness_application) $value_data['employees_at_time_of_forgiveness_application'] = $data->forgive_fte_at_forgiveness_application;
+
             $values = [
                 'webform_id' => FLP_WEBFORM_ID,
                 'entity_type' => NULL,
@@ -203,24 +223,7 @@ class FLPSearchForm extends FormBase {
                 'uid' => $uid,
                 'uri' => '/flp',
                 'remote_addr' => '',
-                'data' => [
-                    'business_street_address' => $data->address_1,
-                    'city_state_zip' => $data->address_2,
-                    'email_address' => $data->primary_email,
-                    'business_legal_name_borrower' => $data->entity_name,
-                    'business_tin_ein_ssn_' => $data->ein,
-                    'primary_contact' => $data->primary_name,
-                    'phone_number' => $data->phone_number,
-                    'sba_ppp_loan_number' => $data->sba_number,
-                    'lender_ppp_loan_number' => $data->loan_number,
-                    'ppp_loan_amount' => $data->bank_notional_amount,
-                    'ppp_loan_disbursement_date' => $data->funding_date,
-                    'employees_at_time_of_loan_application' => $data->forgive_fte_at_loan_application,
-                    'employees_at_time_of_forgiveness_application' => $data->forgive_fte_at_forgiveness_application,
-                    'eidl_application_number_if_applicable' => $data->forgive_eidl_application_number,
-                    'eidl_advance_amount_if_applicable_' => $data->forgive_eidl_amount,
-                    'forgiveness_calculation' => $data->forgive_amount,
-                ],
+                'data' => $value_data
             ];
 
             // Check webform is open.
