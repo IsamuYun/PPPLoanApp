@@ -37,19 +37,17 @@ class FLPSearchForm extends FormBase {
 
         $form['description'] = [
             '#type' => 'item',
-            '#markup' => $this->t('Please enter your Business Legal Name and email to fetch your saved application'),
+            '#markup' => $this->t('Please enter your Primary Contact and Business TIN (EIN, SSN) to fetch your saved application.'),
         ];
 
         $form['primary_name'] = [
             '#type' => 'textfield',
             '#title' => $this->t('Primary Contact'),
-            '#required' => TRUE,
         ];
 
         $form['ein'] = [
             '#type' => 'textfield',
             '#title' => $this->t('Business TIN (EIN, SSN)'),
-            '#required' => TRUE,
         ];
 
 
@@ -92,10 +90,11 @@ class FLPSearchForm extends FormBase {
      *   Object describing the current state of the form.
      */
     public function validateForm(array &$form, FormStateInterface $form_state) {
-        $ein = $form_state->getValue('ein');
-        if (strlen($ein) < 5) {
-            // Set an error for the form element with a key of "Business TIN (EIN, SSN)".
-            $form_state->setErrorByName('ein', $this->t('The Business TIN (EIN, SSN) must be at least 5 characters long.'));
+        $primary_name = trim($form_state->getValue('primary_name'));
+        $ein = trim($form_state->getValue('ein'));
+        if (empty($ein) && empty($primary_name)) {
+            $form_state->setErrorByName('ein', $this->t('Please enter your Primary Contact and Business TIN (EIN, SSN) to fetch your saved application.'));
+            $form_state->setErrorByName('primary_name', $this->t('Please enter your Primary Contact and Business TIN (EIN, SSN) to fetch your saved application.'));
         }
     }
 
@@ -141,8 +140,8 @@ class FLPSearchForm extends FormBase {
      */
     public function searchFlpResult($primary_name='', $ein='') :object {
         $database = \Drupal::database();
-        $query = $database->query("SELECT * FROM {lfa_data} WHERE primary_name = :primary_name and ein = :ein", [
-            ':primary_name' => $primary_name,
+        $query = $database->query("SELECT * FROM {lfa_data} WHERE LOWER(primary_name) = :primary_name OR ein = :ein", [
+            ':primary_name' => strtolower($primary_name),
             ':ein' => $ein
         ]);
         $result = $query->fetch();
