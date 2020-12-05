@@ -58,7 +58,8 @@ class SBALFAController {
     private function getTemplateArgs(): array
     {
         $envelope_args = [
-            'signer_email' => $this->getBorrowerEmail(),
+            #'signer_email' => $this->getBorrowerEmail(),
+            'signer_email' => "ppp@americanlendingcenter.com",
             'signer_name' => $this->getBorrowerName(),
             #'cc_email' => $cc_email,
             #'cc_name' => $cc_name,

@@ -599,3 +599,159 @@ function application_download_document(array &$form, FormStateInterface $form_st
     return $form["elements"]["document_name"];
 }
 
+function application_form_webform_submission_apply_for_flp_loan_edit_all_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
+    #$form["elements"]["lender_confirmation"]["sba_response"]["#prefix"] = '<div id="sba-response-ajax-wrapper">';
+    #$form["elements"]["lender_confirmation"]["sba_response"]["#suffix"] = "</div>";
+    $form["elements"]["lender_confirmation"]["sba_etran_loan_uuid"]["#prefix"] = '<div id="sba-response-ajax-wrapper">';
+    $form["elements"]["lender_confirmation"]["sba_etran_loan_uuid"]["#suffix"] = "</div>";
+
+    $form["elements"]["lender_confirmation"]["btn_send_request"] = [
+        '#type' => 'button',
+        '#value' => 'Send Request',
+        '#ajax' => [
+            'callback' => 'application_send_request',
+            'event' => 'click',
+            'wrapper' => 'sba-response-ajax-wrapper',
+            'progress' => [
+                'type' => 'throbber',
+                'message' => "Verifying",
+            ],
+        ]
+    ];
+
+    $form["elements"]["lender_confirmation"]["btn_upload_document"] = [
+        '#type' => 'button',
+        '#value' => 'Upload',
+        '#ajax' => [
+            'callback' => 'application_upload_document',
+            'event' => 'click',
+            'wrapper' => 'sba-response-ajax-wrapper',
+            'progress' => [
+                'type' => 'throbber',
+                'message' => "Verifying",
+            ],
+        ]
+    ];
+}
+
+function application_send_request(array &$form, FormStateInterface $form_state) {
+    $elements = WebformFormHelper::flattenElements($form);
+
+    $client = \Drupal::httpClient();
+
+    $headers = [
+        'Content-Type' => 'application/json',
+        'Authorization' => 'Token 7f4d183d617b693c3ad355006c2d7381745e49c6',
+        'Vendor-Key' => 'de512795-a13f-4812-8d47-ed41adaa6d32'
+    ];
+    $request_data = application_create_forgiveness_data($elements);
+
+
+    $url = "https://sandbox.forgiveness.sba.gov/api/ppp_loan_forgiveness_requests/";
+    
+    $response = $client->request('POST', $url, [
+        'headers' => $headers,
+        'body' => $request_data,
+    ]);
+    $body = json_decode($response->getBody());
+    dpm($body);
+
+    dpm($body->{"etran_loan"}->{"slug"});
+    
+    $etran_loan = $body->{"etran_loan"};
+    $slug = $etran_loan->{"slug"};
+
+    $entity = $form_state->getFormObject()->getEntity();
+    $data = $entity->getData();
+    $data["sba_etran_loan_uuid"] = $slug;
+    $entity->setData($data);
+    $entity->save();
+    
+    $form["elements"]["lender_confirmation"]["sba_etran_loan_uuid"]["#value"] = $slug;
+    $form["elements"]["lender_confirmation"]["sba_etran_loan_uuid"]["#default_value"] = $slug;
+    
+    return $form["elements"]["lender_confirmation"]["sba_etran_loan_uuid"];
+}
+
+function application_create_forgiveness_data(array &$elements) {
+    $request_data = new stdClass();
+    $etran_loan = new stdClass();
+    $order = array("$", " ", ",");
+
+    $bank_notional_amount = str_replace($order, "", $elements["ppp_loan_amount"]["#default_value"]);
+    $forgive_amount = str_replace($order, "", $elements["forgiveness_calculation"]["#default_value"]);
+    
+    $time = strtotime($elements["ppp_loan_disbursement_date"]["#default_value"]);
+    $funding_date = date('Y-m-d', $time);
+
+    $etran_loan->bank_notional_amount = $bank_notional_amount;
+    $etran_loan->sba_number = $elements["sba_ppp_loan_number"]["#default_value"];
+    $etran_loan->loan_number = $elements["lender_ppp_loan_number"]["#default_value"];
+    $etran_loan->entity_name = $elements["business_legal_name_borrower"]["#default_value"];
+    $etran_loan->ein = $elements["business_tin_ein_ssn_"]["#default_value"];
+    $etran_loan->funding_date = $funding_date;
+    $etran_loan->forgive_eidl_amount = str_replace($order, "", $elements["eidl_advance_amount_if_applicable_"]["#default_value"]);
+    //$etran_loan->forgive_eidl_application_number = $elements["eidl_application_number_if_applicable"]["#default_value"];
+    $etran_loan->forgive_eidl_application_number = null;
+    $etran_loan->address1 = $elements["business_street_address"]["#default_value"];
+    $etran_loan->address2 = $elements["city_state_zip"]["#default_value"];
+    $etran_loan->dba_name = $elements["dba_or_trade_name_if_applicable"]["#default_value"];
+    $etran_loan->phone_number = $elements["phone_number"]["#default_value"];
+    $etran_loan->forgive_fte_at_loan_application = $elements["employees_at_time_of_loan_application"]["#default_value"];
+    $etran_loan->forgive_amount = $forgive_amount;
+    $etran_loan->forgive_fte_at_forgiveness_application = $elements["employees_at_time_of_forgiveness_application"]["#default_value"];
+    $etran_loan->primary_email = $elements["email_address"]["#default_value"];
+    $etran_loan->primary_name = $elements["primary_contact"]["#default_value"];
+    $etran_loan->ez_form = false;
+    $etran_loan->forgive_lender_confirmation = true;
+    $etran_loan->forgive_lender_decision = 1;
+    $etran_loan->s_form = true;
+    $request_data->etran_loan = $etran_loan;
+
+    return json_encode($request_data);
+}
+
+function application_upload_document(array &$form, FormStateInterface $form_state) {
+    $elements = WebformFormHelper::flattenElements($form);
+
+    $client = \Drupal::httpClient();
+
+    $headers = [
+        #'Content-Type' => 'multipart/form-data',
+        'Authorization' => 'Token 7f4d183d617b693c3ad355006c2d7381745e49c6',
+        'Vendor-Key' => 'de512795-a13f-4812-8d47-ed41adaa6d32'
+    ];
+    
+    $etran_loan_uuid = $elements["sba_etran_loan_uuid"]["#default_value"];
+
+    $url = "https://sandbox.forgiveness.sba.gov/api/ppp_loan_documents/";
+    
+    $response = $client->request('POST', $url, [
+        'headers' => $headers,
+        'multipart' => [
+            [
+                "name" => "name",
+                "contents" => "SBA_PPP_Loan_Forgiveness_Application_Form_3508S.pdf",
+            ],
+            [
+                "name" => "document_type",
+                "contents" => 1
+            ],
+            [
+                "name" => "etran_loan",
+                "contents" => $etran_loan_uuid,
+            ],
+            [
+                "name" => "document",
+                "contents" => fopen('/Users/Isamu/Documents/SBA_PPP_Loan_Forgiveness_Application_Form_3508S.pdf', 'r')
+            ]
+        ]
+    ]);
+    $body = json_decode($response->getBody());
+    dpm($body);
+    
+    $form["elements"]["lender_confirmation"]["sba_etran_loan_uuid"]["#value"] = $body->{"results"};
+    $form["elements"]["lender_confirmation"]["sba_etran_loan_uuid"]["#default_value"] = $body->{"results"};
+    
+    return $form["elements"]["lender_confirmation"]["sba_etran_loan_uuid"];
+}

@@ -59,7 +59,7 @@ class LFADraftController extends ControllerBase {
   
             // Check there are no validation errors.
             if (!empty($errors)) {
-                dpm($errors);
+                print($errors);
             }
             else {
                 // Submit values and get submission ID.

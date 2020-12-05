@@ -1066,7 +1066,6 @@ class ApplicationController {
             $absolute_path .= '/' . time() . ".pdf";
             $file1 = new SplFileObject($absolute_path, "w+");
             $file = $results["data"];
-            dpm($file);
             $file->rewind();
             $handle = $file->openFile('r');
             $contents = $handle->fread($file->getSize());
