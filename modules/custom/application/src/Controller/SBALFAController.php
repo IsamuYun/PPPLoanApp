@@ -192,10 +192,8 @@ class SBALFAController {
             $absolute_path .= '/' . $file_name;
             $file1 = new SplFileObject($absolute_path, "w+");
             $file = $results["data"];
-            //$file->rewind();
             clearstatcache();
             
-
             $handle = $file->openFile('r');
             $contents = $handle->fread($file->getSize());
             

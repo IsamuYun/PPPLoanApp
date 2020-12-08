@@ -651,9 +651,17 @@ function application_form_webform_submission_apply_for_flp_loan_edit_all_form_al
         ]
     ];
     */
+
+    $file_url = $form["elements"]["lender_confirmation"]["form_file_name"]["#default_value"];
+    $url = '';
+    if ($file_url) {
+        $url = '<a href="' . $file_url . '">3508S Form</a>';
+    }
+    dpm($file_url);
+
     $form["elements"]["lender_confirmation"]["docusign_file_link"] = [
         '#type' => 'inline_template',
-        '#template' => '',
+        '#template' => $url,
         "#prefix" => '<div id="docusign-file-ajax-wrapper">',
         "#suffix" => "</div>"
     ];
@@ -827,6 +835,14 @@ function application_download_docusign_document(array &$form, FormStateInterface
     #$host_name = "http://127.0.0.1";
     $file_path = "/sites/default/files/private/webform/apply_for_flp_loan/" . $file_name;
     $file_url = $host_name . $file_path;
+
+    $entity = $form_state->getFormObject()->getEntity();
+    $data = $entity->getData();
+    dpm($data);
+    $data["form_file_name"] = $file_url;
+    $entity->setData($data);
+    $entity->save();
+
     $form["elements"]["lender_confirmation"]["docusign_file_link"]["#template"] = 
         '<a href="' . $file_url . '">3508S Form.pdf</a>';
     
