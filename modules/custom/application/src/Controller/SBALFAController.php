@@ -185,16 +185,17 @@ class SBALFAController {
             
             #flush();
             $submission_id = 0;
-
+            ob_clean();
+            ob_start();
             $absolute_path = \Drupal::service('file_system')->realpath('private://webform/apply_for_flp_loan/');
             $file_name = "3508S_Form_" . time() . ".pdf";
             $absolute_path .= '/' . $file_name;
             $file1 = new SplFileObject($absolute_path, "w+");
             $file = $results["data"];
-            $file->rewind();
-            ob_clean();
-            //ob_start();
-            dpm($results);
+            //$file->rewind();
+            clearstatcache();
+            
+
             $handle = $file->openFile('r');
             $contents = $handle->fread($file->getSize());
             
