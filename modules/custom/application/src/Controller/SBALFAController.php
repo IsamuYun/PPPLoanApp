@@ -7,7 +7,7 @@ use Drupal\application\Service\JWTService;
 
 use DocuSign\eSign\Client\ApiException;
 use DocuSign\eSign\Model\EnvelopeDefinition;
-use DocuSign\eSign\Model\Checkbox;
+use DocuSign\eSign\Model\Envelope;
 use DocuSign\eSign\Model\Document;
 use DocuSign\eSign\Model\InitialHere;
 use DocuSign\eSign\Model\Recipients;
@@ -16,9 +16,7 @@ use DocuSign\eSign\Model\SignHere;
 use DocuSign\eSign\Model\Tabs;
 use DocuSign\eSign\Model\Text;
 
-
-
-
+use SplFileObject;
 
 require_once __DIR__ . '/../ds_config.php';
 
@@ -29,6 +27,9 @@ class SBALFAController {
      * Path for the directory with documents
      */
     public const FORM_PATH = __DIR__ . '/../../documents/' . "PPP Loan Forgiveness Application Form 3508S.pdf";
+
+    /** ClientService */
+    private $clientService;
 
     /** JSON Web Token Service */
     private $authService;
@@ -79,6 +80,132 @@ class SBALFAController {
         $this->authService->login();
     }
 
+    /**
+     * Get specific template arguments
+     *
+     * @return array
+     */
+    private function getStatusArgs(): array
+    {
+        $envelope_id = isset($this->elements["envelope_id"]["#default_value"]) ?
+                        $this->elements["envelope_id"]["#default_value"] : false;
+        $args = [
+            'account_id' => $_SESSION['ds_account_id'],
+            'base_path' => $_SESSION['ds_base_path'],
+            'ds_access_token' => $_SESSION['ds_access_token'],
+            'envelope_id' => $envelope_id
+        ];
+
+        return $args;
+    }
+
+    /**
+     * Get the envelope's data
+     *
+     * @param  $args array
+     * @return Envelope
+     * @throws ApiException for API problems and perhaps file access \Exception too.
+     */
+    private function statusWorker(array $args): Envelope
+    {
+        # 1. call API method
+        # Exceptions will be caught by the calling function
+        $envelope_api = $this->clientService->getEnvelopeApi();
+        try {
+            $results = $envelope_api->getEnvelope($args['account_id'], $args['envelope_id']);
+        } catch (ApiException $e) {
+            $this->clientService->showErrorTemplate($e);
+            exit;
+        }
+
+        return $results;
+    }
+
+    public function getEnvelopeStatus() {
+        $statusArgs = $this->getStatusArgs();
+        if (!empty($statusArgs["envelope_id"])) {
+            $result = $this->statusWorker($statusArgs);
+        }
+        else {
+            $result = "No Envelope ID";
+        }
+        
+        return $result;
+    }
+
+    private function getDownloadDocumentArgs(): array
+    {
+        #$envelope_id= isset($_SESSION['envelope_id']) ? $_SESSION['envelope_id'] : false;
+        #$envelope_documents = isset($_SESSION['envelope_documents']) ? $_SESSION['envelope_documents'] : false;
+        #$document_id  = preg_replace('/([^\w \-\@\.\,])+/', '', $_POST['document_id' ]);
+        
+        $envelope_id = isset($this->elements["envelope_id"]["#default_value"]) ?
+                $this->elements["envelope_id"]["#default_value"] : false;   
+
+        $args = [
+            'account_id' => $_SESSION['ds_account_id'],
+            'base_path' => $_SESSION['ds_base_path'],
+            'ds_access_token' => $_SESSION['ds_access_token'],
+            'envelope_id' => $envelope_id,
+            'document_id' => "combined",
+            #'document_id' => "1",
+        ];
+
+        return $args;
+    }
+
+    private function downloadWorker(array $args): array
+    {
+        # 1. call API method
+        # Exceptions will be caught by the calling function
+        $envelope_api = $this->clientService->getEnvelopeApi();
+
+        # An SplFileObject is returned. See http://php.net/manual/en/class.splfileobject.php
+
+        $temp_file = $envelope_api->getDocument($args['account_id'],  $args['document_id'], $args['envelope_id']);
+         # find the matching document information item
+        $doc_item = false;
+        
+        $mimetype = 'application/pdf';
+        $doc_name = "3508S Form.pdf";
+        return ['mimetype' => $mimetype, 'doc_name' => $doc_name, 'data' => $temp_file];
+    }
+
+    public function downloadForgivenessForm() {
+        $args = $this->getDownloadDocumentArgs();
+        $results = $this->downloadWorker($args);
+        if ($results) {
+            # See https://stackoverflow.com/a/27805443/64904
+            #header("Content-Type: {$results['mimetype']}");
+            #header("Content-Disposition: attachment; filename=\"{$results['doc_name']}\"");
+            #ob_clean();
+            #flush();
+            #$file_path = $results['data']->getPathname();
+            #readfile($file_path);
+            
+            #flush();
+            $submission_id = 0;
+
+            $absolute_path = \Drupal::service('file_system')->realpath('private://webform/apply_for_flp_loan/');
+            $file_name = "3508S_Form_" . time() . ".pdf";
+            $absolute_path .= '/' . $file_name;
+            $file1 = new SplFileObject($absolute_path, "w+");
+            $file = $results["data"];
+            $file->rewind();
+            ob_clean();
+            //ob_start();
+            dpm($results);
+            $handle = $file->openFile('r');
+            $contents = $handle->fread($file->getSize());
+            
+            $length = $file1->fwrite($contents);
+            
+            return $length ? $file_name : "???";
+        }
+        
+        return $results;
+    }
+
     private function getBorrowerName() {
         return $this->elements["primary_contact"]["#default_value"];
     }
@@ -88,7 +215,8 @@ class SBALFAController {
     }
 
     public function sendForm() {
-        $this->worker($this->args);
+        $result = $this->worker($this->args);
+        return $result;
     }
 
     /**
@@ -104,7 +232,6 @@ class SBALFAController {
     public function worker($args): array
     {
         # 1. Create the envelope request object
-        dpm($args);
         $envelope_definition = $this->make_envelope($args["envelope_args"]);
         $envelope_api = $this->clientService->getEnvelopeApi();
        
@@ -159,63 +286,70 @@ class SBALFAController {
         
         // 001 - entity_name
         $entity_name_text = new Text(['document_id' => "1", 'page_number' => "1",
-            "x_position" => "40", "y_position" => "70",
-            "font" => "Arial", "font_size" => "size10", 
+            "x_position" => "40", "y_position" => "90",
+            "font" => "Arial", "font_size" => "size9", 
             "value" => $this->elements["business_legal_name_borrower"]["#default_value"],
-            "height" => "20", "width" => "140", "required" => "false"]);
+            "height" => "20", "width" => "240", "required" => "false"]);
         // 002 - dba_name
         $dba_name_text = new Text(['document_id' => "1", 'page_number' => "1",
-            "x_position" => "330", "y_position" => "70",
-            "font" => "Arial", "font_size" => "size10",
+            "x_position" => "330", "y_position" => "90",
+            "font" => "Arial", "font_size" => "size9",
             "value" => $this->elements["dba_or_trade_name_if_applicable"]["#default_value"],
-            "height" => "20", "width" => "140", "required" => "false"
+            "height" => "20", "width" => "160", "required" => "false"
         ]);
         // 003 - address1
         $address1_text = new Text(['document_id' => "1", "page_number" => "1",
-            "x_position" => "40", "y_position" => "125",
-            "font" => "Arial", "font_size" => "size10",
+            "x_position" => "40", "y_position" => "105",
+            "font" => "Arial", "font_size" => "size9",
             "value" => $this->elements["business_street_address"]["#default_value"],
-            "height" => "20", "width" => "140", "required" => "false"
+            "height" => "20", "width" => "200", "required" => "false"
         ]);
         // 004 - ein
         $ein_text = new Text([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "330", "y_position" => "125",
-            "font" => "Arial", "font_size" => "size10",
+            "x_position" => "330", "y_position" => "105",
+            "font" => "Arial", "font_size" => "size9",
             "value" => $this->elements["business_tin_ein_ssn_"]["#default_value"],
             "height" => "20", "width" => "140", "required" => "false"
         ]);
         // 005 - phone_number
         $phone_number_text = new Text(['document_id' => "1", "page_number" => "1",
-            "x_position" => "473", "y_position" => "125",
-            "font" => "Arial", "font_size" => "size10",
+            "x_position" => "458", "y_position" => "105",
+            "font" => "Arial", "font_size" => "size9",
             "value" => $this->elements["phone_number"]["#default_value"],
+            "height" => "20", "width" => "140", "required" => "false"
+        ]);
+        // address_2
+        $address2_text = new Text(['document_id' => "1", "page_number" => "1",
+            "x_position" => "40", "y_position" => "135",
+            "font" => "Arial", "font_size" => "size9",
+            "value" => $this->elements["city_state_zip"]["#default_value"],
             "height" => "20", "width" => "140", "required" => "false"
         ]);
         // 007 - primary_name
         $primary_name_text = new Text(['document_id' => "1", "page_number" => "1",
-            "x_position" => "338", "y_position" => "135",
-            "font" => "Arial", "font_size" => "size10",
+            "x_position" => "330", "y_position" => "137",
+            "font" => "Arial", "font_size" => "size9",
             "value" => $this->elements["primary_contact"]["#default_value"],
             "height" => "20", "width" => "140", "required" => "false"
         ]);
         // 008 - primary_email
         $primary_email_text = new Text(['document_id' => "1", "page_number" => "1",
-            "x_position" => "473", "y_position" => "135",
-            "font" => "Arial", "font_size" => "size11",
+            "x_position" => "458", "y_position" => "137",
+            "font" => "Arial", "font_size" => "size9",
             "value" => $this->elements["email_address"]["#default_value"],
             "height" => "20", "width" => "140", "required" => "false"
         ]);
         // 009 - sba_number
         $sba_number_text = new Text(['document_id' => "1", "page_number" => "1",
-            "x_position" => "151", "y_position" => "153",
+            "x_position" => "150", "y_position" => "146",
             "font" => "Arial", "font_size" => "size11",
             "value" => $this->elements["sba_ppp_loan_number"]["#default_value"],
             "height" => "20", "width" => "140", "required" => "false"
         ]);
         // 010 - loan_number
         $loan_number_text = new Text(['document_id' => "1", "page_number" => "1",
-            "x_position" => "414", "y_position" => "153",
+            "x_position" => "414", "y_position" => "146",
             "font" => "Arial", "font_size" => "size11",
             "value" => $this->elements["lender_ppp_loan_number"]["#default_value"],
             "height" => "20", "width" => "140", "required" => "false"
@@ -223,7 +357,7 @@ class SBALFAController {
         // 011 - bank_notional_amount
         $bank_notional_amount_text = new Text([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "127", "y_position" => "171",
+            "x_position" => "127", "y_position" => "169",
             "font" => "Arial", "font_size" => "size11",
             "value" => $this->elements["ppp_loan_amount"]["#default_value"],
             "height" => "20", "width" => "140", "required" => "false"
@@ -231,7 +365,7 @@ class SBALFAController {
         // 012 - funding_date
         $funding_date_text = new Text([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "424", "y_position" => "171",
+            "x_position" => "424", "y_position" => "169",
             "font" => "Arial", "font_size" => "size11",
             "value" => $this->elements["ppp_loan_disbursement_date"]["#default_value"],
             "height" => "20", "width" => "140", "required" => "false"
@@ -239,7 +373,7 @@ class SBALFAController {
         // 013 - forgive_fte_at_loan_application
         $forgive_fte_at_loan_application_text = new Text([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "216", "y_position" => "193",
+            "x_position" => "216", "y_position" => "191",
             "font" => "Arial", "font_size" => "size11",
             "value" => $this->elements["employees_at_time_of_loan_application"]["#default_value"],
             "height" => "20", "width" => "140", "required" => "false"
@@ -247,7 +381,7 @@ class SBALFAController {
         // 014 - forgive_fte_at_forgiveness_application
         $forgive_fte_at_forgiveness_application_text = new Text([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "497", "y_position" => "193",
+            "x_position" => "497", "y_position" => "191",
             "font" => "Arial", "font_size" => "size11",
             "value" => $this->elements["employees_at_time_of_forgiveness_application"]["#default_value"],
             "height" => "20", "width" => "100", "required" => "false"
@@ -255,7 +389,7 @@ class SBALFAController {
         // 015 - forgive_eidl_amount
         $forgive_eidl_amount_text = new Text([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "147", "y_position" => "215",
+            "x_position" => "147", "y_position" => "212",
             "font" => "Arial", "font_size" => "size11",
             "value" => $this->elements["eidl_advance_amount_if_applicable_"]["#default_value"],
             "height" => "20", "width" => "100", "required" => "false"
@@ -263,7 +397,7 @@ class SBALFAController {
         // 016 - forgive_eidl_application_number
         $forgive_eidl_application_number_text = new Text([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "414", "y_position" => "215",
+            "x_position" => "414", "y_position" => "212",
             "font" => "Arial", "font_size" => "size10",
             "value" => $this->elements["eidl_application_number_if_applicable"]["#default_value"],
             "height" => "14", "width" => "100", "required" => "false"
@@ -273,20 +407,36 @@ class SBALFAController {
             'document_id' => "1", "page_number" => "1",
             "x_position" => "131", "y_position" => "236",
             "font" => "Arial", "font_size" => "size12",
-            "value" => $this->elements["eidl_application_number_if_applicable"]["#default_value"],
+            "value" => $this->elements["forgive_amount"]["#default_value"],
             "height" => "14", "width" => "100", "required" => "false"
         ]);
         // forgive_date
         $forgive_date_text = new Text([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "400", "y_position" => "707",
+            "x_position" => "400", "y_position" => "703",
             "font" => "Arial", "font_size" => "size12",
             "value" => date("m-j-Y"),
             "height" => "20", "width" => "100", "required" => "false"
         ]);
 
+        // print_name
+        $print_name_text = new Text(['document_id' => "1", "page_number" => "1",
+            "x_position" => "40", "y_position" => "723",
+            "font" => "Arial", "font_size" => "size10",
+            "value" => $this->elements["primary_contact"]["#default_value"],
+            "height" => "20", "width" => "140", "required" => "false"
+        ]);
+
+        // title
+        $title_text = new Text(['document_id' => "1", "page_number" => "1",
+            "x_position" => "400", "y_position" => "723",
+            "font" => "Arial", "font_size" => "size10",
+            "value" => $this->elements["borrow_title"]["#default_value"],
+            "height" => "20", "width" => "140", "required" => "false"
+        ]);
+
         $sign_here = new SignHere(['document_id' => "1", 'page_number' => "1",
-        'x_position' => '40', 'y_position' => '707']);
+        'x_position' => '40', 'y_position' => '683']);
 
         # Create the signer recipient model
         $signer = new Signer([
@@ -305,6 +455,7 @@ class SBALFAController {
                 $dba_name_text,
                 $ein_text,
                 $address1_text,
+                $address2_text,
                 $phone_number_text,
                 $primary_name_text,
                 $primary_email_text,
@@ -317,7 +468,8 @@ class SBALFAController {
                 $forgive_eidl_application_number_text,
                 $forgive_eidl_amount_text,
                 $forgive_amount_text,
-                $forgive_date_text
+                $forgive_date_text,
+                $print_name_text,
             ]
         ]));
 
@@ -340,44 +492,44 @@ class SBALFAController {
     private function getInitialList() {
         $Initial_1 = new InitialHere([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "40", "y_position" => "290",
+            "x_position" => "32", "y_position" => "270",
             "height" => "12", "width" => "40", "required" => "false"
         ]);
 
         $Initial_2 = new InitialHere([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "40", "y_position" => "390",
+            "x_position" => "32", "y_position" => "370",
             "height" => "12", "width" => "40", "required" => "false"
         ]);
         
         $Initial_3 = new InitialHere([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "40", "y_position" => "420",
+            "x_position" => "32", "y_position" => "400",
             "height" => "12", "width" => "40", "required" => "false"
         ]);
 
         $Initial_4 = new InitialHere([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "40", "y_position" => "446",
+            "x_position" => "32", "y_position" => "426",
             "height" => "12", "width" => "40", "required" => "false"
         ]);
 
         $Initial_5 = new InitialHere([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "40", "y_position" => "486",
+            "x_position" => "32", "y_position" => "426",
             "height" => "12", "width" => "40", "required" => "false"
         ]);
 
         $Initial_6 = new InitialHere([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "40", "y_position" => "564",
+            "x_position" => "32", "y_position" => "542",
             "font" => "Arial", "font_size" => "size10",
             "height" => "12", "width" => "40", "required" => "false"
         ]);
 
         $Initial_7 = new InitialHere([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "40", "y_position" => "615",
+            "x_position" => "32", "y_position" => "595",
             "font" => "Arial", "font_size" => "size10",
             "height" => "12", "width" => "40", "required" => "false"
         ]);

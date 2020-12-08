@@ -103,7 +103,14 @@ function application_send_fogive_form(array &$form, FormStateInterface $form_sta
     $elements = WebformFormHelper::flattenElements($form);
     $controller = new SBALFAController($elements);
     $controller->login();
-    $controller->sendForm();
+    $result = $controller->sendForm();
+    if (!empty($result) && isset($result["envelope_id"])) {
+        $entity = $form_state->getFormObject()->getEntity();
+        $data = $entity->getData();
+        $data["envelope_id"] = $result["envelope_id"];
+        $entity->setData($data);
+        $entity->save();
+    }
 }
 
 function application_verify_netearnings(array &$form, FormStateInterface $form_state) {
@@ -600,6 +607,8 @@ function application_download_document(array &$form, FormStateInterface $form_st
 }
 
 function application_form_webform_submission_apply_for_flp_loan_edit_all_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
+    $elements = WebformFormHelper::flattenElements($form);
+    
     #$form["elements"]["lender_confirmation"]["sba_response"]["#prefix"] = '<div id="sba-response-ajax-wrapper">';
     #$form["elements"]["lender_confirmation"]["sba_response"]["#suffix"] = "</div>";
     $form["elements"]["lender_confirmation"]["sba_etran_loan_uuid"]["#prefix"] = '<div id="sba-response-ajax-wrapper">';
@@ -632,6 +641,45 @@ function application_form_webform_submission_apply_for_flp_loan_edit_all_form_al
             ],
         ]
     ];
+
+    $form["elements"]["lender_confirmation"]["docusign_file_link"] = [
+        '#type' => 'inline_template',
+        '#template' => '',
+        "#prefix" => '<div id="docusign-file-ajax-wrapper">',
+        "#suffix" => "</div>"
+    ];
+
+    // Button of download file
+    $form["elements"]["lender_confirmation"]["btn_download_document"] = [
+        '#type' => 'button',
+        '#value' => 'Download Docusign Form',
+        '#ajax' => [
+            'callback' => 'application_download_docusign_document',
+            'event' => 'click',
+            'wrapper' => 'docusign-file-ajax-wrapper',
+            'progress' => [
+                'type' => 'throbber',
+                'message' => "Verifying",
+            ],
+        ]
+    ];
+
+    // calculate forgive amount
+    $order = array("$", " ", ",");
+
+    $forgiveness_amount = str_replace($order, "", $elements["forgiveness_calculation"]["#default_value"]);
+    $eidl_amount = str_replace($order, "", $elements["eidl_advance_amount_if_applicable_"]["#default_value"]);
+
+    $forgive_amount = $forgiveness_amount - $eidl_amount;
+    $elements["forgive_amount"]["#default_value"] = $forgive_amount;
+    
+    $controller = new SBALFAController($elements);
+    $controller->login();
+    $result = $controller->getEnvelopeStatus();
+    $form["elements"]["lender_confirmation"]["envelope_status"]["#default_value"] = $result["status"];
+    
+
+
 }
 
 function application_send_request(array &$form, FormStateInterface $form_state) {
@@ -679,7 +727,7 @@ function application_create_forgiveness_data(array &$elements) {
     $order = array("$", " ", ",");
 
     $bank_notional_amount = str_replace($order, "", $elements["ppp_loan_amount"]["#default_value"]);
-    $forgive_amount = str_replace($order, "", $elements["forgiveness_calculation"]["#default_value"]);
+    $forgive_amount = str_replace($order, "", $elements["forgive_amount"]["#default_value"]);
     
     $time = strtotime($elements["ppp_loan_disbursement_date"]["#default_value"]);
     $funding_date = date('Y-m-d', $time);
@@ -691,8 +739,14 @@ function application_create_forgiveness_data(array &$elements) {
     $etran_loan->ein = $elements["business_tin_ein_ssn_"]["#default_value"];
     $etran_loan->funding_date = $funding_date;
     $etran_loan->forgive_eidl_amount = str_replace($order, "", $elements["eidl_advance_amount_if_applicable_"]["#default_value"]);
-    //$etran_loan->forgive_eidl_application_number = $elements["eidl_application_number_if_applicable"]["#default_value"];
-    $etran_loan->forgive_eidl_application_number = null;
+    $eidl_application_number = $elements["eidl_application_number_if_applicable"]["#default_value"];
+    if (empty($eidl_application_number) || $eidl_application_number == 0) {
+        $etran_loan->forgive_eidl_application_number = null;
+    }
+    else {
+        $etran_loan->forgive_eidl_application_number = $eidl_application_number;
+    }
+    
     $etran_loan->address1 = $elements["business_street_address"]["#default_value"];
     $etran_loan->address2 = $elements["city_state_zip"]["#default_value"];
     $etran_loan->dba_name = $elements["dba_or_trade_name_if_applicable"]["#default_value"];
@@ -717,7 +771,6 @@ function application_upload_document(array &$form, FormStateInterface $form_stat
     $client = \Drupal::httpClient();
 
     $headers = [
-        #'Content-Type' => 'multipart/form-data',
         'Authorization' => 'Token 7f4d183d617b693c3ad355006c2d7381745e49c6',
         'Vendor-Key' => 'de512795-a13f-4812-8d47-ed41adaa6d32'
     ];
@@ -754,4 +807,19 @@ function application_upload_document(array &$form, FormStateInterface $form_stat
     $form["elements"]["lender_confirmation"]["sba_etran_loan_uuid"]["#default_value"] = $body->{"results"};
     
     return $form["elements"]["lender_confirmation"]["sba_etran_loan_uuid"];
+}
+
+function application_download_docusign_document(array &$form, FormStateInterface $form_state) {
+    $elements = WebformFormHelper::flattenElements($form);
+    $controller = new SBALFAController($elements);
+    $controller->login();
+    $file_name = $controller->downloadForgivenessForm();
+    $host_name = "https://alcppp.com";
+    #$host_name = "http://127.0.0.1";
+    $file_path = "/sites/default/files/private/webform/apply_for_flp_loan/" . $file_name;
+    $file_url = $host_name . $file_path;
+    $form["elements"]["lender_confirmation"]["docusign_file_link"]["#template"] = 
+        '<a href="' . $file_url . '">3508S Form.pdf</a>';
+    
+    return $form["elements"]["lender_confirmation"]["docusign_file_link"];
 }
