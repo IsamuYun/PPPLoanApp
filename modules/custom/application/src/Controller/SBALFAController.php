@@ -286,20 +286,20 @@ class SBALFAController {
         
         // 001 - entity_name
         $entity_name_text = new Text(['document_id' => "1", 'page_number' => "1",
-            "x_position" => "40", "y_position" => "90",
+            "x_position" => "40", "y_position" => "84",
             "font" => "Arial", "font_size" => "size9", 
             "value" => $this->elements["business_legal_name_borrower"]["#default_value"],
             "height" => "20", "width" => "240", "required" => "false"]);
         // 002 - dba_name
         $dba_name_text = new Text(['document_id' => "1", 'page_number' => "1",
-            "x_position" => "330", "y_position" => "90",
+            "x_position" => "330", "y_position" => "84",
             "font" => "Arial", "font_size" => "size9",
             "value" => $this->elements["dba_or_trade_name_if_applicable"]["#default_value"],
             "height" => "20", "width" => "160", "required" => "false"
         ]);
         // 003 - address1
         $address1_text = new Text(['document_id' => "1", "page_number" => "1",
-            "x_position" => "40", "y_position" => "105",
+            "x_position" => "40", "y_position" => "106",
             "font" => "Arial", "font_size" => "size9",
             "value" => $this->elements["business_street_address"]["#default_value"],
             "height" => "20", "width" => "200", "required" => "false"
@@ -307,35 +307,35 @@ class SBALFAController {
         // 004 - ein
         $ein_text = new Text([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "330", "y_position" => "105",
+            "x_position" => "330", "y_position" => "106",
             "font" => "Arial", "font_size" => "size9",
             "value" => $this->elements["business_tin_ein_ssn_"]["#default_value"],
             "height" => "20", "width" => "140", "required" => "false"
         ]);
         // 005 - phone_number
         $phone_number_text = new Text(['document_id' => "1", "page_number" => "1",
-            "x_position" => "458", "y_position" => "105",
+            "x_position" => "464", "y_position" => "106",
             "font" => "Arial", "font_size" => "size9",
             "value" => $this->elements["phone_number"]["#default_value"],
             "height" => "20", "width" => "140", "required" => "false"
         ]);
         // address_2
         $address2_text = new Text(['document_id' => "1", "page_number" => "1",
-            "x_position" => "40", "y_position" => "135",
+            "x_position" => "40", "y_position" => "131",
             "font" => "Arial", "font_size" => "size9",
             "value" => $this->elements["city_state_zip"]["#default_value"],
             "height" => "20", "width" => "140", "required" => "false"
         ]);
         // 007 - primary_name
         $primary_name_text = new Text(['document_id' => "1", "page_number" => "1",
-            "x_position" => "330", "y_position" => "137",
+            "x_position" => "330", "y_position" => "131",
             "font" => "Arial", "font_size" => "size9",
             "value" => $this->elements["primary_contact"]["#default_value"],
             "height" => "20", "width" => "140", "required" => "false"
         ]);
         // 008 - primary_email
         $primary_email_text = new Text(['document_id' => "1", "page_number" => "1",
-            "x_position" => "458", "y_position" => "137",
+            "x_position" => "462", "y_position" => "131",
             "font" => "Arial", "font_size" => "size9",
             "value" => $this->elements["email_address"]["#default_value"],
             "height" => "20", "width" => "140", "required" => "false"
@@ -405,7 +405,7 @@ class SBALFAController {
         // 033 - forgive_amount
         $forgive_amount_text = new Text([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "131", "y_position" => "236",
+            "x_position" => "131", "y_position" => "232",
             "font" => "Arial", "font_size" => "size12",
             "value" => $this->elements["forgive_amount"]["#default_value"],
             "height" => "14", "width" => "100", "required" => "false"
@@ -421,7 +421,7 @@ class SBALFAController {
 
         // print_name
         $print_name_text = new Text(['document_id' => "1", "page_number" => "1",
-            "x_position" => "40", "y_position" => "723",
+            "x_position" => "40", "y_position" => "735",
             "font" => "Arial", "font_size" => "size10",
             "value" => $this->elements["primary_contact"]["#default_value"],
             "height" => "20", "width" => "140", "required" => "false"
@@ -429,14 +429,14 @@ class SBALFAController {
 
         // title
         $title_text = new Text(['document_id' => "1", "page_number" => "1",
-            "x_position" => "400", "y_position" => "723",
+            "x_position" => "400", "y_position" => "735",
             "font" => "Arial", "font_size" => "size10",
             "value" => $this->elements["borrow_title"]["#default_value"],
             "height" => "20", "width" => "140", "required" => "false"
         ]);
 
         $sign_here = new SignHere(['document_id' => "1", 'page_number' => "1",
-        'x_position' => '40', 'y_position' => '683']);
+        'x_position' => '40', 'y_position' => '692']);
 
         # Create the signer recipient model
         $signer = new Signer([
@@ -470,6 +470,7 @@ class SBALFAController {
                 $forgive_amount_text,
                 $forgive_date_text,
                 $print_name_text,
+                $title_text
             ]
         ]));
 
@@ -510,26 +511,26 @@ class SBALFAController {
 
         $Initial_4 = new InitialHere([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "32", "y_position" => "426",
+            "x_position" => "32", "y_position" => "428",
             "height" => "12", "width" => "40", "required" => "false"
         ]);
 
         $Initial_5 = new InitialHere([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "32", "y_position" => "426",
+            "x_position" => "32", "y_position" => "470",
             "height" => "12", "width" => "40", "required" => "false"
         ]);
 
         $Initial_6 = new InitialHere([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "32", "y_position" => "542",
+            "x_position" => "32", "y_position" => "545",
             "font" => "Arial", "font_size" => "size10",
             "height" => "12", "width" => "40", "required" => "false"
         ]);
 
         $Initial_7 = new InitialHere([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "32", "y_position" => "595",
+            "x_position" => "32", "y_position" => "596",
             "font" => "Arial", "font_size" => "size10",
             "height" => "12", "width" => "40", "required" => "false"
         ]);
