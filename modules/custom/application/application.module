@@ -92,7 +92,7 @@ function application_form_webform_submission_apply_for_flp_loan_add_form_alter(a
     $eidl_amount = str_replace($order, "", $elements["eidl_advance_amount_if_applicable_"]["#default_value"]);
 
     $forgive_amount = $forgiveness_amount - $eidl_amount;
-    
+
     $elements["forgive_amount"]["#default_value"] = $forgive_amount;
     $controller = new SBALFAController($elements);
     $controller->login();
@@ -624,7 +624,7 @@ function application_form_webform_submission_apply_for_flp_loan_edit_all_form_al
 
     $form["elements"]["lender_confirmation"]["btn_send_request"] = [
         '#type' => 'button',
-        '#value' => 'Send Request',
+        '#value' => 'Send to SBA',
         '#ajax' => [
             'callback' => 'application_send_request',
             'event' => 'click',
@@ -634,8 +634,9 @@ function application_form_webform_submission_apply_for_flp_loan_edit_all_form_al
                 'message' => "Verifying",
             ],
         ]
+        
     ];
-
+    /*
     $form["elements"]["lender_confirmation"]["btn_upload_document"] = [
         '#type' => 'button',
         '#value' => 'Upload',
@@ -649,7 +650,7 @@ function application_form_webform_submission_apply_for_flp_loan_edit_all_form_al
             ],
         ]
     ];
-
+    */
     $form["elements"]["lender_confirmation"]["docusign_file_link"] = [
         '#type' => 'inline_template',
         '#template' => '',
