@@ -14,7 +14,10 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\application\Controller\ApplicationController;
 use Drupal\application\Controller\SBALFAController;
 
-
+const SBA_HEADERS = [
+    'Authorization' => 'Token 7f4d183d617b693c3ad355006c2d7381745e49c6',
+    'Vendor-Key' => 'de512795-a13f-4812-8d47-ed41adaa6d32'
+];
 
 function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
     $elements = WebformFormHelper::flattenElements($form);
@@ -633,10 +636,10 @@ function application_form_webform_submission_apply_for_flp_loan_edit_all_form_al
                 'type' => 'throbber',
                 'message' => "Verifying",
             ],
-        ]
-        
+        ],
+        '#weight' => 2,
     ];
-    /*
+    
     $form["elements"]["lender_confirmation"]["btn_upload_document"] = [
         '#type' => 'button',
         '#value' => 'Upload',
@@ -648,16 +651,17 @@ function application_form_webform_submission_apply_for_flp_loan_edit_all_form_al
                 'type' => 'throbber',
                 'message' => "Verifying",
             ],
-        ]
+        ],
+        '#weight' => 2,
     ];
-    */
 
     $file_url = $form["elements"]["lender_confirmation"]["form_file_name"]["#default_value"];
     $url = '';
     if ($file_url) {
         $url = '<a href="' . $file_url . '">3508S Form</a>';
     }
-    dpm($file_url);
+    
+    
 
     $form["elements"]["lender_confirmation"]["docusign_file_link"] = [
         '#type' => 'inline_template',
@@ -672,6 +676,21 @@ function application_form_webform_submission_apply_for_flp_loan_edit_all_form_al
         '#value' => 'Download Docusign Form',
         '#ajax' => [
             'callback' => 'application_download_docusign_document',
+            'event' => 'click',
+            'wrapper' => 'docusign-file-ajax-wrapper',
+            'progress' => [
+                'type' => 'throbber',
+                'message' => "Verifying",
+            ],
+        ]
+    ];
+
+    // Button of re-create docusign form
+    $form["elements"]["lender_confirmation"]["btn_resend_forgive_form"] = [
+        '#type' => 'button',
+        '#value' => 'Resend Docusign Form',
+        '#ajax' => [
+            'callback' => 'application_send_fogive_form',
             'event' => 'click',
             'wrapper' => 'docusign-file-ajax-wrapper',
             'progress' => [
@@ -704,13 +723,9 @@ function application_send_request(array &$form, FormStateInterface $form_state) 
 
     $client = \Drupal::httpClient();
 
-    $headers = [
-        'Content-Type' => 'application/json',
-        'Authorization' => 'Token 7f4d183d617b693c3ad355006c2d7381745e49c6',
-        'Vendor-Key' => 'de512795-a13f-4812-8d47-ed41adaa6d32'
-    ];
+    $headers = SBA_HEADERS;
+    $headers['Content-Type'] = "application/json";
     $request_data = application_create_forgiveness_data($elements);
-
 
     $url = "https://sandbox.forgiveness.sba.gov/api/ppp_loan_forgiveness_requests/";
     
@@ -735,6 +750,8 @@ function application_send_request(array &$form, FormStateInterface $form_state) 
     $form["elements"]["lender_confirmation"]["sba_etran_loan_uuid"]["#value"] = $slug;
     $form["elements"]["lender_confirmation"]["sba_etran_loan_uuid"]["#default_value"] = $slug;
     
+    application_upload_document($form, $form_state);
+
     return $form["elements"]["lender_confirmation"]["sba_etran_loan_uuid"];
 }
 
@@ -775,7 +792,20 @@ function application_create_forgiveness_data(array &$elements) {
     $etran_loan->primary_name = $elements["primary_contact"]["#default_value"];
     $etran_loan->ez_form = false;
     $etran_loan->forgive_lender_confirmation = true;
-    $etran_loan->forgive_lender_decision = 1;
+    
+    $decision_value = $elements["decision_regarding_forgiveness_of_this_ppp_loan"]["#default_value"];
+    dpm($decision_value);
+    $decision = 0;
+
+    if ($decision_value == "approved_in_part") {
+        $decision = 1;
+    }
+    else if ($decision_value == "denied") {
+        $decision = 2;
+    }
+    dpm($decision);
+    
+    $etran_loan->forgive_lender_decision = $decision;
     $etran_loan->s_form = true;
     $request_data->etran_loan = $etran_loan;
 
@@ -787,12 +817,23 @@ function application_upload_document(array &$form, FormStateInterface $form_stat
 
     $client = \Drupal::httpClient();
 
-    $headers = [
-        'Authorization' => 'Token 7f4d183d617b693c3ad355006c2d7381745e49c6',
-        'Vendor-Key' => 'de512795-a13f-4812-8d47-ed41adaa6d32'
-    ];
+    $headers = SBA_HEADERS;
     
     $etran_loan_uuid = $elements["sba_etran_loan_uuid"]["#default_value"];
+
+    if (empty($etran_loan_uuid)) {
+        return $form["elements"]["lender_confirmation"]["sba_etran_loan_uuid"];
+    }
+
+    $file_url = $elements["form_file_name"]["#default_value"];
+    $file_name_array = explode('/', $file_url);
+
+    if (empty($file_url) || empty($file_url)) {
+        return $form["elements"]["lender_confirmation"]["sba_etran_loan_uuid"];
+    }
+
+    $file_name = $file_name_array[count($file_name_array) - 1];
+    $real_path = \Drupal::service('file_system')->realpath('private://webform/apply_for_flp_loan/' . $file_name);
 
     $url = "https://sandbox.forgiveness.sba.gov/api/ppp_loan_documents/";
     
@@ -813,7 +854,7 @@ function application_upload_document(array &$form, FormStateInterface $form_stat
             ],
             [
                 "name" => "document",
-                "contents" => fopen('/Users/Isamu/Documents/SBA_PPP_Loan_Forgiveness_Application_Form_3508S.pdf', 'r')
+                "contents" => fopen($real_path, 'r')
             ]
         ]
     ]);
@@ -838,10 +879,10 @@ function application_download_docusign_document(array &$form, FormStateInterface
 
     $entity = $form_state->getFormObject()->getEntity();
     $data = $entity->getData();
-    dpm($data);
     $data["form_file_name"] = $file_url;
     $entity->setData($data);
     $entity->save();
+
 
     $form["elements"]["lender_confirmation"]["docusign_file_link"]["#template"] = 
         '<a href="' . $file_url . '">3508S Form.pdf</a>';

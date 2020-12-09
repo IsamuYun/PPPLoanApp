@@ -127,7 +127,7 @@ class SBALFAController {
             $result = $this->statusWorker($statusArgs);
         }
         else {
-            $result = "No Envelope ID";
+            $result["status"] = "No Envelope ID";
         }
         
         return $result;
