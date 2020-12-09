@@ -111,20 +111,25 @@ class FLPSearchForm extends FormBase {
     public function submitForm(array &$form, FormStateInterface $form_state) {
         $primary_name = $form_state->getValue('primary_name');
         $ein = $form_state->getValue('ein');
+        $title = $primary_name ?? $ein;
         $data = $this->searchFlpResult($primary_name, $ein);
         if(empty($data)){
-            $this->messenger()->addMessage($this->t('Sorry, cannot find any saved application of %title. Please check it.', ['%title' => $primary_name]));
+            $this->messenger()->addMessage($this->t('Sorry, cannot find any saved application of %title. Please check it.', ['%title' => $title]));
         }else{
-            $ret = $this->checkFlpSubmission($ein);
+            $draft_token = '';
+            $ret = $this->checkFlpSubmission($data->ein);
+            if($ret['saved']) {
+                $draft_token = $ret['token'];
+            } else {
+                $draft_token = $this->createFlpWebformDraft($data);
+            }
 
-            if(empty($ret)) $ret = $this->createFlpWebformDraft($data);
-
-            if($ret){
-                $response = new RedirectResponse("flp?token=$ret");
+            if(!empty($draft_token)){
+                $response = new RedirectResponse("flp?token=$draft_token");
                 $response->send();
                 return;
             }else{
-                $this->messenger()->addMessage($this->t('Sorry, cannot find any saved application of %title. Please check it!', ['%title' => $primary_name]));
+                $this->messenger()->addMessage($this->t('Sorry, cannot find any saved application of %title. Please check it!', ['%title' => $title]));
             }
 
         }
@@ -157,8 +162,8 @@ class FLPSearchForm extends FormBase {
      * @param string $ein
      *   The string value of Business TIN (EIN, SSN).
      */
-    public function checkFlpSubmission($ein='') :String {
-        $ret = '';
+    public function checkFlpSubmission($ein='') :Array {
+        $ret = ['saved' => false, 'token' => ''];
         $database = \Drupal::database();
         $select = $database->select('webform_submission_data', 'wsd')
             ->fields('wsd', array('sid'))
@@ -173,7 +178,11 @@ class FLPSearchForm extends FormBase {
             $result = reset($results);
 
             $webform_submission = WebformSubmission::load($result->sid);
-            $ret = $webform_submission->getToken();
+            $current_user = $this->currentUser();
+            $uid = $current_user->id();
+
+            $ret = ['saved' => true, 'token' => ''];
+            if ($uid == $webform_submission->getOwner()->id()) $ret['token'] = $webform_submission->getToken();
 
         }
         return $ret;
