@@ -60,7 +60,7 @@ class SBAForgivenessRequestController {
                 $form["elements"]["lender_confirmation"]["sba_response"]["#default_value"] = "SBA Forgiveness Request successfully created. \nEtran Loan UUID: " . $slug;
 
                 dpm($form["elements"]["lender_confirmation"]["sba_response"]);
-                $this->uploadDocument($elements, $form, $form_state);
+                //$this->uploadDocument($elements, $form, $form_state);
             }
         }
         catch (ClientException $e) {
