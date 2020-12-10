@@ -51,13 +51,17 @@ class SBAForgivenessRequestController {
                 $slug = $body->{"etran_loan"}->{"slug"};
             }
             if ($slug && $request_slug) {
+                $current_user_account_name = \Drupal::currentUser()->getAccountName();
                 $entity = $form_state->getFormObject()->getEntity();
                 $data = $entity->getData();
                 $data["sba_etran_loan_uuid"] = $slug;
                 $data["sba_slug"] = $request_slug;
                 $data["sba_request_status"] = "Pending Validation";
+                $data["loan_offer"] = $current_user_account_name;
                 $entity->setData($data);
                 $entity->save();
+                $form["elements"]["lender_confirmation"]["loan_offer"]["#value"] = $current_user_account_name;
+                $form["elements"]["lender_confirmation"]["loan_offer"]["#default_value"] = $current_user_account_name;
                 $form["elements"]["lender_confirmation"]["sba_slug"]["#value"] = $request_slug;
                 $form["elements"]["lender_confirmation"]["sba_slug"]["#default_value"] = $request_slug;
                 $form["elements"]["lender_confirmation"]["sba_etran_loan_uuid"]["#value"] = $slug;
@@ -210,7 +214,6 @@ class SBAForgivenessRequestController {
                 'headers' => $headers,
             ]);
             $body = json_decode($response->getBody());
-            dpm($body);
             $sba_slug = "";
             $sba_etran_loan_uuid = "";
             $status = "";
