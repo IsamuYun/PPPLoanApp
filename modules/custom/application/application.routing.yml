@@ -17,7 +17,7 @@ application.flp_search_form:
 application.dslistener:
     path: '/dslistener'
     defaults:
-        _controller: '\Drupal\application\Controller\DSListenerController::content'
+        _controller: '\Drupal\application\Controller\DSListenerController::capture'
         _title: 'DocuSign Webhook Listener'
     requirements:
         _access: 'TRUE'
