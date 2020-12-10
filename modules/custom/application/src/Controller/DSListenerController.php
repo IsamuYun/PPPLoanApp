@@ -75,14 +75,29 @@ class DSListenerController extends ControllerBase {
             $response->setContent($message);
             return $response;
         }
+        libxml_use_internal_errors(TRUE);
+        
+        $objXmlDocument = simplexml_load_string($payload);
 
+        if ($objXmlDocument === FALSE) {
+            $message = "There were errors parsing the XML file.\n";
+            foreach (libxml_get_errors() as $error) {
+                $message .= $error->message . "\n";
+            }
+            $this->logger->error($message);
+            $response->setContent($message);
+            return $response;
+        }
+        $objJsonDocument = json_encode($objXmlDocument);
+        $arrOutput = json_decode($objJsonDocument, TRUE);
         // Use temporarily to inspect payload.
         if ($this->debug) {
-            $this->logger->debug('<pre>@payload</pre>', ['@payload' => $payload]);
+            
+            $this->logger->debug('<pre>@payload</pre>', ['@payload' => $arrOutput]);
         }
 
         // Add the $payload to our defined queue.
-        $this->queue->createItem($payload);
+        $this->queue->createItem($arrOutput);
 
         $response->setContent('Success!');
         return $response;
