@@ -604,10 +604,15 @@ function application_download_document(array &$form, FormStateInterface $form_st
 function application_form_webform_submission_apply_for_flp_loan_edit_all_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
     $elements = WebformFormHelper::flattenElements($form);
     
+    $form["elements"]["lender_confirmation"]["#prefix"] = '<div id="lender-confirmation-ajax-wrapper">';
+    $form["elements"]["lender_confirmation"]["#suffix"] = "</div>";
+
     $form["elements"]["lender_confirmation"]["sba_response"]["#prefix"] = '<div id="sba-response-ajax-wrapper">';
     $form["elements"]["lender_confirmation"]["sba_response"]["#suffix"] = "</div>";
     $form["elements"]["lender_confirmation"]["envelope_id"]["#prefix"] = '<div id="envelope-id-ajax-wrapper">';
     $form["elements"]["lender_confirmation"]["envelope_id"]["#suffix"] = "</div>";
+    $form["elements"]["lender_confirmation"]["sba_request_status"]["#prefix"] = '<div id="sba-request-status-ajax-wrapper">';
+    $form["elements"]["lender_confirmation"]["sba_request_status"]["#suffix"] = "</div>";
 
     $form["elements"]["lender_confirmation"]["btn_send_request"] = [
         '#type' => 'button',
@@ -615,7 +620,7 @@ function application_form_webform_submission_apply_for_flp_loan_edit_all_form_al
         '#ajax' => [
             'callback' => 'application_send_request',
             'event' => 'click',
-            'wrapper' => 'sba-response-ajax-wrapper',
+            'wrapper' => 'lender-confirmation-ajax-wrapper',
             'progress' => [
                 'type' => 'throbber',
                 'message' => "Verifying",
@@ -649,7 +654,8 @@ function application_form_webform_submission_apply_for_flp_loan_edit_all_form_al
         '#type' => 'inline_template',
         '#template' => $url,
         "#prefix" => '<div id="docusign-file-ajax-wrapper">',
-        "#suffix" => "</div>"
+        "#suffix" => "</div>",
+        "#weight" => 1
     ];
 
     // Button of download file
@@ -696,7 +702,8 @@ function application_form_webform_submission_apply_for_flp_loan_edit_all_form_al
     // $result = $controller->getEnvelopeStatus();
     // $form["elements"]["lender_confirmation"]["envelope_status"]["#default_value"] = $result["status"];
     
-
+    $controller2 = new SBAForgivenessRequestController();
+    $controller2->getRequestStatus($elements, $form, $form_state);
 
 }
 
@@ -706,7 +713,7 @@ function application_send_request(array &$form, FormStateInterface $form_state) 
     $controller = new SBAForgivenessRequestController();
     $controller->sendForgivenessRequest($elements, $form, $form_state);
     
-    return $form["elements"]["lender_confirmation"]["sba_response"];
+    return $form["elements"]["lender_confirmation"];
 }
 
 function application_upload_document(array &$form, FormStateInterface $form_state) {
@@ -731,7 +738,10 @@ function application_send_fogive_form(array &$form, FormStateInterface $form_sta
         $data["envelope_status"] = "Sent";
         $entity->setData($data);
         $entity->save();
+        $form["elements"]["lender_confirmation"]["envelope_id"]["#value"] = $result["envelope_id"];
+        $form["elements"]["lender_confirmation"]["envelope_id"]["#default_value"] = $result["envelope_id"];
     }
+    
     return $form["elements"]["lender_confirmation"]["envelope_id"];
 }
 

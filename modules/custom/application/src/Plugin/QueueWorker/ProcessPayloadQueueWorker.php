@@ -72,15 +72,25 @@ class ProcessPayloadQueueWorker extends QueueWorkerBase implements ContainerFact
         $query->condition("wsd.value", $EnvelopeID, '=');
         $query->addField("wsd", "sid");
 
-        $result = $query->execute()->fetchField();
+        $result = $query->execute()->fetchAll();
         $sid = 0;
         if (!empty($result)) {
-            $sid = $result[0];
+            $sid = $result[0]->sid;
+        }
+        else {
+            return;
         }
 
         \Drupal::logger("ProcessPayloadQueueWorker")->notice("Submission ID: " . $sid . ", Envelope ID: " . $EnvelopeID);
 
-
+        $update_query = \Drupal::database()->update('webform_submission_data');
+        $update_query->fields([
+            'value' => "completed"
+        ]);
+        $update_query->condition("sid", $sid);
+        $update_query->condition("name", "envelope_status");
+        $update_query->execute();
+        \Drupal::logger("ProcessPayloadQueueWorker")->notice("Submission ID: " . $sid . " Envelope status has been updated.");
 
 
         // Decode the JSON that was captured.
