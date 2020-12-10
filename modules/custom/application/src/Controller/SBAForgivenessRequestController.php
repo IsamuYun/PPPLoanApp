@@ -184,4 +184,34 @@ class SBAForgivenessRequestController {
             }
         }
     }
+
+    public function getRequestStatus(array &$elements, array &$form, FormStateInterface $form_state) {
+        try {
+            $client = \Drupal::httpClient();
+            $headers = self::SBA_HEADERS;
+            $headers['Content-Type'] = "application/json";
+            $etran_loan_uuid = $elements["sba_etran_loan_uuid"]["#default_value"];
+            if (empty($etran_loan_uuid)) {
+                return;
+            }
+            
+            $url = "https://sandbox.forgiveness.sba.gov/api/ppp_loan_forgiveness_requests/" . $etran_loan_uuid . "/";
+            
+            $response = $client->request('GET', $url, [
+                'headers' => $headers,
+            ]);
+            $body = json_decode($response->getBody());
+            dpm($body);
+
+            $form["elements"]["lender_confirmation"]["sba_request_status"]["#value"] = $response->getBody();
+            $form["elements"]["lender_confirmation"]["sba_request_status"]["#default_value"] = $response->getBody();
+        }
+        catch (ClientException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse()->getBody()->getContents();
+                $form["elements"]["lender_confirmation"]["sba_request_status"]["#value"] = $response;
+                $form["elements"]["lender_confirmation"]["sba_request_status"]["#default_value"] = $response;
+            }
+        }
+    }
 }
