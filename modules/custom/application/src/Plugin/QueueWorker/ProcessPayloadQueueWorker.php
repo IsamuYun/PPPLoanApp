@@ -62,7 +62,7 @@ class ProcessPayloadQueueWorker extends QueueWorkerBase implements ContainerFact
     */
     public function processItem($data) {
         // Decode the JSON that was captured.
-        $decode = Json::decode($data);
+        // $decode = Json::decode($data);
 
         // Pull out applicable values.
         // You may want to do more validation!

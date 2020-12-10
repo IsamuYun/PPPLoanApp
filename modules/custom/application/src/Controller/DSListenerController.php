@@ -90,10 +90,11 @@ class DSListenerController extends ControllerBase {
         }
         $objJsonDocument = json_encode($objXmlDocument);
         $arrOutput = json_decode($objJsonDocument, TRUE);
+        $payload_str = print_r($arrOutput, true);
         // Use temporarily to inspect payload.
         if ($this->debug) {
             
-            $this->logger->debug('<pre>@payload</pre>', ['@payload' => $arrOutput]);
+            $this->logger->debug('<pre>@payload</pre>', ['@payload' => $payload_str]);
         }
 
         // Add the $payload to our defined queue.
