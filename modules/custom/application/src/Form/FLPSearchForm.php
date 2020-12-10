@@ -111,7 +111,7 @@ class FLPSearchForm extends FormBase {
     public function submitForm(array &$form, FormStateInterface $form_state) {
         $primary_name = $form_state->getValue('primary_name');
         $ein = $form_state->getValue('ein');
-        $title = $primary_name ?? $ein;
+        $title = empty($primary_name) ? $ein : $primary_name;
         $data = $this->searchFlpResult($primary_name, $ein);
         if(empty($data)){
             $this->messenger()->addMessage($this->t('Sorry, cannot find any saved application of %title. Please check it.', ['%title' => $title]));
@@ -129,6 +129,7 @@ class FLPSearchForm extends FormBase {
                 $response->send();
                 return;
             }else{
+                $title = empty($data->primary_name) ? $data->ein : $data->primary_name;
                 $this->messenger()->addMessage($this->t('Sorry, cannot find any saved application of %title. Please check it!', ['%title' => $title]));
             }
 
