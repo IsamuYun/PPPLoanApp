@@ -72,8 +72,7 @@ class SBAForgivenessRequestController {
                 $form["elements"]["lender_confirmation"]["sba_response"]["#value"] = "SBA Forgiveness Request successfully created. \nEtran Loan UUID: " . $slug;
                 $form["elements"]["lender_confirmation"]["sba_response"]["#default_value"] = "SBA Forgiveness Request successfully created. \nEtran Loan UUID: " . $slug;
 
-                //dpm($form["elements"]["lender_confirmation"]["sba_response"]);
-                //$this->uploadDocument($elements, $form, $form_state);
+                $this->uploadDocument($elements, $form, $form_state);
             }
         }
         catch (ClientException $e) {
@@ -146,14 +145,14 @@ class SBAForgivenessRequestController {
             $headers = self::SBA_HEADERS;
             $etran_loan_uuid = $elements["sba_etran_loan_uuid"]["#default_value"];
             if (empty($etran_loan_uuid)) {
-                return $form["elements"]["lender_confirmation"]["sba_etran_loan_uuid"];
+                return $form["elements"]["lender_confirmation"];
             }
         
             $file_url = $elements["form_file_name"]["#default_value"];
             $file_name_array = explode('/', $file_url);
         
             if (empty($file_url) || empty($file_url)) {
-                return $form["elements"]["lender_confirmation"]["sba_etran_loan_uuid"];
+                return $form["elements"]["lender_confirmation"];
             }
         
             $file_name = $file_name_array[count($file_name_array) - 1];
