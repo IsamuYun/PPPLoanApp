@@ -757,3 +757,13 @@ function application_download_docusign_document(array &$form, FormStateInterface
     
     return $form["elements"]["lender_confirmation"]["docusign_file_link"];
 }
+
+function application_webform_submission_form_alter(array &$form, FormStateInterface &$form_state, $form_id){
+    if($form_id == 'webform_submission_apply_for_flp_loan_add_form' && isset($_SESSION['_symfony_flashes']['status']) && is_array($_SESSION['_symfony_flashes']['status'])) {
+        foreach($_SESSION['_symfony_flashes']['status'] as $idx => $msg) {
+            $msg_txt = $msg->__toString();
+            if (strpos($msg_txt, 'pending draft') !== false)  unset($_SESSION['_symfony_flashes']['status'][$idx]);
+        }
+        if(count($_SESSION['_symfony_flashes']['status']) == 0) unset($_SESSION['_symfony_flashes']['status']);
+    }
+}
