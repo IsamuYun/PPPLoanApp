@@ -705,8 +705,8 @@ function application_form_webform_submission_apply_for_flp_loan_edit_all_form_al
     
     $controller = new SBALFAController($elements);
     $controller->login();
-    $result = $controller->getEnvelopeStatus();
-    $form["elements"]["lender_confirmation"]["envelope_status"]["#default_value"] = $result["status"];
+    // $result = $controller->getEnvelopeStatus();
+    // $form["elements"]["lender_confirmation"]["envelope_status"]["#default_value"] = $result["status"];
     
 
 
