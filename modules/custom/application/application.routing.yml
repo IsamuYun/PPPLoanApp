@@ -20,4 +20,4 @@ application.dslistener:
         _controller: '\Drupal\application\Controller\DSListenerController::content'
         _title: 'DocuSign Webhook Listener'
     requirements:
-        _permission: 'TRUE'
+        _access: 'TRUE'
