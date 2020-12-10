@@ -604,6 +604,9 @@ function application_download_document(array &$form, FormStateInterface $form_st
 function application_form_webform_submission_apply_for_flp_loan_edit_all_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
     $elements = WebformFormHelper::flattenElements($form);
     
+    $form["elements"]["lender_confirmation"]["#prefix"] = '<div id="lender-confirmation-ajax-wrapper">';
+    $form["elements"]["lender_confirmation"]["#suffix"] = "</div>";
+
     $form["elements"]["lender_confirmation"]["sba_response"]["#prefix"] = '<div id="sba-response-ajax-wrapper">';
     $form["elements"]["lender_confirmation"]["sba_response"]["#suffix"] = "</div>";
     $form["elements"]["lender_confirmation"]["envelope_id"]["#prefix"] = '<div id="envelope-id-ajax-wrapper">';
@@ -617,7 +620,7 @@ function application_form_webform_submission_apply_for_flp_loan_edit_all_form_al
         '#ajax' => [
             'callback' => 'application_send_request',
             'event' => 'click',
-            'wrapper' => 'sba-response-ajax-wrapper',
+            'wrapper' => 'lender-confirmation-ajax-wrapper',
             'progress' => [
                 'type' => 'throbber',
                 'message' => "Verifying",
@@ -710,7 +713,7 @@ function application_send_request(array &$form, FormStateInterface $form_state) 
     $controller = new SBAForgivenessRequestController();
     $controller->sendForgivenessRequest($elements, $form, $form_state);
     
-    return $form["elements"]["lender_confirmation"]["sba_response"];
+    return $form["elements"]["lender_confirmation"];
 }
 
 function application_upload_document(array &$form, FormStateInterface $form_state) {
@@ -735,7 +738,10 @@ function application_send_fogive_form(array &$form, FormStateInterface $form_sta
         $data["envelope_status"] = "Sent";
         $entity->setData($data);
         $entity->save();
+        $form["elements"]["lender_confirmation"]["envelope_id"]["#value"] = $result["envelope_id"];
+        $form["elements"]["lender_confirmation"]["envelope_id"]["#default_value"] = $result["envelope_id"];
     }
+    
     return $form["elements"]["lender_confirmation"]["envelope_id"];
 }
 

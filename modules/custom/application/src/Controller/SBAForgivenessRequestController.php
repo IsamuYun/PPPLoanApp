@@ -43,23 +43,28 @@ class SBAForgivenessRequestController {
             dpm($body->{"etran_loan"}->{"slug"});
 
             $slug = false;
+            $request_slug = false;
 
             if (!empty($body->{"etran_loan"}->{"slug"})) {
+                $request_slug = $body->{"slug"};
                 $slug = $body->{"etran_loan"}->{"slug"};
             }
-            if ($slug) {
+            if ($slug && $request_slug) {
                 $entity = $form_state->getFormObject()->getEntity();
                 $data = $entity->getData();
                 $data["sba_etran_loan_uuid"] = $slug;
+                $data["sba_slug"] = $request_slug;
                 $entity->setData($data);
                 $entity->save();
+                $form["elements"]["lender_confirmation"]["sba_slug"]["#value"] = $request_slug;
+                $form["elements"]["lender_confirmation"]["sba_slug"]["#default_value"] = $request_slug;
                 $form["elements"]["lender_confirmation"]["sba_etran_loan_uuid"]["#value"] = $slug;
                 $form["elements"]["lender_confirmation"]["sba_etran_loan_uuid"]["#default_value"] = $slug;
 
                 $form["elements"]["lender_confirmation"]["sba_response"]["#value"] = "SBA Forgiveness Request successfully created. \nEtran Loan UUID: " . $slug;
                 $form["elements"]["lender_confirmation"]["sba_response"]["#default_value"] = "SBA Forgiveness Request successfully created. \nEtran Loan UUID: " . $slug;
 
-                dpm($form["elements"]["lender_confirmation"]["sba_response"]);
+                //dpm($form["elements"]["lender_confirmation"]["sba_response"]);
                 //$this->uploadDocument($elements, $form, $form_state);
             }
         }
