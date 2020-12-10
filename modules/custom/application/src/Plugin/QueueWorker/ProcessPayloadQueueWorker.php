@@ -61,6 +61,28 @@ class ProcessPayloadQueueWorker extends QueueWorkerBase implements ContainerFact
     * {@inheritdoc}
     */
     public function processItem($data) {
+        $EnvelopeID = "";
+        if (isset($data["EnvelopeStatus"]) && isset($data["EnvelopeStatus"]["EnvelopeID"])) {
+            $EnvelopeID = $data["EnvelopeStatus"]["EnvelopeID"];
+        }
+
+        $database = \Drupal::database();
+        $query = $database->select("webform_submission_data", "wsd");
+        $query->condition("wsd.name", "envelope_id", '=');
+        $query->condition("wsd.value", $EnvelopeID, '=');
+        $query->addField("wsd", "sid");
+
+        $result = $query->execute()->fetchField();
+        $sid = 0;
+        if (!empty($result)) {
+            $sid = $result[0];
+        }
+
+        \Drupal::logger("ProcessPayloadQueueWorker")->notice("Submission ID: " . $sid . ", Envelope ID: " . $EnvelopeID);
+
+
+
+
         // Decode the JSON that was captured.
         // $decode = Json::decode($data);
 
