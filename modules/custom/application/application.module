@@ -432,7 +432,7 @@ function application_form_webform_submission_apply_for_flp_loan_edit_all_form_al
     
     $controller = new SBALFAController($elements);
     $controller->login();
-    //$controller->downloadForgivenessForm($form, $form_state);
+    $controller->downloadForgivenessForm($form, $form_state);
     
     $controller2 = new SBAForgivenessRequestController();
     $controller2->getRequestStatus($elements, $form, $form_state);

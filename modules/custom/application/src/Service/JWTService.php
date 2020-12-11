@@ -9,7 +9,7 @@ use DocuSign\eSign\Configuration;
 
 class JWTService
 {
-    const TOKEN_REPLACEMENT_IN_SECONDS = 3600; # 10 minutes
+    const TOKEN_REPLACEMENT_IN_SECONDS = 3600; # 60 minutes
     protected static $expires_in;
     protected static $access_token;
     protected static $expiresInTimestamp;
