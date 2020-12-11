@@ -338,48 +338,6 @@ function application_form_webform_submission_apply_for_flp_loan_edit_all_form_al
     $form["elements"]["lender_confirmation"]["#prefix"] = '<div id="lender-confirmation-ajax-wrapper">';
     $form["elements"]["lender_confirmation"]["#suffix"] = "</div>";
 
-    $form["elements"]["lender_confirmation"]["btn_send_request"] = [
-        '#type' => 'button',
-        '#value' => 'Send to SBA',
-        '#ajax' => [
-            'callback' => 'application_send_request',
-            'event' => 'click',
-            'wrapper' => 'lender-confirmation-ajax-wrapper',
-            'progress' => [
-                'type' => 'throbber',
-                'message' => "Verifying",
-            ],
-        ],
-    ];
-
-    $form["elements"]["lender_confirmation"]["btn_delete_request"] = [
-        '#type' => 'button',
-        '#value' => 'Withdraw Request',
-        '#ajax' => [
-            'callback' => 'application_delete_request',
-            'event' => 'click',
-            'wrapper' => 'lender-confirmation-ajax-wrapper',
-            'progress' => [
-                'type' => 'throbber',
-                'message' => "Verifying",
-            ],
-        ],
-    ];
-    
-    $form["elements"]["lender_confirmation"]["btn_upload_document"] = [
-        '#type' => 'button',
-        '#value' => 'Upload',
-        '#ajax' => [
-            'callback' => 'application_upload_document',
-            'event' => 'click',
-            'wrapper' => 'lender-confirmation-ajax-wrapper',
-            'progress' => [
-                'type' => 'throbber',
-                'message' => "Verifying",
-            ],
-        ],
-    ];
-
     $file_url = $form["elements"]["lender_confirmation"]["form_file_name"]["#default_value"];
     $url = '';
     if ($file_url) {
@@ -388,8 +346,7 @@ function application_form_webform_submission_apply_for_flp_loan_edit_all_form_al
 
     $form["elements"]["lender_confirmation"]["docusign_file_link"] = [
         '#type' => 'inline_template',
-        '#template' => $url,
-        "#weight" => 11
+        '#template' => $url
     ];
 
     // Button of download file
@@ -422,6 +379,48 @@ function application_form_webform_submission_apply_for_flp_loan_edit_all_form_al
         ],
     ];
 
+    $form["elements"]["lender_confirmation"]["btn_send_request"] = [
+        '#type' => 'button',
+        '#value' => 'Send to SBA',
+        '#ajax' => [
+            'callback' => 'application_send_request',
+            'event' => 'click',
+            'wrapper' => 'lender-confirmation-ajax-wrapper',
+            'progress' => [
+                'type' => 'throbber',
+                'message' => "Verifying",
+            ],
+        ],
+    ];
+
+    $form["elements"]["lender_confirmation"]["btn_upload_document"] = [
+        '#type' => 'button',
+        '#value' => 'Upload',
+        '#ajax' => [
+            'callback' => 'application_upload_document',
+            'event' => 'click',
+            'wrapper' => 'lender-confirmation-ajax-wrapper',
+            'progress' => [
+                'type' => 'throbber',
+                'message' => "Verifying",
+            ],
+        ],
+    ];
+
+    $form["elements"]["lender_confirmation"]["btn_delete_request"] = [
+        '#type' => 'button',
+        '#value' => 'Withdraw Request',
+        '#ajax' => [
+            'callback' => 'application_delete_request',
+            'event' => 'click',
+            'wrapper' => 'lender-confirmation-ajax-wrapper',
+            'progress' => [
+                'type' => 'throbber',
+                'message' => "Verifying",
+            ],
+        ],
+    ];
+    
     // calculate forgive amount
     $order = array("$", " ", ",");
 
@@ -462,7 +461,6 @@ function application_upload_document(array &$form, FormStateInterface $form_stat
     $controller = new SBAForgivenessRequestController();
     $controller->uploadDocument($elements, $form, $form_state);
     
-    
     return $form["elements"]["lender_confirmation"];
 }
 
@@ -500,7 +498,8 @@ function application_download_docusign_document(array &$form, FormStateInterface
     $data["form_file_name"] = $file_url;
     $entity->setData($data);
     $entity->save();
-
+    $form["elements"]["lender_confirmation"]["form_file_name"]["#value"] = $file_url;
+    $form["elements"]["lender_confirmation"]["form_file_name"]["#default_value"] = $file_url;
 
     $form["elements"]["lender_confirmation"]["docusign_file_link"]["#template"] = 
         '<a href="' . $file_url . '">3508S Form.pdf</a>';

@@ -145,14 +145,18 @@ class SBAForgivenessRequestController {
             $headers = self::SBA_HEADERS;
             $etran_loan_uuid = $elements["sba_etran_loan_uuid"]["#default_value"];
             if (empty($etran_loan_uuid)) {
-                return $form["elements"]["lender_confirmation"];
+                return;
+            }
+            $sba_upload_status = $elements["sba_upload_status"]["#default_value"];
+            if ($sba_upload_status == "uploaded") {
+                return;
             }
         
             $file_url = $elements["form_file_name"]["#default_value"];
             $file_name_array = explode('/', $file_url);
         
             if (empty($file_url) || empty($file_url)) {
-                return $form["elements"]["lender_confirmation"];
+                return;
             }
         
             $file_name = $file_name_array[count($file_name_array) - 1];
@@ -183,8 +187,14 @@ class SBAForgivenessRequestController {
             ]);
             $body = json_decode($response->getBody());
             dpm($body);
-
+            $entity = $form_state->getFormObject()->getEntity();
+            $data = $entity->getData();
+            $data["sba_upload_status"] = "uploaded";
+            $entity->setData($data);
+            $entity->save();
             $sba_response = $form["elements"]["lender_confirmation"]["sba_response"]["#value"];
+            $form["elements"]["lender_confirmation"]["sba_upload_status"]["#value"] = "uploaded";
+            $form["elements"]["lender_confirmation"]["sba_upload_status"]["#default_value"] = "uploaded";
             $form["elements"]["lender_confirmation"]["sba_response"]["#value"] = $sba_response . "\n" . "3508S Form is successfully uploaded.";
             $form["elements"]["lender_confirmation"]["sba_response"]["#default_value"] = $sba_response . "\n" . "3508S Form is successfully uploaded.";
         }
@@ -275,9 +285,12 @@ class SBAForgivenessRequestController {
             $data["sba_etran_loan_uuid"] = "";
             $data["sba_slug"] = "";
             $data["sba_request_status"] = "";
+            $data["sba_upload_status"] = "";
             $data["sba_response"] = "Successfully deleted request";
             $entity->setData($data);
             $entity->save();
+            $form["elements"]["lender_confirmation"]["sba_upload_status"]["#value"] = "";
+            $form["elements"]["lender_confirmation"]["sba_upload_status"]["#default_value"] = "";
             $form["elements"]["lender_confirmation"]["sba_request_status"]["#value"] = "";
             $form["elements"]["lender_confirmation"]["sba_request_status"]["#default_value"] = "";
             $form["elements"]["lender_confirmation"]["sba_etran_loan_uuid"]["#value"] = "";
