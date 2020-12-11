@@ -150,8 +150,7 @@ class SBALFAController {
             'base_path' => $_SESSION['ds_base_path'],
             'ds_access_token' => $_SESSION['ds_access_token'],
             'envelope_id' => $envelope_id,
-            'document_id' => "combined",
-            #'document_id' => "1",
+            'document_id' => "1",
         ];
 
         return $args;
