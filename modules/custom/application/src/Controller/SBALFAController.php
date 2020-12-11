@@ -178,6 +178,10 @@ class SBALFAController {
         if ($envelope_status != "completed") {
             return;
         }
+        $old_file = $form["elements"]["lender_confirmation"]["form_file_name"]["#default_value"];
+        if ($old_file != "") {
+            return;
+        }
 
         //$elements = WebformFormHelper::flattenElements($form);
         
