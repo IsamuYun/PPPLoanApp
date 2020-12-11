@@ -5,6 +5,7 @@ namespace Drupal\application\Controller;
 use GuzzleHttp\Exception\ClientException;
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\webform\Utility\WebformFormHelper;
 
 use stdClass;
 
@@ -50,22 +51,28 @@ class SBAForgivenessRequestController {
                 $slug = $body->{"etran_loan"}->{"slug"};
             }
             if ($slug && $request_slug) {
+                $current_user_account_name = \Drupal::currentUser()->getAccountName();
                 $entity = $form_state->getFormObject()->getEntity();
                 $data = $entity->getData();
                 $data["sba_etran_loan_uuid"] = $slug;
                 $data["sba_slug"] = $request_slug;
+                $data["sba_request_status"] = "Pending Validation";
+                $data["loan_offer"] = $current_user_account_name;
                 $entity->setData($data);
                 $entity->save();
+                $form["elements"]["lender_confirmation"]["loan_offer"]["#value"] = $current_user_account_name;
+                $form["elements"]["lender_confirmation"]["loan_offer"]["#default_value"] = $current_user_account_name;
                 $form["elements"]["lender_confirmation"]["sba_slug"]["#value"] = $request_slug;
                 $form["elements"]["lender_confirmation"]["sba_slug"]["#default_value"] = $request_slug;
                 $form["elements"]["lender_confirmation"]["sba_etran_loan_uuid"]["#value"] = $slug;
                 $form["elements"]["lender_confirmation"]["sba_etran_loan_uuid"]["#default_value"] = $slug;
+                $form["elements"]["lender_confirmation"]["sba_request_status"]["#value"] = "Pending Validation";
+                $form["elements"]["lender_confirmation"]["sba_request_status"]["#default_value"] = "Pending Validation";
 
                 $form["elements"]["lender_confirmation"]["sba_response"]["#value"] = "SBA Forgiveness Request successfully created. \nEtran Loan UUID: " . $slug;
                 $form["elements"]["lender_confirmation"]["sba_response"]["#default_value"] = "SBA Forgiveness Request successfully created. \nEtran Loan UUID: " . $slug;
 
-                //dpm($form["elements"]["lender_confirmation"]["sba_response"]);
-                //$this->uploadDocument($elements, $form, $form_state);
+                $this->uploadDocument($elements, $form, $form_state);
             }
         }
         catch (ClientException $e) {
@@ -138,14 +145,14 @@ class SBAForgivenessRequestController {
             $headers = self::SBA_HEADERS;
             $etran_loan_uuid = $elements["sba_etran_loan_uuid"]["#default_value"];
             if (empty($etran_loan_uuid)) {
-                return $form["elements"]["lender_confirmation"]["sba_etran_loan_uuid"];
+                return $form["elements"]["lender_confirmation"];
             }
         
             $file_url = $elements["form_file_name"]["#default_value"];
             $file_name_array = explode('/', $file_url);
         
             if (empty($file_url) || empty($file_url)) {
-                return $form["elements"]["lender_confirmation"]["sba_etran_loan_uuid"];
+                return $form["elements"]["lender_confirmation"];
             }
         
             $file_name = $file_name_array[count($file_name_array) - 1];
@@ -195,27 +202,96 @@ class SBAForgivenessRequestController {
             $client = \Drupal::httpClient();
             $headers = self::SBA_HEADERS;
             $headers['Content-Type'] = "application/json";
-            $etran_loan_uuid = $elements["sba_etran_loan_uuid"]["#default_value"];
-            if (empty($etran_loan_uuid)) {
+            $sba_number = $elements["sba_ppp_loan_number"]["#default_value"];
+            if (empty($sba_number)) {
                 return;
             }
             
-            $url = "https://sandbox.forgiveness.sba.gov/api/ppp_loan_forgiveness_requests/" . $etran_loan_uuid . "/";
+            $url = "https://sandbox.forgiveness.sba.gov/api/ppp_loan_forgiveness_requests/?sba_number=" . $sba_number;
             
             $response = $client->request('GET', $url, [
                 'headers' => $headers,
             ]);
             $body = json_decode($response->getBody());
-            dpm($body);
-
-            $form["elements"]["lender_confirmation"]["sba_request_status"]["#value"] = $response->getBody();
-            $form["elements"]["lender_confirmation"]["sba_request_status"]["#default_value"] = $response->getBody();
+            $sba_slug = "";
+            $sba_etran_loan_uuid = "";
+            $status = "";
+            if (!empty($body->{"results"})) {
+                $result = $body->{"results"}[0];
+                $sba_slug = $result->{"slug"};
+                $sba_etran_loan_uuid = $result->{"etran_loan"}->{"slug"};
+                $status = $result->{"etran_loan"}->{"status"};
+            }
+            /*
+            $entity = $form_state->getFormObject()->getEntity();
+            $data = $entity->getData();
+            $data["sba_etran_loan_uuid"] = $sba_etran_loan_uuid;
+            $data["sba_slug"] = $sba_slug;
+            $data["sba_request_status"] = $status;
+            $data["sba_response"] = "";
+            $entity->setData($data);
+            $entity->save();
+            */
+            
+            $form["elements"]["lender_confirmation"]["sba_slug"]["#value"] = $sba_slug;
+            $form["elements"]["lender_confirmation"]["sba_slug"]["#default_value"] = $sba_slug;
+            $form["elements"]["lender_confirmation"]["sba_etran_loan_uuid"]["#value"] = $sba_etran_loan_uuid;
+            $form["elements"]["lender_confirmation"]["sba_etran_loan_uuid"]["#default_value"] = $sba_etran_loan_uuid;
+            $form["elements"]["lender_confirmation"]["sba_request_status"]["#value"] = $status;
+            $form["elements"]["lender_confirmation"]["sba_request_status"]["#default_value"] = $status;
+            $form["elements"]["lender_confirmation"]["sba_response"]["#value"] = "";
+            $form["elements"]["lender_confirmation"]["sba_response"]["#default_value"] = "";
         }
         catch (ClientException $e) {
             if ($e->hasResponse()) {
                 $response = $e->getResponse()->getBody()->getContents();
                 $form["elements"]["lender_confirmation"]["sba_request_status"]["#value"] = $response;
                 $form["elements"]["lender_confirmation"]["sba_request_status"]["#default_value"] = $response;
+            }
+        }
+    }
+
+    public function deleteRequest(array &$form, FormStateInterface $form_state) {
+        $elements = WebformFormHelper::flattenElements($form);
+        $client = \Drupal::httpClient();
+        $headers = self::SBA_HEADERS;
+        try {
+            $sba_slug = $elements["sba_slug"]["#default_value"];
+            if (empty($sba_slug)) {
+                return;
+            }
+            $status = $elements["sba_request_status"]["#default_value"];
+            //if ($status == "Pending Validation") {
+            //    $form["elements"]["lender_confirmation"]["sba_response"]["#value"] = "Forgiveness requests can only be deleted if their status is “Pending Validation”";
+            //    $form["elements"]["lender_confirmation"]["sba_response"]["#default_value"] = "Forgiveness requests can only be deleted if their status is “Pending Validation”";
+            //    return;
+            //}
+            $url = "https://sandbox.forgiveness.sba.gov/api/ppp_loan_forgiveness_requests/" . $sba_slug . "/";
+            $response = $client->request("DELETE", $url, [
+                'headers' => $headers,
+            ]);
+            $entity = $form_state->getFormObject()->getEntity();
+            $data = $entity->getData();
+            $data["sba_etran_loan_uuid"] = "";
+            $data["sba_slug"] = "";
+            $data["sba_request_status"] = "";
+            $data["sba_response"] = "Successfully deleted request";
+            $entity->setData($data);
+            $entity->save();
+            $form["elements"]["lender_confirmation"]["sba_request_status"]["#value"] = "";
+            $form["elements"]["lender_confirmation"]["sba_request_status"]["#default_value"] = "";
+            $form["elements"]["lender_confirmation"]["sba_etran_loan_uuid"]["#value"] = "";
+            $form["elements"]["lender_confirmation"]["sba_etran_loan_uuid"]["#default_value"] = "";
+            $form["elements"]["lender_confirmation"]["sba_slug"]["#value"] = "";
+            $form["elements"]["lender_confirmation"]["sba_slug"]["#default_value"] = "";
+            $form["elements"]["lender_confirmation"]["sba_response"]["#value"] = "Successfully deleted request";
+            $form["elements"]["lender_confirmation"]["sba_response"]["#default_value"] = "Successfully deleted request";
+        }
+        catch (ClientException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse()->getBody()->getContents();
+                $form["elements"]["lender_confirmation"]["sba_response"]["#value"] = $response;
+                $form["elements"]["lender_confirmation"]["sba_response"]["#default_value"] = $response;
             }
         }
     }

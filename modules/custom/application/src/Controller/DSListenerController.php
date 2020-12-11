@@ -30,7 +30,7 @@ class DSListenerController extends ControllerBase {
     *
     * @var bool
     */
-    protected $debug = TRUE;
+    protected $debug = FALSE;
 
 
     /**
@@ -39,7 +39,7 @@ class DSListenerController extends ControllerBase {
      */
     public function __construct(LoggerChannelFactory $logger, QueueInterface $queue) {
         $this->logger = $logger->get('dslistener');
-        $this->queue = $queue;
+        //$this->queue = $queue;
     }
 
     /**
@@ -89,16 +89,46 @@ class DSListenerController extends ControllerBase {
             return $response;
         }
         $objJsonDocument = json_encode($objXmlDocument);
-        $arrOutput = json_decode($objJsonDocument, TRUE);
-        $payload_str = print_r($arrOutput, true);
+        $payload = json_decode($objJsonDocument, TRUE);
+        $payload_str = print_r($payload, true);
         // Use temporarily to inspect payload.
         if ($this->debug) {
-            
-            $this->logger->debug('<pre>@payload</pre>', ['@payload' => $payload_str]);
+            $this->logger->debug('<pre>@payload</pre>', ['@payload' => print_r($oayload, true)]);
         }
 
         // Add the $payload to our defined queue.
-        $this->queue->createItem($arrOutput);
+        //$this->queue->createItem($arrOutput);
+        $EnvelopeID = "";
+        if (isset($payload["EnvelopeStatus"]) && isset($payload["EnvelopeStatus"]["EnvelopeID"])) {
+            $EnvelopeID = $payload["EnvelopeStatus"]["EnvelopeID"];
+        }
+
+        $database = \Drupal::database();
+        $query = $database->select("webform_submission_data", "wsd");
+        $query->condition("wsd.name", "envelope_id", '=');
+        $query->condition("wsd.value", $EnvelopeID, '=');
+        $query->addField("wsd", "sid");
+
+        $result = $query->execute()->fetchAll();
+        $sid = 0;
+        if (!empty($result)) {
+            $sid = $result[0]->sid;
+        }
+        else {
+            return;
+        }
+
+        \Drupal::logger("ProcessPayload")->notice("Submission ID: " . $sid . ", Envelope ID: " . $EnvelopeID);
+
+        $update_query = \Drupal::database()->update('webform_submission_data');
+        $update_query->fields([
+            'value' => "completed"
+        ]);
+        $update_query->condition("sid", $sid);
+        $update_query->condition("name", "envelope_status");
+        $update_query->execute();
+        \Drupal::logger("ProcessPayload")->notice("Submission ID: " . $sid . " Envelope status has been updated.");
+
 
         $response->setContent('Success!');
         return $response;
