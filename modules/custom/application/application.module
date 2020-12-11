@@ -256,7 +256,7 @@ function application_form_webform_submission_forgiveness_form_add_form_alter(arr
     
     $form["elements"]["btn_create_envelope"] = [
         '#type' => 'button',
-        '#value' => t('Create Envelope'),
+        '#value' => 'Create Envelope',
         '#ajax' => [
             'callback' => 'application_create_envelope',
             'event' => 'click',
@@ -273,7 +273,7 @@ function application_form_webform_submission_forgiveness_form_add_form_alter(arr
 
     $form["elements"]["btn_download_document"] = [
         '#type' => 'button',
-        '#value' => t('Download Document'),
+        '#value' => 'Download Document',
         '#ajax' => [
             'callback' => 'application_download_document',
             'event' => 'click',
