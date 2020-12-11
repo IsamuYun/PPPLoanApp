@@ -473,9 +473,11 @@ function application_send_fogive_form(array &$form, FormStateInterface $form_sta
         $entity = $form_state->getFormObject()->getEntity();
         $data = $entity->getData();
         $data["envelope_id"] = $result["envelope_id"];
-        $data["envelope_status"] = "Sent";
+        $data["envelope_status"] = "sent";
         $entity->setData($data);
         $entity->save();
+        $form["elements"]["lender_confirmation"]["envelope_status"]["#value"] = "sent";
+        $form["elements"]["lender_confirmation"]["envelope_status"]["#default_value"] = "sent";
         $form["elements"]["lender_confirmation"]["envelope_id"]["#value"] = $result["envelope_id"];
         $form["elements"]["lender_confirmation"]["envelope_id"]["#default_value"] = $result["envelope_id"];
     }
