@@ -118,7 +118,12 @@ class FLPSearchForm extends FormBase {
         }else{
             $draft_token = '';
             $ret = $this->checkFlpSubmission($data->ein);
+
             if($ret['saved']) {
+                if (empty($ret['token'])) {
+                    $this->messenger()->addMessage($this->t('Sorry, you have submitted the application of %title. All submissions must be unique. Please try another one.', ['%title' => $title]));
+                    return;
+                }
                 $draft_token = $ret['token'];
             } else {
                 $draft_token = $this->createFlpWebformDraft($data);
@@ -181,9 +186,8 @@ class FLPSearchForm extends FormBase {
             $webform_submission = WebformSubmission::load($result->sid);
             $current_user = $this->currentUser();
             $uid = $current_user->id();
-
             $ret = ['saved' => true, 'token' => ''];
-            if ($uid == $webform_submission->getOwner()->id()) $ret['token'] = $webform_submission->getToken();
+            if ($webform_submission->isDraft() && $uid == $webform_submission->getOwnerId()) $ret['token'] = $webform_submission->getToken();
 
         }
         return $ret;
