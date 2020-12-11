@@ -348,7 +348,7 @@ function application_form_webform_submission_apply_for_flp_loan_edit_all_form_al
         '#type' => 'inline_template',
         '#template' => $url
     ];
-
+    /*
     // Button of download file
     $form["elements"]["lender_confirmation"]["btn_download_document"] = [
         '#type' => 'button',
@@ -363,6 +363,7 @@ function application_form_webform_submission_apply_for_flp_loan_edit_all_form_al
             ],
         ]
     ];
+    */
 
     // Button of re-create docusign form
     $form["elements"]["lender_confirmation"]["btn_resend_forgive_form"] = [
@@ -432,8 +433,7 @@ function application_form_webform_submission_apply_for_flp_loan_edit_all_form_al
     
     $controller = new SBALFAController($elements);
     $controller->login();
-    // $result = $controller->getEnvelopeStatus();
-    // $form["elements"]["lender_confirmation"]["envelope_status"]["#default_value"] = $result["status"];
+    $controller->downloadForgivenessForm($form, $form_state);
     
     $controller2 = new SBAForgivenessRequestController();
     $controller2->getRequestStatus($elements, $form, $form_state);
@@ -479,30 +479,6 @@ function application_send_fogive_form(array &$form, FormStateInterface $form_sta
         $form["elements"]["lender_confirmation"]["envelope_id"]["#value"] = $result["envelope_id"];
         $form["elements"]["lender_confirmation"]["envelope_id"]["#default_value"] = $result["envelope_id"];
     }
-    
-    return $form["elements"]["lender_confirmation"];
-}
-
-function application_download_docusign_document(array &$form, FormStateInterface $form_state) {
-    $elements = WebformFormHelper::flattenElements($form);
-    $controller = new SBALFAController($elements);
-    $controller->login();
-    $file_name = $controller->downloadForgivenessForm();
-    $host_name = "https://alcppp.com";
-    #$host_name = "http://127.0.0.1";
-    $file_path = "/sites/default/files/private/webform/apply_for_flp_loan/" . $file_name;
-    $file_url = $host_name . $file_path;
-
-    $entity = $form_state->getFormObject()->getEntity();
-    $data = $entity->getData();
-    $data["form_file_name"] = $file_url;
-    $entity->setData($data);
-    $entity->save();
-    $form["elements"]["lender_confirmation"]["form_file_name"]["#value"] = $file_url;
-    $form["elements"]["lender_confirmation"]["form_file_name"]["#default_value"] = $file_url;
-
-    $form["elements"]["lender_confirmation"]["docusign_file_link"]["#template"] = 
-        '<a href="' . $file_url . '">3508S Form.pdf</a>';
     
     return $form["elements"]["lender_confirmation"];
 }

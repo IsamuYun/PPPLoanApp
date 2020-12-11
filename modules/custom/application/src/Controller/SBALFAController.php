@@ -18,6 +18,9 @@ use DocuSign\eSign\Model\Text;
 use NumberFormatter;
 use SplFileObject;
 
+use Drupal\webform\Utility\WebformFormHelper;
+use Drupal\Core\Form\FormStateInterface;
+
 require_once __DIR__ . '/../ds_config.php';
 
 // SBA Loan Forgiveness Application Controller
@@ -171,36 +174,60 @@ class SBALFAController {
         return ['mimetype' => $mimetype, 'doc_name' => $doc_name, 'data' => $temp_file];
     }
 
-    public function downloadForgivenessForm() {
+    public function downloadForgivenessForm(array &$form, FormStateInterface $form_state) {
+        $envelope_status = $form["elements"]["lender_confirmation"]["envelope_status"]["#default_value"];
+        if ($envelope_status != "completed") {
+            return;
+        }
+
+        //$elements = WebformFormHelper::flattenElements($form);
+        
         $args = $this->getDownloadDocumentArgs();
         $results = $this->downloadWorker($args);
-        if ($results) {
-            # See https://stackoverflow.com/a/27805443/64904
-            #header("Content-Type: {$results['mimetype']}");
-            #header("Content-Disposition: attachment; filename=\"{$results['doc_name']}\"");
-            #ob_clean();
-            #flush();
-            #$file_path = $results['data']->getPathname();
-            #readfile($file_path);
-            
-            #flush();
-            $submission_id = 0;
-            ob_clean();
-            ob_start();
-            $absolute_path = \Drupal::service('file_system')->realpath('private://webform/apply_for_flp_loan/');
-            $file_name = "3508S_Form_" . time() . ".pdf";
-            $absolute_path .= '/' . $file_name;
-            $file1 = new SplFileObject($absolute_path, "w+");
-            $file = $results["data"];
-            clearstatcache();
-            
-            $handle = $file->openFile('r');
-            $contents = $handle->fread($file->getSize());
-            
-            $length = $file1->fwrite($contents);
-            
-            return $length ? $file_name : "???";
+        $file_name = "";
+        if (!$results) {
+            return;
         }
+        # See https://stackoverflow.com/a/27805443/64904
+        #header("Content-Type: {$results['mimetype']}");
+        #header("Content-Disposition: attachment; filename=\"{$results['doc_name']}\"");
+        #ob_clean();
+        #flush();
+        #$file_path = $results['data']->getPathname();
+        #readfile($file_path);
+        ob_clean();
+        ob_start();
+        $absolute_path = \Drupal::service('file_system')->realpath('private://webform/apply_for_flp_loan/');
+        $file_name = "3508S_Form_" . time() . ".pdf";
+        $absolute_path .= '/' . $file_name;
+        $file1 = new SplFileObject($absolute_path, "w+");
+        $file = $results["data"];
+        clearstatcache();
+            
+        $handle = $file->openFile('r');
+        $contents = $handle->fread($file->getSize());
+            
+        $length = $file1->fwrite($contents);
+            
+        if ($length == 0) {
+            return;
+        }
+
+        $host_name = "https://alcppp.com";
+        #$host_name = "http://127.0.0.1";
+        $file_path = "/sites/default/files/private/webform/apply_for_flp_loan/" . $file_name;
+        $file_url = $host_name . $file_path;
+
+        $entity = $form_state->getFormObject()->getEntity();
+        $data = $entity->getData();
+        $data["form_file_name"] = $file_url;
+        $entity->setData($data);
+        $entity->save();
+        $form["elements"]["lender_confirmation"]["form_file_name"]["#value"] = $file_url;
+        $form["elements"]["lender_confirmation"]["form_file_name"]["#default_value"] = $file_url;
+
+        $form["elements"]["lender_confirmation"]["docusign_file_link"]["#template"] = 
+            '<a href="' . $file_url . '">3508S Form.pdf</a>';
         
         return $results;
     }
