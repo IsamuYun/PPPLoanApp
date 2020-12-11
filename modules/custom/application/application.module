@@ -348,7 +348,7 @@ function application_form_webform_submission_apply_for_flp_loan_edit_all_form_al
         '#type' => 'inline_template',
         '#template' => $url
     ];
-    
+    /*
     // Button of download file
     $form["elements"]["lender_confirmation"]["btn_download_document"] = [
         '#type' => 'button',
@@ -363,7 +363,7 @@ function application_form_webform_submission_apply_for_flp_loan_edit_all_form_al
             ],
         ]
     ];
-
+    */
     // Button of re-create docusign form
     $form["elements"]["lender_confirmation"]["btn_resend_forgive_form"] = [
         '#type' => 'button',
