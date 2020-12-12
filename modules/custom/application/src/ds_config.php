@@ -31,8 +31,10 @@ $DS_CONFIG = [
 
 $JWT_CONFIG = [
     'ds_client_id' => '6fae2115-95c9-4165-a4e7-4753652956c2', // The app's DocuSign integration key
-    'authorization_server' => 'account.docusign.com',
-    "ds_impersonated_user_id" => '1c3e9690-2df0-45de-b60a-4bf69acca7f6',  // the id of the user
+    'authorization_server' => 'account-d.docusign.com',
+    "ds_impersonated_user_id" => 'ddacd29b-a870-41f5-b198-55ef2cb34930',  // the id of the user
+    #'authorization_server' => 'account.docusign.com',
+    #"ds_impersonated_user_id" => '1c3e9690-2df0-45de-b60a-4bf69acca7f6',  // the id of the user
     "jwt_scope" => "signature impersonation",
     "private_key_file" => "../documents/alc_jwt.PEM", // path to private key file
 

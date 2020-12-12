@@ -102,9 +102,8 @@ class JWTService
     private function configureJwtAuthorizationFlowByKey()
     {
         self::$apiClient->getOAuth()->setOAuthBasePath($GLOBALS['JWT_CONFIG']['authorization_server']);
-        #$privateKey = file_get_contents($_SERVER['DOCUMENT_ROOT'] . '/' . $GLOBALS['JWT_CONFIG']['private_key_file'], true);
-        $privateKey = file_get_contents(__DIR__ . "/../../documents/alc_jwt.PEM", true);
-
+        $privateKey = file_get_contents($_SERVER['DOCUMENT_ROOT'] . '/' . $GLOBALS['JWT_CONFIG']['private_key_file'], true);
+        
         try {
             $response = self::$apiClient->requestJWTUserToken(
                 $aud = $GLOBALS['JWT_CONFIG']['ds_client_id'],
@@ -117,8 +116,8 @@ class JWTService
 
             // we found consent_required in the response body meaning 1st time consent is needed
             if (strpos($th->getMessage(), "consent_required") !== false) {
-
-                $authorizationURL = 'https://account.docusign.com/oauth/auth?' . http_build_query([
+                $authorizationURL = 'https://account-d.docusign.com/oauth/auth?' . http_build_query([
+                #$authorizationURL = 'https://account.docusign.com/oauth/auth?' . http_build_query([
                     'scope'         => 'signature impersonation',
                     'redirect_uri'  => $GLOBALS['DS_CONFIG']['app_url'] . '/dslistener',
                     'client_id'     => $GLOBALS['JWT_CONFIG']['ds_client_id'],
