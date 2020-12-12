@@ -6,8 +6,8 @@ $DS_CONFIG = [
     'quickstart' => 'true',
     'ds_client_id' => '6fae2115-95c9-4165-a4e7-4753652956c2',  // The app's DocuSign integration key
     'ds_client_secret' => 'db3e3746-f2ab-422e-87ee-5aa0b31b8181', // The app's DocuSign integration key's secret
-    'signer_email' => 'ppp@rmdslab.com',
-    'signer_name' => 'Isamu Yun',
+    'signer_email' => 'ppp@americanlendingcenter.com',
+    'signer_name' => 'American Lending Center',
     'app_url' => 'https://alcppp.com', // The url of the application.
     // Ie, the user enters  app_url in their browser to bring up the app's home page
     // Eg http://localhost/code-examples-php/public if the app is installed in a
