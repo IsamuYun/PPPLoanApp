@@ -54,17 +54,17 @@ class JWTService
         if (session_status() == PHP_SESSION_NONE) {
             session_start();
         }
-
+        
         if ($this->checkSession()) {
             return;
         }
         
         self::$access_token = $this->configureJwtAuthorizationFlowByKey();
-
-        if (!self::$access_token) {
+        dpm(self::$access_token);
+        if (is_null(self::$access_token)) {
             return;
         }
-
+        
         self::$expiresInTimestamp = time() + self::$expires_in;
 
         if (is_null(self::$account)) {
@@ -75,13 +75,13 @@ class JWTService
         if (isset($_SESSION['eg'])) {
             $redirectUrl = $_SESSION['eg'];
         }
-
+        
         // We have an access token, which we may use in authenticated
         // requests against the service provider's API.
         $_SESSION['ds_access_token'] = self::$access_token->getAccessToken();
         $_SESSION['ds_refresh_token'] = self::$access_token->getRefreshToken();
-        #$_SESSION['ds_expiration'] = time() + (self::$access_token->getExpiresIn() * 1000); # expiration time.
-        $_SESSION['ds_expiration'] = time() + self::TOKEN_REPLACEMENT_IN_SECONDS;
+        $_SESSION['ds_expiration'] = time() + (self::$access_token->getExpiresIn() * 1000); # expiration time.
+        #$_SESSION['ds_expiration'] = time() + self::TOKEN_REPLACEMENT_IN_SECONDS;
         // Using the access token, we may look up details about the
         // resource owner.
         $_SESSION['ds_user_name'] = self::$account[0]->getName();
@@ -102,7 +102,7 @@ class JWTService
     private function configureJwtAuthorizationFlowByKey()
     {
         self::$apiClient->getOAuth()->setOAuthBasePath($GLOBALS['JWT_CONFIG']['authorization_server']);
-        $privateKey = file_get_contents($_SERVER['DOCUMENT_ROOT'] . '/' . $GLOBALS['JWT_CONFIG']['private_key_file'], true);
+        $privateKey = file_get_contents(__DIR__ . '/../../documents/' . $GLOBALS['JWT_CONFIG']['private_key_file'], true);
         
         try {
             $response = self::$apiClient->requestJWTUserToken(

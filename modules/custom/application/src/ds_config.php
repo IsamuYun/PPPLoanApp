@@ -36,8 +36,8 @@ $JWT_CONFIG = [
     #'authorization_server' => 'account.docusign.com',
     #"ds_impersonated_user_id" => '1c3e9690-2df0-45de-b60a-4bf69acca7f6',  // the id of the user
     "jwt_scope" => "signature impersonation",
-    "private_key_file" => "../documents/alc_jwt.PEM", // path to private key file
-
+    "private_key_file" => "alc_develop.PEM", // path to private key file
+    #"private_key_file" => "alc_jwt.PEM", // path to private key file
 ];
 
 $GLOBALS['DS_CONFIG'] = $DS_CONFIG;
