@@ -182,6 +182,10 @@ class SBALFAController {
         if ($old_file != "") {
             return;
         }
+        $sba_number = $form["elements"]["general_loan_details"]["sba_ppp_loan_number"]["#default_value"];
+        if ($sba_number == "") {
+            return;
+        }
 
         //$elements = WebformFormHelper::flattenElements($form);
         
@@ -201,7 +205,7 @@ class SBALFAController {
         ob_clean();
         ob_start();
         $absolute_path = \Drupal::service('file_system')->realpath('private://webform/apply_for_flp_loan/');
-        $file_name = "3508S_Form_" . time() . ".pdf";
+        $file_name = "3508S_Form_" . $sba_number . ".pdf";
         $absolute_path .= '/' . $file_name;
         $file1 = new SplFileObject($absolute_path, "w+");
         $file = $results["data"];
