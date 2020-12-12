@@ -8,7 +8,7 @@ $DS_CONFIG = [
     'ds_client_secret' => 'db3e3746-f2ab-422e-87ee-5aa0b31b8181', // The app's DocuSign integration key's secret
     'signer_email' => 'ppp@rmdslab.com',
     'signer_name' => 'Isamu Yun',
-    'app_url' => 'https://alcppp.com/', // The url of the application.
+    'app_url' => 'https://alcppp.com', // The url of the application.
     // Ie, the user enters  app_url in their browser to bring up the app's home page
     // Eg http://localhost/code-examples-php/public if the app is installed in a
     // development directory that is accessible via web server.
