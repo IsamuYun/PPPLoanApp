@@ -334,8 +334,6 @@ function application_download_document(array &$form, FormStateInterface $form_st
 
 function application_form_webform_submission_apply_for_flp_loan_edit_all_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
     $elements = WebformFormHelper::flattenElements($form);
-
-    dpm($form["elements"]["supporting_documents"]["supporting_documents_files"]);
     
     $form["elements"]["lender_confirmation"]["#prefix"] = '<div id="lender-confirmation-ajax-wrapper">';
     $form["elements"]["lender_confirmation"]["#suffix"] = "</div>";

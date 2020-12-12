@@ -155,7 +155,6 @@ class SBAForgivenessRequestController {
             $client = \Drupal::httpClient();
             $headers = self::SBA_HEADERS;
 
-            
             $etran_loan_uuid = $elements["sba_etran_loan_uuid"]["#default_value"];
             if (empty($etran_loan_uuid)) {
                 return;
@@ -164,7 +163,7 @@ class SBAForgivenessRequestController {
             if ($sba_upload_status == "uploaded") {
                 return;
             }
-        
+            
             $file_url = $elements["form_file_name"]["#default_value"];
             $file_name_array = explode('/', $file_url);
         
@@ -199,17 +198,18 @@ class SBAForgivenessRequestController {
                 ]
             ]);
             $body = json_decode($response->getBody());
-            dpm($body);
             $entity = $form_state->getFormObject()->getEntity();
             $data = $entity->getData();
             $data["sba_upload_status"] = "uploaded";
             $entity->setData($data);
             $entity->save();
             $sba_response = $form["elements"]["lender_confirmation"]["sba_response"]["#value"];
+            $sba_response .= "\n3508S Form is successfully uploaded.\n";
+            $sba_response .= $this->uploadAnotherDocuments($form, $form_state, $etran_loan_uuid);
             $form["elements"]["lender_confirmation"]["sba_upload_status"]["#value"] = "uploaded";
             $form["elements"]["lender_confirmation"]["sba_upload_status"]["#default_value"] = "uploaded";
-            $form["elements"]["lender_confirmation"]["sba_response"]["#value"] = $sba_response . "\n" . "3508S Form is successfully uploaded.";
-            $form["elements"]["lender_confirmation"]["sba_response"]["#default_value"] = $sba_response . "\n" . "3508S Form is successfully uploaded.";
+            $form["elements"]["lender_confirmation"]["sba_response"]["#value"] = $sba_response; 
+            $form["elements"]["lender_confirmation"]["sba_response"]["#default_value"] = $sba_response;
         }
         catch (ClientException $e) {
             if ($e->hasResponse()) {
@@ -218,6 +218,56 @@ class SBAForgivenessRequestController {
                 $form["elements"]["lender_confirmation"]["sba_response"]["#default_value"] = $response;
             }
         }
+    }
+
+    private function uploadAnotherDocuments(array &$form, FormStateInterface $form_state, $etran_loan_uuid) :string {
+        try {
+            $client = \Drupal::httpClient();
+            $headers = self::SBA_HEADERS;
+            $file_list = $form["elements"]["supporting_documents"]["supporting_documents_title"]["supporting_documents_files"]["#default_value"];
+            $upload_message = "";
+            foreach ($file_list as $file) {
+                $file_id = $file["file"];
+                $file_handle = \Drupal\file\Entity\File::load($file_id);
+                $file_uri = $file_handle->getFileUri();
+                $file_name = $file_handle->getFilename();
+                $file_type = intval($file["file_type"]);
+                $real_path = \Drupal::service('file_system')->realpath($file_uri);
+                $url = self::SBA_HOST . "api/ppp_loan_documents/";
+            
+                $response = $client->request('POST', $url, [
+                    'headers' => $headers,
+                    'multipart' => [
+                        [
+                            "name" => "name",
+                            "contents" => $file_name,
+                        ],
+                        [
+                            "name" => "document_type",
+                            "contents" => $file_type
+                        ],
+                        [
+                            "name" => "etran_loan",
+                            "contents" => $etran_loan_uuid,
+                        ],
+                        [
+                            "name" => "document",
+                            "contents" => fopen($real_path, 'r')
+                        ]
+                    ]
+                ]);
+                #$body = json_decode($response->getBody());
+                $upload_message .= $file_name . " is uploaded.\n";
+            }
+        }
+        catch (ClientException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse()->getBody()->getContents();
+                $form["elements"]["lender_confirmation"]["sba_response"]["#value"] = $response;
+                $form["elements"]["lender_confirmation"]["sba_response"]["#default_value"] = $response;
+            }
+        }
+        return $upload_message;
     }
 
     public function getRequestStatus(array &$elements, array &$form, FormStateInterface $form_state) {
