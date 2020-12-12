@@ -172,7 +172,7 @@ class SBAForgivenessRequestController {
             }
             
             $file_name = $file_name_array[count($file_name_array) - 1];
-            $real_path = \Drupal::service('file_system')->realpath('private://webform/apply_for_flp_loan/' . $file_name);
+            $real_path = \Drupal::service('file_system')->realpath('private://webform/3508s_form/' . $file_name);
         
             $url = self::SBA_HOST . "api/ppp_loan_documents/";
             

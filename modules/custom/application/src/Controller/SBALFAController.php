@@ -204,7 +204,7 @@ class SBALFAController {
         #readfile($file_path);
         ob_clean();
         ob_start();
-        $absolute_path = \Drupal::service('file_system')->realpath('private://webform/apply_for_flp_loan/');
+        $absolute_path = \Drupal::service('file_system')->realpath('private://webform/3508s_form/');
         $file_name = "3508S_Form_" . $sba_number . ".pdf";
         $absolute_path .= '/' . $file_name;
         $file1 = new SplFileObject($absolute_path, "w+");
@@ -222,7 +222,7 @@ class SBALFAController {
 
         $host_name = "https://alcppp.com";
         #$host_name = "http://127.0.0.1";
-        $file_path = "/sites/default/files/private/webform/apply_for_flp_loan/" . $file_name;
+        $file_path = "/sites/default/files/private/webform/3508s_form/" . $file_name;
         $file_url = $host_name . $file_path;
 
         $entity = $form_state->getFormObject()->getEntity();
