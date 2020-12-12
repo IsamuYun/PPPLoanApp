@@ -80,8 +80,8 @@ class JWTService
         // requests against the service provider's API.
         $_SESSION['ds_access_token'] = self::$access_token->getAccessToken();
         $_SESSION['ds_refresh_token'] = self::$access_token->getRefreshToken();
-        $_SESSION['ds_expiration'] = time() + (self::$access_token->getExpiresIn() * 1000); # expiration time.
-        #$_SESSION['ds_expiration'] = time() + self::TOKEN_REPLACEMENT_IN_SECONDS;
+        //$_SESSION['ds_expiration'] = time() + (self::$access_token->getExpiresIn() * 1000); # expiration time.
+        $_SESSION['ds_expiration'] = time() + self::TOKEN_REPLACEMENT_IN_SECONDS;
         // Using the access token, we may look up details about the
         // resource owner.
         $_SESSION['ds_user_name'] = self::$account[0]->getName();
