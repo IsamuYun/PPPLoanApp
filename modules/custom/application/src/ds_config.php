@@ -6,9 +6,9 @@ $DS_CONFIG = [
     'quickstart' => 'true',
     'ds_client_id' => '6fae2115-95c9-4165-a4e7-4753652956c2',  // The app's DocuSign integration key
     'ds_client_secret' => 'db3e3746-f2ab-422e-87ee-5aa0b31b8181', // The app's DocuSign integration key's secret
-    'signer_email' => 'yun@rmdslab.com',
+    'signer_email' => 'ppp@rmdslab.com',
     'signer_name' => 'Isamu Yun',
-    'app_url' => 'http://alcppp.com/', // The url of the application.
+    'app_url' => 'https://alcppp.com/', // The url of the application.
     // Ie, the user enters  app_url in their browser to bring up the app's home page
     // Eg http://localhost/code-examples-php/public if the app is installed in a
     // development directory that is accessible via web server.
@@ -31,10 +31,10 @@ $DS_CONFIG = [
 
 $JWT_CONFIG = [
     'ds_client_id' => '6fae2115-95c9-4165-a4e7-4753652956c2', // The app's DocuSign integration key
-    'authorization_server' => 'account-d.docusign.com',
-    "ds_impersonated_user_id" => 'ddacd29b-a870-41f5-b198-55ef2cb34930',  // the id of the user
+    'authorization_server' => 'account.docusign.com',
+    "ds_impersonated_user_id" => '1c3e9690-2df0-45de-b60a-4bf69acca7f6',  // the id of the user
     "jwt_scope" => "signature impersonation",
-    "private_key_file" => "../private.key", // path to private key file
+    "private_key_file" => "../documents/alc_jwt.PEM", // path to private key file
 
 ];
 
