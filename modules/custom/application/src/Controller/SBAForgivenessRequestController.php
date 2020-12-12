@@ -155,7 +155,7 @@ class SBAForgivenessRequestController {
             $client = \Drupal::httpClient();
             $headers = self::SBA_HEADERS;
 
-            dpm($form["elements"]["supporting_documents"]["supporting_documents_files"]);
+            
             $etran_loan_uuid = $elements["sba_etran_loan_uuid"]["#default_value"];
             if (empty($etran_loan_uuid)) {
                 return;
