@@ -183,6 +183,7 @@ class SBALFAController {
             return;
         }
         $sba_number = $form["elements"]["general_loan_details"]["sba_ppp_loan_number"]["#default_value"];
+        dpm($sba_number);
         if ($sba_number == "") {
             return;
         }

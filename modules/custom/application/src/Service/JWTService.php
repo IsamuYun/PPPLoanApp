@@ -60,7 +60,6 @@ class JWTService
         }
         
         self::$access_token = $this->configureJwtAuthorizationFlowByKey();
-        dpm(self::$access_token);
         if (is_null(self::$access_token)) {
             return;
         }
