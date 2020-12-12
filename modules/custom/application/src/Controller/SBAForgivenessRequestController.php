@@ -10,11 +10,22 @@ use Drupal\webform\Utility\WebformFormHelper;
 use stdClass;
 
 class SBAForgivenessRequestController {
-    const SBA_HEADERS = [
+    const SBA_SANDBOX_HEADERS = [
         'Authorization' => 'Token 7f4d183d617b693c3ad355006c2d7381745e49c6',
         'Vendor-Key' => 'de512795-a13f-4812-8d47-ed41adaa6d32'
     ];
 
+    const SBA_PRODUCTION_HEADERS = [
+        'Authorization' => 'Token 7152fb356b47624e89ff81dd06afe44b4e345999',
+        'Vendor-Key' => '360be2e5-cc2c-4a90-837c-32394087efb3'
+    ];
+
+    const SBA_HEADERS = self::SBA_SANDBOX_HEADERS;
+
+    const SBA_SANDBOX_HOST = "https://sandbox.forgiveness.sba.gov/";
+    const SBA_PRODUCTION_HOST = "https://forgiveness.sba.gov/";
+
+    const SBA_HOST = self::SBA_SANDBOX_HOST;
     /**
      * Create a new controller instance.
      * @return void
@@ -32,7 +43,7 @@ class SBAForgivenessRequestController {
             $headers['Content-Type'] = "application/json";
             $request_data = $this->createForgivenessData($elements);
 
-            $url = "https://sandbox.forgiveness.sba.gov/api/ppp_loan_forgiveness_requests/";
+            $url = self::SBA_HOST . "api/ppp_loan_forgiveness_requests/";
     
             $response = $client->request('POST', $url, [
                 'headers' => $headers,
@@ -143,6 +154,8 @@ class SBAForgivenessRequestController {
         try {
             $client = \Drupal::httpClient();
             $headers = self::SBA_HEADERS;
+
+            dpm($form["elements"]["supporting_documents"]["supporting_documents_files"]);
             $etran_loan_uuid = $elements["sba_etran_loan_uuid"]["#default_value"];
             if (empty($etran_loan_uuid)) {
                 return;
@@ -158,11 +171,11 @@ class SBAForgivenessRequestController {
             if (empty($file_url) || empty($file_url)) {
                 return;
             }
-        
+            
             $file_name = $file_name_array[count($file_name_array) - 1];
             $real_path = \Drupal::service('file_system')->realpath('private://webform/apply_for_flp_loan/' . $file_name);
         
-            $url = "https://sandbox.forgiveness.sba.gov/api/ppp_loan_documents/";
+            $url = self::SBA_HOST . "api/ppp_loan_documents/";
             
             $response = $client->request('POST', $url, [
                 'headers' => $headers,
@@ -173,7 +186,7 @@ class SBAForgivenessRequestController {
                     ],
                     [
                         "name" => "document_type",
-                        "contents" => 1
+                        "contents" => 35
                     ],
                     [
                         "name" => "etran_loan",
@@ -217,7 +230,7 @@ class SBAForgivenessRequestController {
                 return;
             }
             
-            $url = "https://sandbox.forgiveness.sba.gov/api/ppp_loan_forgiveness_requests/?sba_number=" . $sba_number;
+            $url = self::SBA_HOST . "api/ppp_loan_forgiveness_requests/?sba_number=" . $sba_number;
             
             $response = $client->request('GET', $url, [
                 'headers' => $headers,
@@ -276,7 +289,7 @@ class SBAForgivenessRequestController {
             //    $form["elements"]["lender_confirmation"]["sba_response"]["#default_value"] = "Forgiveness requests can only be deleted if their status is “Pending Validation”";
             //    return;
             //}
-            $url = "https://sandbox.forgiveness.sba.gov/api/ppp_loan_forgiveness_requests/" . $sba_slug . "/";
+            $url = self::SBA_HOST . "api/ppp_loan_forgiveness_requests/" . $sba_slug . "/";
             $response = $client->request("DELETE", $url, [
                 'headers' => $headers,
             ]);
