@@ -182,9 +182,8 @@ class SBALFAController {
         if ($old_file != "") {
             return;
         }
-        $sba_number = $form["elements"]["general_loan_details"]["sba_ppp_loan_number"]["#default_value"];
-        dpm($form["elements"]);
-        //dpm($sba_number);
+        $sba_number = $form["elements"]["general_loan_details"]["ppp_loan"]["flexbox_06"]["sba_ppp_loan_number"]["#default_value"];
+        dpm($sba_number);
         if ($sba_number == "") {
             return;
         }
