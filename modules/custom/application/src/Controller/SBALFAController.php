@@ -62,8 +62,7 @@ class SBALFAController {
     private function getTemplateArgs(): array
     {
         $envelope_args = [
-            #'signer_email' => $this->getBorrowerEmail(),
-            'signer_email' => "ppp@americanlendingcenter.com",
+            'signer_email' => $this->getBorrowerEmail(),
             'signer_name' => $this->getBorrowerName(),
             #'cc_email' => $cc_email,
             #'cc_name' => $cc_name,
@@ -437,9 +436,9 @@ class SBALFAController {
             "height" => "14", "width" => "100", "required" => "false"
         ]);
         // 033 - forgive_amount
-        $forgive_amount = $this->elements["forgive_amount"]["#default_value"];
-        $currency_fmt = new NumberFormatter("en-US", NumberFormatter::CURRENCY);
-        $forgive_amount = $currency_fmt->formatCurrency($forgive_amount, "USD");
+        $forgive_amount = $this->elements["forgiveness_calculation"]["#default_value"];
+        #$currency_fmt = new NumberFormatter("en-US", NumberFormatter::CURRENCY);
+        #$forgive_amount = $currency_fmt->formatCurrency($forgive_amount, "USD");
         $forgive_amount_text = new Text([
             'document_id' => "1", "page_number" => "1",
             "x_position" => "131", "y_position" => "232",

@@ -103,7 +103,7 @@ class SBAForgivenessRequestController {
         $order = array("$", " ", ",");
     
         $bank_notional_amount = str_replace($order, "", $elements["ppp_loan_amount"]["#default_value"]);
-        $forgive_amount = str_replace($order, "", $elements["forgive_amount"]["#default_value"]);
+        $forgive_amount = str_replace($order, "", $elements["forgiveness_calculation"]["#default_value"]);
         
         $time = strtotime($elements["ppp_loan_disbursement_date"]["#default_value"]);
         $funding_date = date('Y-m-d', $time);
