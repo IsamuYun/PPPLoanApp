@@ -27,7 +27,7 @@ class SBAForgivenessRequestController {
 
     #const SBA_HOST = self::SBA_SANDBOX_HOST;
     const SBA_HOST = self::SBA_PRODUCTION_HOST;
-    
+
     /**
      * Create a new controller instance.
      * @return void
@@ -120,9 +120,9 @@ class SBAForgivenessRequestController {
             $etran_loan->forgive_eidl_application_number = null;
         }
         else {
-            $etran_loan->forgive_eidl_application_number = $eidl_application_number;
+            #$etran_loan->forgive_eidl_application_number = intval($eidl_application_number);
+            $etran_loan->forgive_eidl_application_number = null;
         }
-        
         $etran_loan->address1 = $elements["business_street_address"]["#default_value"];
         $etran_loan->address2 = $elements["city_state_zip"]["#default_value"];
         $etran_loan->dba_name = $elements["dba_or_trade_name_if_applicable"]["#default_value"];
