@@ -20,12 +20,14 @@ class SBAForgivenessRequestController {
         'Vendor-Key' => '360be2e5-cc2c-4a90-837c-32394087efb3'
     ];
 
-    const SBA_HEADERS = self::SBA_SANDBOX_HEADERS;
-
+    #const SBA_HEADERS = self::SBA_SANDBOX_HEADERS;
+    const SBA_HEADERS = self::SBA_PRODUCTION_HEADERS;
     const SBA_SANDBOX_HOST = "https://sandbox.forgiveness.sba.gov/";
     const SBA_PRODUCTION_HOST = "https://forgiveness.sba.gov/";
 
-    const SBA_HOST = self::SBA_SANDBOX_HOST;
+    #const SBA_HOST = self::SBA_SANDBOX_HOST;
+    const SBA_HOST = self::SBA_PRODUCTION_HOST;
+    
     /**
      * Create a new controller instance.
      * @return void
