@@ -149,7 +149,7 @@ class FLPSearchForm extends FormBase {
      * @param string $ein
      *   The string value of Business TIN (EIN, SSN).
      */
-    public function searchFlpResult($primary_name='', $ein='') :object {
+    public function searchFlpResult($primary_name='', $ein='') {
         $database = \Drupal::database();
         $query = $database->query("SELECT * FROM {lfa_data} WHERE LOWER(primary_name) = :primary_name OR ein = :ein", [
             ':primary_name' => strtolower($primary_name),
