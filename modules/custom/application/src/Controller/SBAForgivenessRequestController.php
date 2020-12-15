@@ -20,12 +20,14 @@ class SBAForgivenessRequestController {
         'Vendor-Key' => '360be2e5-cc2c-4a90-837c-32394087efb3'
     ];
 
-    const SBA_HEADERS = self::SBA_SANDBOX_HEADERS;
-
+    #const SBA_HEADERS = self::SBA_SANDBOX_HEADERS;
+    const SBA_HEADERS = self::SBA_PRODUCTION_HEADERS;
     const SBA_SANDBOX_HOST = "https://sandbox.forgiveness.sba.gov/";
     const SBA_PRODUCTION_HOST = "https://forgiveness.sba.gov/";
 
-    const SBA_HOST = self::SBA_SANDBOX_HOST;
+    #const SBA_HOST = self::SBA_SANDBOX_HOST;
+    const SBA_HOST = self::SBA_PRODUCTION_HOST;
+
     /**
      * Create a new controller instance.
      * @return void
@@ -101,7 +103,7 @@ class SBAForgivenessRequestController {
         $order = array("$", " ", ",");
     
         $bank_notional_amount = str_replace($order, "", $elements["ppp_loan_amount"]["#default_value"]);
-        $forgive_amount = str_replace($order, "", $elements["forgive_amount"]["#default_value"]);
+        $forgive_amount = str_replace($order, "", $elements["forgiveness_calculation"]["#default_value"]);
         
         $time = strtotime($elements["ppp_loan_disbursement_date"]["#default_value"]);
         $funding_date = date('Y-m-d', $time);
@@ -118,9 +120,9 @@ class SBAForgivenessRequestController {
             $etran_loan->forgive_eidl_application_number = null;
         }
         else {
-            $etran_loan->forgive_eidl_application_number = $eidl_application_number;
+            #$etran_loan->forgive_eidl_application_number = intval($eidl_application_number);
+            $etran_loan->forgive_eidl_application_number = null;
         }
-        
         $etran_loan->address1 = $elements["business_street_address"]["#default_value"];
         $etran_loan->address2 = $elements["city_state_zip"]["#default_value"];
         $etran_loan->dba_name = $elements["dba_or_trade_name_if_applicable"]["#default_value"];

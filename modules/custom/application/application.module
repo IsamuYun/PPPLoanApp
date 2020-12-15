@@ -87,12 +87,12 @@ function application_form_webform_submission_apply_for_flp_loan_add_form_alter(a
     // calculate forgive amount
     $order = array("$", " ", ",");
 
-    $forgiveness_amount = str_replace($order, "", $elements["forgiveness_calculation"]["#default_value"]);
-    $eidl_amount = str_replace($order, "", $elements["eidl_advance_amount_if_applicable_"]["#default_value"]);
+    #$forgiveness_amount = str_replace($order, "", $elements["forgiveness_calculation"]["#default_value"]);
+    #$eidl_amount = str_replace($order, "", $elements["eidl_advance_amount_if_applicable_"]["#default_value"]);
 
-    $forgive_amount = $forgiveness_amount - $eidl_amount;
+    #$forgive_amount = $forgiveness_amount - $eidl_amount;
 
-    $elements["forgive_amount"]["#default_value"] = $forgive_amount;
+    #$elements["forgive_amount"]["#default_value"] = $forgive_amount;
     $controller = new SBALFAController($elements);
     $controller->login();
     $form['actions']['submit']['#submit'][]  = 'application_send_fogive_form';
@@ -424,11 +424,11 @@ function application_form_webform_submission_apply_for_flp_loan_edit_all_form_al
     // calculate forgive amount
     $order = array("$", " ", ",");
 
-    $forgiveness_amount = str_replace($order, "", $elements["forgiveness_calculation"]["#default_value"]);
-    $eidl_amount = str_replace($order, "", $elements["eidl_advance_amount_if_applicable_"]["#default_value"]);
+    #$forgiveness_amount = str_replace($order, "", $elements["forgiveness_calculation"]["#default_value"]);
+    #$eidl_amount = str_replace($order, "", $elements["eidl_advance_amount_if_applicable_"]["#default_value"]);
 
-    $forgive_amount = $forgiveness_amount - $eidl_amount;
-    $elements["forgive_amount"]["#default_value"] = $forgive_amount;
+    #$forgive_amount = $forgiveness_amount - $eidl_amount;
+    #$elements["forgive_amount"]["#default_value"] = $forgive_amount;
     
     $controller = new SBALFAController($elements);
     $controller->login();
