@@ -47,6 +47,7 @@ class FLPSearchForm extends FormBase {
 
         $form['ein'] = [
             '#type' => 'textfield',
+            '#required' => true,
             '#title' => $this->t('Business TIN (EIN, SSN)'),
         ];
 
