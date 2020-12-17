@@ -291,22 +291,27 @@ class SBAForgivenessRequestController {
             $sba_slug = "";
             $sba_etran_loan_uuid = "";
             $status = "";
+            $upload_status = $elements["sba_upload_status"]["#default_value"];
+            
             if (!empty($body->{"results"})) {
                 $result = $body->{"results"}[0];
                 $sba_slug = $result->{"slug"};
                 $sba_etran_loan_uuid = $result->{"etran_loan"}->{"slug"};
                 $status = $result->{"etran_loan"}->{"status"};
             }
-            /*
+            else {
+                $upload_status = "";
+            }
+            
             $entity = $form_state->getFormObject()->getEntity();
             $data = $entity->getData();
             $data["sba_etran_loan_uuid"] = $sba_etran_loan_uuid;
             $data["sba_slug"] = $sba_slug;
             $data["sba_request_status"] = $status;
             $data["sba_response"] = "";
+            $data["sba_upload_status"] = $upload_status;
             $entity->setData($data);
             $entity->save();
-            */
             
             $form["elements"]["lender_confirmation"]["sba_slug"]["#value"] = $sba_slug;
             $form["elements"]["lender_confirmation"]["sba_slug"]["#default_value"] = $sba_slug;
@@ -316,6 +321,8 @@ class SBAForgivenessRequestController {
             $form["elements"]["lender_confirmation"]["sba_request_status"]["#default_value"] = $status;
             $form["elements"]["lender_confirmation"]["sba_response"]["#value"] = "";
             $form["elements"]["lender_confirmation"]["sba_response"]["#default_value"] = "";
+            $form["elements"]["lender_confirmation"]["sba_upload_status"]["#value"] = $upload_status;
+            $form["elements"]["lender_confirmation"]["sba_upload_status"]["#default_value"] = $upload_status;
         }
         catch (ClientException $e) {
             if ($e->hasResponse()) {
