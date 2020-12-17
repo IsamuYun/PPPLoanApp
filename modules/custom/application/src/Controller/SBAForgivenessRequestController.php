@@ -302,7 +302,7 @@ class SBAForgivenessRequestController {
             else {
                 $upload_status = "";
             }
-            
+            /*
             $entity = $form_state->getFormObject()->getEntity();
             $data = $entity->getData();
             $data["sba_etran_loan_uuid"] = $sba_etran_loan_uuid;
@@ -312,7 +312,7 @@ class SBAForgivenessRequestController {
             $data["sba_upload_status"] = $upload_status;
             $entity->setData($data);
             $entity->save();
-            
+            */
             $form["elements"]["lender_confirmation"]["sba_slug"]["#value"] = $sba_slug;
             $form["elements"]["lender_confirmation"]["sba_slug"]["#default_value"] = $sba_slug;
             $form["elements"]["lender_confirmation"]["sba_etran_loan_uuid"]["#value"] = $sba_etran_loan_uuid;
