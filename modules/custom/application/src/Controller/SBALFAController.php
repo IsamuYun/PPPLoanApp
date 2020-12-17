@@ -435,9 +435,8 @@ class SBALFAController {
             "height" => "14", "width" => "100", "required" => "false"
         ]);
         // 033 - forgive_amount
-        $forgive_amount = $this->elements["forgiveness_calculation"]["#default_value"];
-        #$currency_fmt = new NumberFormatter("en-US", NumberFormatter::CURRENCY);
-        #$forgive_amount = $currency_fmt->formatCurrency($forgive_amount, "USD");
+        #$forgive_amount = $this->elements["forgiveness_calculation"]["#default_value"];
+        $forgive_amount = $this->elements["ppp_loan_amount"]["#default_value"];
         $forgive_amount_text = new Text([
             'document_id' => "1", "page_number" => "1",
             "x_position" => "131", "y_position" => "232",
