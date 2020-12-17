@@ -291,13 +291,17 @@ class SBAForgivenessRequestController {
             $sba_slug = "";
             $sba_etran_loan_uuid = "";
             $status = "";
-            $upload_status = $elements["sba_upload_status"]["#default_value"];
+            $upload_status = "";
             dpm($body->{"results"});
             if (!empty($body->{"results"})) {
                 $result = $body->{"results"}[0];
                 $sba_slug = $result->{"slug"};
                 $sba_etran_loan_uuid = $result->{"etran_loan"}->{"slug"};
                 $status = $result->{"etran_loan"}->{"status"};
+                $documents = $result->{"etran_loan"}->{"documents"};
+                if (!empty($documents)) {
+                    $upload_status = count($documents) . " documents has been uploaded";
+                }
             }
             else {
                 $upload_status = "";
