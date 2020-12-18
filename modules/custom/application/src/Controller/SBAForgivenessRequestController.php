@@ -103,7 +103,8 @@ class SBAForgivenessRequestController {
         $order = array("$", " ", ",");
     
         $bank_notional_amount = str_replace($order, "", $elements["ppp_loan_amount"]["#default_value"]);
-        $forgive_amount = str_replace($order, "", $elements["forgiveness_calculation"]["#default_value"]);
+        $forgive_amount = $bank_notional_amount;
+        #$forgive_amount = str_replace($order, "", $elements["forgiveness_calculation"]["#default_value"]);
         
         $time = strtotime($elements["ppp_loan_disbursement_date"]["#default_value"]);
         $funding_date = date('Y-m-d', $time);
@@ -291,23 +292,30 @@ class SBAForgivenessRequestController {
             $sba_slug = "";
             $sba_etran_loan_uuid = "";
             $status = "";
+            $upload_status = "";
             if (!empty($body->{"results"})) {
                 $result = $body->{"results"}[0];
                 $sba_slug = $result->{"slug"};
                 $sba_etran_loan_uuid = $result->{"etran_loan"}->{"slug"};
                 $status = $result->{"etran_loan"}->{"status"};
+                $documents = $result->{"etran_loan"}->{"documents"};
+                if (!empty($documents)) {
+                    $upload_status = count($documents) . " documents has been uploaded";
+                }
             }
-            /*
+            else {
+                $upload_status = "";
+            }
+            
             $entity = $form_state->getFormObject()->getEntity();
             $data = $entity->getData();
             $data["sba_etran_loan_uuid"] = $sba_etran_loan_uuid;
             $data["sba_slug"] = $sba_slug;
             $data["sba_request_status"] = $status;
             $data["sba_response"] = "";
+            $data["sba_upload_status"] = $upload_status;
             $entity->setData($data);
             $entity->save();
-            */
-            
             $form["elements"]["lender_confirmation"]["sba_slug"]["#value"] = $sba_slug;
             $form["elements"]["lender_confirmation"]["sba_slug"]["#default_value"] = $sba_slug;
             $form["elements"]["lender_confirmation"]["sba_etran_loan_uuid"]["#value"] = $sba_etran_loan_uuid;
@@ -316,6 +324,8 @@ class SBAForgivenessRequestController {
             $form["elements"]["lender_confirmation"]["sba_request_status"]["#default_value"] = $status;
             $form["elements"]["lender_confirmation"]["sba_response"]["#value"] = "";
             $form["elements"]["lender_confirmation"]["sba_response"]["#default_value"] = "";
+            $form["elements"]["lender_confirmation"]["sba_upload_status"]["#value"] = $upload_status;
+            $form["elements"]["lender_confirmation"]["sba_upload_status"]["#default_value"] = $upload_status;
         }
         catch (ClientException $e) {
             if ($e->hasResponse()) {
@@ -336,11 +346,7 @@ class SBAForgivenessRequestController {
                 return;
             }
             $status = $elements["sba_request_status"]["#default_value"];
-            //if ($status == "Pending Validation") {
-            //    $form["elements"]["lender_confirmation"]["sba_response"]["#value"] = "Forgiveness requests can only be deleted if their status is “Pending Validation”";
-            //    $form["elements"]["lender_confirmation"]["sba_response"]["#default_value"] = "Forgiveness requests can only be deleted if their status is “Pending Validation”";
-            //    return;
-            //}
+            
             $url = self::SBA_HOST . "api/ppp_loan_forgiveness_requests/" . $sba_slug . "/";
             $response = $client->request("DELETE", $url, [
                 'headers' => $headers,
