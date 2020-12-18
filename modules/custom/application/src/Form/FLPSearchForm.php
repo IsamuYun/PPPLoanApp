@@ -224,7 +224,7 @@ class FLPSearchForm extends FormBase {
                 'employees_at_time_of_loan_application' => $data->forgive_fte_at_loan_application,
                 'eidl_application_number_if_applicable' => $data->forgive_eidl_application_number,
                 'eidl_advance_amount_if_applicable_' => $data->forgive_eidl_amount,
-                'forgiveness_calculation' => $data->forgive_amount,
+                'forgiveness_calculation' => $data->bank_notional_amount,
             ];
 
             if($data->forgive_fte_at_forgiveness_application) $value_data['employees_at_time_of_forgiveness_application'] = $data->forgive_fte_at_forgiveness_application;
