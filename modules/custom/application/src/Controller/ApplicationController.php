@@ -103,7 +103,7 @@ class ApplicationController {
     /**
      * Display the markup.
      */
-    public function content() {
+    public function sendBorrowerDocuSignForm() {
         $results = $this->worker($this->args);
 
         return $results;
@@ -142,7 +142,7 @@ class ApplicationController {
         return ['envelope_id' => $results->getEnvelopeId()];
     }
 
-    public function forgiveness_worker($args): array
+    public function lender_worker($args): array
     {
         # 1. Create the envelope request object
         $envelope_definition = $this->make_forgiveness_envelope($args["envelope_args"]);

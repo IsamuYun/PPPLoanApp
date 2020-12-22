@@ -17,8 +17,42 @@ use Drupal\application\Controller\SBALFAController;
 
 function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
     $elements = WebformFormHelper::flattenElements($form);
+    $application_controller = new ApplicationController($elements);
+    $application_controller->login();
 
-    application_verify_netearnings($form, $form_state);
+    $form["elements"]["loan_officer_page"]["#prefix"] = '<div id="loan-officer-ajax-wrapper">';
+    $form["elements"]["loan_officer_page"]["#suffix"] = "</div>";
+
+    $form["elements"]["loan_officer_page"]["btn_send_borrower_form"] = [
+        "#type" => "button",
+        "#value" => "Send Borrower Form",
+        "#ajax" => [
+            "callback" => "application_send_borrower_docusign_form",
+            "event" => "click",
+            "wrapper" => "loan-officer-ajax-wrapper",
+            "progress" => [
+                "type" => "throbber",
+                "message" => "Sending...",
+            ],
+        ]
+    ];
+
+    $form["elements"]["loan_officer_page"]["btn_send_lender_form"] = [
+        "#type" => "button",
+        "#value" => "Send Borrower Form",
+        "#ajax" => [
+            "callback" => "application_send_borrower_docusign_form",
+            "event" => "click",
+            "wrapper" => "loan-officer-ajax-wrapper",
+            "progress" => [
+                "type" => "throbber",
+                "message" => "Sending...",
+            ],
+        ]
+    ];
+
+
+    //application_verify_netearnings($form, $form_state);
 }
 
 function application_form_webform_submission_apply_for_ppp_loan_edit_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
@@ -98,11 +132,12 @@ function application_form_webform_submission_apply_for_flp_loan_add_form_alter(a
     $form['actions']['submit']['#submit'][]  = 'application_send_fogive_form';
 }
 
-function application_form_submit(array &$form, FormStateInterface $form_state) {
+function application_send_borrower_docusign_form(array &$form, FormStateInterface $form_state) {
     $elements = WebformFormHelper::flattenElements($form);
     $application_controller = new ApplicationController($elements);
     $application_controller->login();
-    $result = $application_controller->content();
+    $result = $application_controller->sendBorrowerDocuSignForm();
+
 }
 
 
@@ -239,8 +274,6 @@ function application_form_webform_submission_forgiveness_form_add_form_alter(arr
     $elements = WebformFormHelper::flattenElements($form);
 
     #$elements["borrower_email"]["#default_value"] = \Drupal::currentUser()->getEmail();
-
-    $elements["borrower_email"]["#default_value"] = "yunforreg@gmail.com";
 
     $application_controller = new ApplicationController($elements);
 
