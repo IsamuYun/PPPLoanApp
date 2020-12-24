@@ -14,6 +14,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\application\Controller\ApplicationController;
 use Drupal\application\Controller\SBAForgivenessRequestController;
 use Drupal\application\Controller\SBALFAController;
+use Drupal\application\Controller\LenderController;
 
 function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
     $elements = WebformFormHelper::flattenElements($form);
@@ -39,9 +40,9 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
 
     $form["elements"]["loan_officer_page"]["btn_send_lender_form"] = [
         "#type" => "button",
-        "#value" => "Send Borrower Form",
+        "#value" => "Send Lender Form",
         "#ajax" => [
-            "callback" => "application_send_borrower_docusign_form",
+            "callback" => "application_send_lender_docusign_form",
             "event" => "click",
             "wrapper" => "loan-officer-ajax-wrapper",
             "progress" => [
@@ -50,6 +51,12 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
             ],
         ]
     ];
+
+    #$email = \Drupal::currentUser()->getEmail();
+    $officer_uid = \Drupal::currentUser()->id();
+
+    $elements["loan_officer"]["#value"] = $officer_uid;
+    $elements["loan_officer"]["#default_value"] = $officer_uid;
 
 
     //application_verify_netearnings($form, $form_state);
@@ -136,11 +143,15 @@ function application_send_borrower_docusign_form(array &$form, FormStateInterfac
     $elements = WebformFormHelper::flattenElements($form);
     $application_controller = new ApplicationController($elements);
     $application_controller->login();
-    $result = $application_controller->sendBorrowerDocuSignForm();
-
+    $application_controller->sendBorrowerDocuSignForm($form, $form_state);
+    return $form["elements"]["loan_officer_page"];
 }
 
-
+function application_send_lender_docusign_form(array &$form, FormStateInterface $form_state) {
+    $controller = new LenderController();
+    $controller->createLenderFormPDF($form, $form_state);
+    return $form["elements"]["loan_officer_page"];
+}
 
 function application_verify_netearnings(array &$form, FormStateInterface $form_state) {
     #$response = new AjaxResponse();

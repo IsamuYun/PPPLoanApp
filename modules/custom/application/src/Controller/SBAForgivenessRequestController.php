@@ -52,8 +52,7 @@ class SBAForgivenessRequestController {
                 'body' => $request_data,
             ]);
             $body = json_decode($response->getBody());
-            dpm($body);
-
+            
             dpm($body->{"etran_loan"}->{"slug"});
 
             $slug = false;

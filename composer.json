@@ -33,7 +33,9 @@
         "drupal/webform": "^6.0",
         "drush/drush": "^10.4",
         "league/oauth2-client": "^2.5",
-        "mashape/unirest-php": "^3.0"
+        "mashape/unirest-php": "^3.0",
+        "setasign/fpdf": "^1.8",
+        "setasign/fpdi": "^2.3"
     },
     "conflict": {
         "drupal/drupal": "*"

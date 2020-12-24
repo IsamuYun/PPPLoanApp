@@ -8,7 +8,7 @@ use DocuSign\eSign\Model\CarbonCopy;
 use DocuSign\eSign\Model\Checkbox;
 use DocuSign\eSign\Model\Document;
 use DocuSign\eSign\Model\InitialHere;
-use DocuSign\eSign\Model\Number;
+use DocuSign\eSign\Model\SealSign;
 use DocuSign\eSign\Model\Radio;
 use DocuSign\eSign\Model\RadioGroup;
 use DocuSign\eSign\Model\Recipients;
@@ -17,13 +17,14 @@ use DocuSign\eSign\Model\SignHere;
 use DocuSign\eSign\Model\Tabs;
 use DocuSign\eSign\Model\Text;
 
-
 use Drupal\application\Service\ClientService;
 use Drupal\application\Service\JWTService;
 
-use Drupal\Core\Messenger\MessengerInterface;
-use Drupal\Core\Render\Markup;
+use Drupal\webform\Utility\WebformFormHelper;
+use Drupal\Core\Form\FormStateInterface;
+
 use SplFileObject;
+use stdClass;
 
 require_once __DIR__ . '/../ds_config.php';
 
@@ -71,11 +72,6 @@ class ApplicationController {
      */
     private function getTemplateArgs(): array
     {
-        #$signer_name  = preg_replace('/([^\w \-\@\.\,])+/', '', $_POST['signer_name' ]);
-        #$signer_email = preg_replace('/([^\w \-\@\.\,])+/', '', $_POST['signer_email']);
-        #$cc_name      = preg_replace('/([^\w \-\@\.\,])+/', '', $_POST['cc_name'     ]);
-        #$cc_email     = preg_replace('/([^\w \-\@\.\,])+/', '', $_POST['cc_email'    ]);
-        
         #$signer_name = $this->getPrintName();
         #$signer_email = $this->getBorrowerEmail();
         $signer_name = "Isamu";
@@ -103,15 +99,22 @@ class ApplicationController {
     /**
      * Display the markup.
      */
-    public function sendBorrowerDocuSignForm() {
-        $results = $this->worker($this->args);
+    public function sendBorrowerDocuSignForm(array &$form, FormStateInterface $form_state) {
+        $result = $this->worker($this->args);
 
-        return $results;
-    }
+        if ($result && empty($result["envelope_id"])) {
+            return;
+        }
 
-    public function buildForgivenessForm() {
-        $results = $this->forgiveness_worker($this->args);
-        return $results;
+        $entity = $form_state->getFormObject()->getEntity();
+        $data = $entity->getData();
+        $data["borrower_envelope_status"] = "Sent";
+        $data["borrower_envelope_id"] = $result["envelope_id"];
+        $entity->setData($data);
+        $entity->save();
+
+        $this->elements["borrower_envelope_status"]["#value"] = "Sent";
+        $this->elements["borrower_envelope_id"]["#value"] = $result["envelope_id"];
     }
 
     /**
@@ -135,25 +138,6 @@ class ApplicationController {
         try {
             $results = $envelope_api->createEnvelope($args['account_id'], $envelope_definition);
         } catch (ApiException $e) {
-            $this->clientService->showErrorTemplate($e);
-            exit;
-        }
-        
-        return ['envelope_id' => $results->getEnvelopeId()];
-    }
-
-    public function lender_worker($args): array
-    {
-        # 1. Create the envelope request object
-        $envelope_definition = $this->make_forgiveness_envelope($args["envelope_args"]);
-        $envelope_api = $this->clientService->getEnvelopeApi();
-       
-        # 2. call Envelopes::create API method
-        # Exceptions will be caught by the calling function
-        try {
-            $results = $envelope_api->createEnvelope($args['account_id'], $envelope_definition);
-        } 
-        catch (ApiException $e) {
             $this->clientService->showErrorTemplate($e);
             exit;
         }
@@ -365,10 +349,8 @@ class ApplicationController {
             "value" => $this->getJobTitle(),
             "height" => "20", "width" => "200", "required" => "false"
         ]);
-
-
-
-
+        
+        
         $sign_here = new SignHere(['document_id' => "1", 'page_number' => "2",
         'x_position' => '40', 'y_position' => '650']);
 
@@ -415,23 +397,14 @@ class ApplicationController {
             ]
         ]));
 
-        # create a cc recipient to receive a copy of the documents
-        $cc = new CarbonCopy([
-            'email' => $args['cc_email'], 'name' => $args['cc_name'],
-            'recipient_id' => "2", 'routing_order' => "2"]);
-
         # Add the recipients to the envelope object
         $recipients = new Recipients([
-            'signers' => [$signer],
-            #'carbon_copies' => [$cc]
-            ]
-        );
+            'signers' => [$signer]
+        ]);
         $envelope_definition->setRecipients($recipients);
 
         # The order in the docs array determines the order in the envelope
         $envelope_definition->setDocuments([$document]);
-
-
 
         # Request that the envelope be sent by setting |status| to "sent".
         # To request that the envelope be created as a draft, set to "created"
@@ -439,10 +412,7 @@ class ApplicationController {
 
         return $envelope_definition;
     }
-    # ***DS.snippet.0.end
     
-    
-
     public function getBorrowerEmail() {
         $email = $this->elements["borrower_email"]["#default_value"];
         return $email;
@@ -546,7 +516,7 @@ class ApplicationController {
             $average_payroll = ($net_earnings + $total_payroll + $total_tax_paid) / 12;
         }
 
-        return number_format($average_payroll, 2, '.', '');
+        return $average_payroll;
     }
 
     private function getLoanAmount() {
@@ -566,7 +536,7 @@ class ApplicationController {
         if ($loan_amount < 0) {
             $loan_amount = 0;
         }
-        return number_format($loan_amount, 2, '.', '');
+        return number_format($loan_amount, 2);
     }
 
     private function getPurposeList() {
@@ -879,108 +849,6 @@ class ApplicationController {
         ];
     }
 
-    /**
-     * Create the Lender Form and send
-     * 1. Create the envelope request object
-     * 2. Send the envelope
-     *
-     * @param  $args array
-     * @return array ['redirect_url']
-     * @throws ApiException for API problems and perhaps file access \Exception too.
-     */
-    public function lender_form_worker($args): array
-    {
-        # 1. Create the envelope request object
-        $envelope_definition = $this->make_envelope($args["envelope_args"]);
-        $envelope_api = $this->clientService->getEnvelopeApi();
-       
-        # 2. call Envelopes::create API method
-        # Exceptions will be caught by the calling function
-        try {
-            $results = $envelope_api->createEnvelope($args['account_id'], $envelope_definition);
-        } catch (ApiException $e) {
-            $this->clientService->showErrorTemplate($e);
-            exit;
-        }
-        
-        return ['envelope_id' => $results->getEnvelopeId()];
-    }
-
-    public function forgiveness_form_worker($args): array
-    {
-        # 1. Create the envelope request object
-        $envelope_definition = $this->make_forgiveness_envelope($args["envelope_args"]);
-        $envelope_api = $this->clientService->getEnvelopeApi();
-       
-        # 2. call Envelopes::create API method
-        # Exceptions will be caught by the calling function
-        try {
-            $results = $envelope_api->createEnvelope($args['account_id'], $envelope_definition);
-        } catch (ApiException $e) {
-            $this->clientService->showErrorTemplate($e);
-            exit;
-        }
-        
-        return ['envelope_id' => $results->getEnvelopeId()];
-    }
-
-    private function make_forgiveness_envelope(array $args): EnvelopeDefinition
-    {
-        $envelope_definition = new EnvelopeDefinition([
-            'email_subject' => 'Please sign this forgiveness form'
-         ]);
-         # read files 2 and 3 from a local directory
-         # The reads could raise an exception if the file is not available!
-         $content_bytes = file_get_contents(self::DOCS_PATH . "PPP-Borrower-Application-Form-1.pdf");
-         $borrower_form_b64 = base64_encode($content_bytes);
-         
-         # Create the document models
-         $document = new Document([  # create the DocuSign document object
-             'document_base64' => $borrower_form_b64,
-             'name' => 'PPP Loan Forgiveness Form',  # can be different from actual file name
-             'file_extension' => 'pdf',  # many different document types are accepted
-             'document_id' => '1'  # a label used to reference the doc
-         ]);
-
-         $sign_here = new SignHere(['document_id' => "1", 'page_number' => "2",
-        'x_position' => '40', 'y_position' => '650']);
-
-        # Create the signer recipient model
-        $signer = new Signer([
-            'email' => $args['signer_email'], 'name' => $args['signer_name'],
-            'role_name' => 'signer', 'recipient_id' => "1", 'routing_order' => "1"]);
-        # routingOrder (lower means earlier) determines the order of deliveries
-        # to the recipients. Parallel routing order is supported by using the
-        # same integer as the order for two or more recipients.
-        
-        $signer->setTabs(new Tabs(['sign_here_tabs' => [$sign_here],
-        ]));
-
-        # create a cc recipient to receive a copy of the documents
-        $cc = new CarbonCopy([
-            'email' => $args['cc_email'], 'name' => $args['cc_name'],
-            'recipient_id' => "2", 'routing_order' => "2"]);
-
-        # Add the recipients to the envelope object
-        $recipients = new Recipients([
-            'signers' => [$signer],
-            #'carbon_copies' => [$cc]
-            ]
-        );
-        $envelope_definition->setRecipients($recipients);
-
-        # The order in the docs array determines the order in the envelope
-        $envelope_definition->setDocuments([$document]);
-
-
-
-        # Request that the envelope be sent by setting |status| to "sent".
-        # To request that the envelope be created as a draft, set to "created"
-        $envelope_definition->setStatus($args["status"]);
-
-        return $envelope_definition;
-    }
-
     private function getDownloadDocumentArgs(): array
     {
         #$envelope_id= isset($_SESSION['envelope_id']) ? $_SESSION['envelope_id'] : false;
@@ -1066,7 +934,7 @@ class ApplicationController {
             $absolute_path .= '/' . time() . ".pdf";
             $file1 = new SplFileObject($absolute_path, "w+");
             $file = $results["data"];
-            $file->rewind();
+            clearstatcache();
             $handle = $file->openFile('r');
             $contents = $handle->fread($file->getSize());
             
