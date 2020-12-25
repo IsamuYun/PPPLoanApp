@@ -1,0 +1,25 @@
+webform_composite.webform_composite.*:
+  type: mapping
+  label: 'webform_composite'
+  mapping:
+    id:
+      type: string
+      label: 'Webform Composite ID'
+    uuid:
+      type: string
+      label: 'UUID'
+    status:
+      type: boolean
+      label: 'status'
+    label:
+      type: label
+      label: 'Webform label'
+    elements:
+      type: text
+      label: 'Elements (YAML)'
+    description:
+      type: label
+      label: 'Administrative description'
+    langcode:
+      type: string
+      label: 'Default language'
