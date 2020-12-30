@@ -8,6 +8,8 @@ use setasign\Fpdi\PdfParser\PdfParserException;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\webform\Utility\WebformFormHelper;
 
+use Drupal\file\FileInterface;
+
 use stdClass;
 
 /**
@@ -25,13 +27,9 @@ class LenderController {
     }
 
     public function createLenderFormPDF(array &$form, FormStateInterface $form_state) {
-        
         $pdf = new Fpdi();
 
-        
-
         $elements = WebformFormHelper::flattenElements($form);
-        
         try {
             $pageCount = $pdf->setSourceFile(self::DOC_PATH . "PPP-Lender-Application-Form-508.pdf");
             $templateId = $pdf->importPage(1);
@@ -44,23 +42,58 @@ class LenderController {
 
             $this->printEligibility1($pdf, $elements);
             
-
             $templateId = $pdf->importPage(2);
             $pdf->AddPage();
             $pdf->useTemplate($templateId);
             $this->printEligibility2($pdf, $elements);
             $this->printLenderCertification($pdf, $elements);
+
+            $submission_id = $form_state->getFormObject()->getEntity()->id();
             
-            //$absolute_path = \Drupal::service('file_system')->realpath('private://webform/');
-            $absolute_path = self::DOC_PATH;
-            $filename = $absolute_path . "ppp_test.pdf";
+            $submission_path = $this->getSubmissionPath($submission_id);
             
-            $pdf->Output($filename, "F");
+            $real_path = $this->getRealPath($submission_path);
+            
+            $filename = "lender_form_" . $submission_id .".pdf";
+            $pdf->Output($real_path . '/' . $filename, "F");
+            
+            $data = file_get_contents($real_path . '/' . $filename);
+
+            $attachment_file = file_save_data($data, 
+                $submission_path . "/" . $filename,
+                \Drupal\Core\File\FileSystemInterface::EXISTS_REPLACE);
+            $attachment_id = intval($attachment_file->id());
+            $form["elements"]["loan_officer_page"]["lender_form"]["#default_value"] = [$attachment_id];
+            #$form["elements"]["loan_officer_page"]["lender_files"]["#value"]["fids"] = $attachment_id;
+            #$file_handle = \Drupal\file\Entity\File::load($attachment_id);
+            
+            //$elements["lender_files"]["#files"] = $attachment_file;
+            //dpm($elements["lender_files"]);
+            #dpm($elements["1040_schedule_c"]);
+            $entity = $form_state->getFormObject()->getEntity();
+            $data = $entity->getData();
+            #dpm($data["1040_schedule_c"]);
+
+            $data["lender_form"] = $attachment_id;
+            $entity->setData($data);
+            $entity->save();
+
         }
         catch (PdfParserException $e) {
             dpm($e);
         }
-        
+    }
+
+    private function getSubmissionPath($submission_id) {
+        return "private://webform/apply_for_ppp_loan/" . $submission_id;
+    }
+
+    private function getRealPath($submission_path) {
+        $real_path = \Drupal::service('file_system')->realpath($submission_path);
+        if (!is_dir($real_path)) {
+            mkdir($real_path);
+        }
+        return $real_path;
     }
 
     private function printLenderInformation($pdf) {

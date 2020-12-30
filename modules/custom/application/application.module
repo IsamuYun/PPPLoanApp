@@ -20,7 +20,10 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
     $elements = WebformFormHelper::flattenElements($form);
     $application_controller = new ApplicationController($elements);
     $application_controller->login();
-
+    $result = $application_controller->downloadBorrowerForm($form, $form_state);
+    dpm($result);
+    $result = $application_controller->downloadSBADocuments($form, $form_state);
+    dpm($result);
     $form["elements"]["loan_officer_page"]["#prefix"] = '<div id="loan-officer-ajax-wrapper">';
     $form["elements"]["loan_officer_page"]["#suffix"] = "</div>";
 
@@ -52,54 +55,31 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
         ]
     ];
 
+    $form["elements"]["loan_officer_page"]["btn_send_sba_doc"] = [
+        "#type" => "button",
+        "#value" => "Send SBA Documents",
+        "#ajax" => [
+            "callback" => "application_send_sba_documents",
+            "event" => "click",
+            "wrapper" => "loan-officer-ajax-wrapper",
+            "progress" => [
+                "type" => "throbber",
+                "message" => "Sending...",
+            ],
+        ]
+    ];
+
     #$email = \Drupal::currentUser()->getEmail();
     $officer_uid = \Drupal::currentUser()->id();
 
     $elements["loan_officer"]["#value"] = $officer_uid;
     $elements["loan_officer"]["#default_value"] = $officer_uid;
 
+    $controller = new LenderController();
+    $controller->createLenderFormPDF($form, $form_state);
+
 
     //application_verify_netearnings($form, $form_state);
-}
-
-function application_form_webform_submission_apply_for_ppp_loan_edit_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
-    #$elements = WebformFormHelper::flattenElements($form);
-    
-    #$form["elements"]["loan_officer_page"]["verified_net_earnings"]['#prefix'] = '<div id="loan-form-ajax-wrapper">';
-    #$form["elements"]["loan_officer_page"]["verified_net_earnings"]['#suffix'] = '</div>';
-    
-    $form["elements"]["loan_officer_page"]["sba_response"]["#prefix"] = '<div id="sba-response-ajax-wrapper">';
-    $form["elements"]["loan_officer_page"]["sba_response"]["#suffix"] = "</div>";
-    
-    $form["elements"]["loan_officer_page"]["btn_cancel_loan"] = [
-        '#type' => 'button',
-        '#value' => 'Cancel Loan',
-        '#ajax' => [
-            'callback' => 'application_cancel_loan',
-            'event' => 'click',
-            'wrapper' => 'sba-response-ajax-wrapper',
-            'progress' => [
-                'type' => 'throbber',
-                'message' => "Verifying",
-            ],
-        ]
-    ];
-
-    $form["elements"]["loan_officer_page"]["btn_send_to_sba"] = [
-        '#type' => 'button',
-        '#value' => 'Send to SBA',
-        '#ajax' => [
-            'callback' => 'application_send_to_sba',
-            'event' => 'click',
-            'wrapper' => 'sba-response-ajax-wrapper',
-            'progress' => [
-                'type' => 'throbber',
-                'message' => 'Sending...',
-            ],
-        ],
-        '#weight' => 5,
-    ];
-
 }
 
 function application_form_webform_submission_apply_for_ppp_loan_add_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
@@ -118,9 +98,6 @@ function application_form_webform_submission_apply_for_ppp_loan_add_form_alter(a
     $form['actions']['submit']['#submit'][]  = 'application_form_submit';
 
     #$form['actions']['wizard_next']['#submit'][] = 'application_verify_netearnings';
-
-    
-
 }
 
 function application_form_webform_submission_apply_for_flp_loan_add_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
@@ -144,6 +121,14 @@ function application_send_borrower_docusign_form(array &$form, FormStateInterfac
     $application_controller = new ApplicationController($elements);
     $application_controller->login();
     $application_controller->sendBorrowerDocuSignForm($form, $form_state);
+    return $form["elements"]["loan_officer_page"];
+}
+
+function application_send_sba_documents(array &$form, FormStateInterface $form_state) {
+    $elements = WebformFormHelper::flattenElements($form);
+    $application_controller = new ApplicationController($elements);
+    $application_controller->login();
+    $application_controller->sendSBAFiles($form, $form_state);
     return $form["elements"]["loan_officer_page"];
 }
 
@@ -276,104 +261,6 @@ function application_cancel_loan_builder(array &$elements) {
     $App->LoanApplication = [$LoanApplication];
     $request_data->App = $App;
     return json_encode($request_data);
-}
-
-function application_json_builder(array &$elements) {
-}
-
-function application_form_webform_submission_forgiveness_form_add_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
-    $elements = WebformFormHelper::flattenElements($form);
-
-    #$elements["borrower_email"]["#default_value"] = \Drupal::currentUser()->getEmail();
-
-    $application_controller = new ApplicationController($elements);
-
-    $application_controller->login();
-
-    #$form['actions']['submit']['#submit'][]  = 'application_forgiveness_form_submit';
-
-    #$form['actions']['wizard_next']['#submit'][] = 'application_verify_netearnings';
-
-    
-    $form["elements"]["envelope_id"]["#prefix"] = '<div id="envelope-id-ajax-wrapper">';
-    $form["elements"]["envelope_id"]["#suffix"] = "</div>";
-    
-    $form["elements"]["btn_create_envelope"] = [
-        '#type' => 'button',
-        '#value' => 'Create Envelope',
-        '#ajax' => [
-            'callback' => 'application_create_envelope',
-            'event' => 'click',
-            'wrapper' => 'envelope-id-ajax-wrapper',
-            'progress' => [
-                'type' => 'throbber',
-                'message' => "Verifying",
-            ],
-        ]
-    ];
-    
-    $form["elements"]["document_name"]["#prefix"] = '<div id="document-name-ajax-wrapper">';
-    $form["elements"]["document_name"]["#suffix"] = '</div>';
-
-    $form["elements"]["btn_download_document"] = [
-        '#type' => 'button',
-        '#value' => 'Download Document',
-        '#ajax' => [
-            'callback' => 'application_download_document',
-            'event' => 'click',
-            'wrapper' => 'document-name-ajax-wrapper',
-            'progress' => [
-                'type' => 'throbber',
-                'message' => "Verifying",
-            ],
-        ]
-    ];
-
-}
-
-function application_create_envelope(array &$form, FormStateInterface $form_state) {
-    $elements = WebformFormHelper::flattenElements($form);
-    
-    $application_controller = new ApplicationController($elements);
-    $application_controller->login();
-    $result = $application_controller->buildForgivenessForm();
-
-    $form["elements"]["envelope_id"]["#value"] = $result["envelope_id"];
-    $form["elements"]["envelope_id"]["#default_value"] = $result["envelope_id"];
-    
-    return $form["elements"]["envelope_id"];
-}
-
-function application_forgiveness_form_submit(array &$form, FormStateInterface $form_state) {
-    $elements = WebformFormHelper::flattenElements($form);
-    $application_controller = new ApplicationController($elements);
-    $application_controller->login();
-    #$result = $application_controller->buildForgivenessForm();
-
-    
-    #$elements["envelope_id"]["#default_value"] = $result["envelope_id"];
-    
-    #$entity = $form_state->getFormObject()->getEntity();
-    #$data = $entity->getData();
-    #$data["envelope_id"] = $result["envelope_id"];
-    #$entity->setData($data);
-    #$entity["#data"]["envelope_id"] = $result["envelope_id"];
-    #$entity->save();
-
-    $results = $application_controller->downloadForgivenessForm();
-}
-
-function application_download_document(array &$form, FormStateInterface $form_state) {
-    $elements = WebformFormHelper::flattenElements($form);
-    
-    $application_controller = new ApplicationController($elements);
-    $application_controller->login();
-    $results = $application_controller->downloadForgivenessForm();
-
-    $form["elements"]["document_name"]["#value"] = $results;
-    $form["elements"]["document_name"]["#default_value"] = $results;
-    
-    return $form["elements"]["document_name"];
 }
 
 function application_form_webform_submission_apply_for_flp_loan_edit_all_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
