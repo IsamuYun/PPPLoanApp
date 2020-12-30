@@ -1,0 +1,13 @@
+name: 'Webform Composite Tools'
+description: 'Additional tools for Webform Composites.'
+core: 8.x
+core_version_requirement: ^8 || ^9
+package: Webform
+type: module
+dependencies:
+  - 'webform:webform'
+
+# Information added by Drupal.org packaging script on 2020-06-01
+version: '8.x-1.0-rc1+1-dev'
+project: 'webform_composite'
+datestamp: 1591049866
