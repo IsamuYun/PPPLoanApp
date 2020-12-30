@@ -20,10 +20,10 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
     $elements = WebformFormHelper::flattenElements($form);
     $application_controller = new ApplicationController($elements);
     $application_controller->login();
-    $result = $application_controller->downloadBorrowerForm($form, $form_state);
-    dpm($result);
-    $result = $application_controller->downloadSBADocuments($form, $form_state);
-    dpm($result);
+    //$result = $application_controller->downloadBorrowerForm($form, $form_state);
+    //dpm($result);
+    //$result = $application_controller->downloadSBADocuments($form, $form_state);
+    //dpm($result);
     $form["elements"]["loan_officer_page"]["#prefix"] = '<div id="loan-officer-ajax-wrapper">';
     $form["elements"]["loan_officer_page"]["#suffix"] = "</div>";
 
