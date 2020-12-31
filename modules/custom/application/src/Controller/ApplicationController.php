@@ -938,10 +938,15 @@ class ApplicationController {
             $this->elements["borrower_envelope_id"]["#default_value"] : false;   
         
         $args = $this->getDownloadArgs("1", $envelope_id);
-        $results = $this->download_worker($args);
-        if (empty($results)) {
+        $result = null;
+        try {
+            $results = $this->download_worker($args);
+        }
+        catch (ApiException $e) {
+            dpm($e);
             return false;
         }
+        
         # See https://stackoverflow.com/a/27805443/64904
         #header("Content-Type: {$results['mimetype']}");
         #header("Content-Disposition: attachment; filename=\"{$results['doc_name']}\"");
@@ -992,8 +997,12 @@ class ApplicationController {
             $this->elements["sba_envelope_id"]["#default_value"] : false;
         
         $args = $this->getDownloadArgs("1", $envelope_id);
-        $results = $this->download_worker($args);
-        if (empty($results)) {
+        $result = null;
+        try {
+            $results = $this->download_worker($args);
+        }
+        catch (ApiException $e) {
+            dpm($e);
             return false;
         }
         ob_clean();
@@ -1017,8 +1026,12 @@ class ApplicationController {
         $attachment_id = intval($attachment_file->id());
 
         $args = $this->getDownloadArgs("2", $envelope_id);
-        $results = $this->download_worker($args);
-        if (empty($results)) {
+        $result = null;
+        try {
+            $results = $this->download_worker($args);
+        }
+        catch (ApiException $e) {
+            dpm($e);
             return false;
         }
         ob_clean();
