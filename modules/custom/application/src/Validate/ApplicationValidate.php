@@ -31,7 +31,7 @@ class ApplicationValidate {
     $interval = date_diff($now_date, $birth_date);
 
 
-    if ($interval->invert == 1 || $interval->y < 16 && $interval->y >= 100) {
+    if ($interval->invert == 1 || $interval->y < 16 || $interval->y >= 100) {
       if (isset($element['#title'])) {
         $formState->setError(
           $element,
