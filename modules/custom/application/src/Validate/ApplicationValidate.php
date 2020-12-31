@@ -28,9 +28,8 @@ class ApplicationValidate {
 
     $birth_date = date_create($value);
     $now_date = date_create("now");
-    $interval = date_diff($now_date, $birth_date);
-
-
+    $interval = date_diff($birth_date, $now_date);
+    
     if ($interval->invert == 1 || $interval->y < 16 || $interval->y >= 100) {
       if (isset($element['#title'])) {
         $formState->setError(
