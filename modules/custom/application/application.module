@@ -440,3 +440,20 @@ function application_webform_submission_form_alter(array &$form, FormStateInterf
         if(count($_SESSION['_symfony_flashes']['status']) == 0) unset($_SESSION['_symfony_flashes']['status']);
     }
 }
+
+/**
+ * Implements hook_webform_element_alter().
+ *
+ * @param array              $element
+ * @param FormStateInterface $form_state
+ * @param array              $context
+ */
+function application_webform_element_alter(array &$element, FormStateInterface $form_state, array $context) {
+  // check for desired element
+  if (isset($element['#webform_id']) && $element['#webform_id'] === 'apply_for_ppp_loan--date_of_birth') {
+    $element['#element_validate'][] = [
+      'Drupal\application\Validate\ApplicationValidate',
+      'birthdayValidate'
+    ];
+  }
+}
