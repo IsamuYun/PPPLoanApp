@@ -149,34 +149,33 @@ class LenderController {
         else if ($company_structure == "General Partnership") {
             $pdf->SetXY(64.5, 91);
         }
-        else if ($company_structure == "LLC") {
+        else if ($company_structure == "Limited Liability Company") {
             $pdf->SetXY(116, 91);
         }
-        else if ($company_structure == "Corporation") {
+        else if ($company_structure == "S Corporation") {
+            $pdf->SetXY(85, 91);
+        }
+        else if ($company_structure == "C Corporation") {
             $pdf->SetXY(85, 91);
         }
         else if ($company_structure == "Other") {
             $pdf->SetXY(117, 98);
         }
-        $pdf->Cell(10, 10, $check, 0, 0);
-
-        $business_classify = $elements["business_classify"]["#default_value"];
-        if ($business_classify == "501 (c)(3) nonprofit") {
+        else if ($company_structure == "501 (c)(3) nonprofit") {
             $pdf->SetXY(88, 94.5);
         }
-        else if ($business_classify == "501 (c)(19) veterans organization") {
+        else if ($company_structure == "501 (c)(19) veterans organization") {
             $pdf->SetXY(119, 94.5);
         }
-        else if ($business_classify == "Tribal business (sec. 31 (b)(2)(c) of Small Business Act)") {
+        else if ($company_structure == "Tribal business (sec. 31 (b)(2)(c) of Small Business Act)") {
             $pdf->SetXY(39, 98);
         }
-        else if ($business_classify == "Independent contractor") {
+        else if ($company_structure == "Independent contractor") {
             $pdf->SetXY(128, 91);
         }
-        else if ($business_classify == "Eligible self-employed individual") {
+        else if ($company_structure == "Eligible self-employed individual") {
             $pdf->SetXY(39, 94.5);
         }
-        #$pdf->SetXY(100.8, 91);
         $pdf->Cell(10, 10, $check, 0, 0);
     }
 

@@ -20,12 +20,25 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
     $elements = WebformFormHelper::flattenElements($form);
     $application_controller = new ApplicationController($elements);
     $application_controller->login();
-    $result = $application_controller->downloadBorrowerForm($form, $form_state);
-    dpm($result);
-    $result = $application_controller->downloadSBADocuments($form, $form_state);
-    dpm($result);
+    $borrower_result = $application_controller->downloadBorrowerForm($form, $form_state);
+    $sba_result = $application_controller->downloadSBADocuments($form, $form_state);
+    
     $form["elements"]["loan_officer_page"]["#prefix"] = '<div id="loan-officer-ajax-wrapper">';
     $form["elements"]["loan_officer_page"]["#suffix"] = "</div>";
+
+    $form["elements"]["loan_officer_page"]["btn_save_status"] = [
+        "#type" => "button",
+        "#value" => "Save Data",
+        "#ajax" => [
+            "callback" => "application_save_data",
+            "event" => "click",
+            "wrapper" => "loan-officer-ajax-wrapper",
+            "progress" => [
+                "type" => "throbber",
+                "message" => "Saving...",
+            ],
+        ]
+    ];
 
     $form["elements"]["loan_officer_page"]["btn_send_borrower_form"] = [
         "#type" => "button",
@@ -70,14 +83,19 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
     ];
 
     #$email = \Drupal::currentUser()->getEmail();
-    $officer_uid = \Drupal::currentUser()->id();
-
-    $elements["loan_officer"]["#value"] = $officer_uid;
-    $elements["loan_officer"]["#default_value"] = $officer_uid;
-
+    
+    if ($elements["loan_officer"]["#default_value"] == 0) {
+        $officer_uid = \Drupal::currentUser()->id();
+        $elements["loan_officer"]["#value"] = $officer_uid;
+        $elements["loan_officer"]["#default_value"] = $officer_uid;
+    }
+    if ($elements["adjusted_loan_amount"]["#default_value"] == 0) {
+        $elements["adjusted_loan_amount"]["#value"] = $application_controller->getLoanAmount();
+        $elements["adjusted_loan_amount"]["#default_value"] = $application_controller->getLoanAmount();
+    }
+    
     $controller = new LenderController();
     $controller->createLenderFormPDF($form, $form_state);
-
 
     //application_verify_netearnings($form, $form_state);
 }
@@ -114,6 +132,13 @@ function application_form_webform_submission_apply_for_flp_loan_add_form_alter(a
     $controller = new SBALFAController($elements);
     $controller->login();
     $form['actions']['submit']['#submit'][]  = 'application_send_fogive_form';
+}
+
+function application_save_data(array &$form, FormStateInterface &$form_state) {
+    $entity = $form_state->getFormObject()->getEntity();
+    $data = $entity->getData();
+    $entity->setData($data);
+    $entity->save();
 }
 
 function application_send_borrower_docusign_form(array &$form, FormStateInterface $form_state) {

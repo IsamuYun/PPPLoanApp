@@ -148,8 +148,16 @@ class ApplicationController {
     # ***DS.snippet.0.start
     public function worker($args): array
     {
+        dpm($this->elements["round"]["#default_value"]);
         # 1. Create the envelope request object
-        $envelope_definition = $this->make_envelope($args["envelope_args"]);
+        $envelope_definition = null;
+        if ($this->elements["round"]["#default_value"] == "Yes") {
+            $envelope_definition = $this->make_envelope_v2($args["envelope_args"]);
+        }
+        else {
+            $envelope_definition = $this->make_envelope($args["envelope_args"]);
+        }
+        
         $envelope_api = $this->clientService->getEnvelopeApi();
        
         # 2. call Envelopes::create API method
@@ -190,7 +198,7 @@ class ApplicationController {
         ]);
         # read files 2 and 3 from a local directory
         # The reads could raise an exception if the file is not available!
-        $content_bytes = file_get_contents(self::DOCS_PATH . "PPP-Borrower-Application-Form-1.pdf");
+        $content_bytes = file_get_contents(self::DOCS_PATH . "PPP-Borrower-Application-Form-508.pdf");
         $borrower_form_b64 = base64_encode($content_bytes);
         
         # Create the document models
@@ -201,18 +209,6 @@ class ApplicationController {
             'document_id' => '1'  # a label used to reference the doc
         ]);
         
-        $company_structure_text = new Text(['document_id' => "1", 'page_number' => "1",
-            "x_position" => "120", "y_position" => "70",
-            "font" => "Arial", "font_size" => "size12", "value" => $this->elements["company_structure"]["#default_value"],
-            "height" => "20", "width" => "140", "required" => "false"]);
-        
-        $business_classify_text = new Text(['document_id' => "1", 'page_number' => "1",
-            "x_position" => "120", "y_position" => "90",
-            "font" => "Arial", "font_size" => "size12",
-            "value" => $this->elements["business_classify"]["#default_value"],
-            "height" => "20", "width" => "140", "required" => "false"
-        ]);
-
         $business_name_text = new Text(['document_id' => "1", "page_number" => "1",
             "x_position" => "100", "y_position" => "125",
             "font" => "Arial", "font_size" => "size11",
@@ -249,7 +245,6 @@ class ApplicationController {
             "value" => $this->elements["business_phone_number"]["#default_value"],
             "height" => "20", "width" => "140", "required" => "false"
         ]);
-        
         // Primary Contact
         $primary_contact = new Text([
             'document_id' => "1", "page_number" => "1",
@@ -382,14 +377,12 @@ class ApplicationController {
         $purpose_list = $this->getPurposeList();
 
         $initial_here_list = $this->getInitialList();
-
+        
         $signer->setTabs(new Tabs(['sign_here_tabs' => [$sign_here],
             'initial_here_tabs' => $initial_here_list,
             'radio_group_tabs' => $radio_groups,
             'checkbox_tabs' => $purpose_list,
             'text_tabs' => [
-                $company_structure_text,
-                $business_classify_text,
                 $business_name_text,
                 $business_address_1_text,
                 $business_address_2_text,
@@ -436,7 +429,7 @@ class ApplicationController {
     private function getBusinessAddress() {
         $is_us_address = $this->elements["is_us_address"]["#default_value"];
         $address = "";
-        if ($is_us_address === "1") {
+        if ($is_us_address == 1) {
             $address = $this->elements["business_address"]["#default_value"]["address"]
             . ", " . $this->elements["business_address"]["#default_value"]["address_2"];
         }
@@ -450,7 +443,7 @@ class ApplicationController {
     private function getBusinessAddress2() {
         $is_us_address = $this->elements["is_us_address"]["#default_value"];
         $address2 = "";
-        if ($is_us_address === "1") {
+        if ($is_us_address == 1) {
             $address2 = $this->elements["business_address"]["#default_value"]["city"]
             . ", " . $this->elements["business_address"]["#default_value"]["state_province"]
             . ", " . $this->elements["business_address"]["#default_value"]["postal_code"];
@@ -534,11 +527,13 @@ class ApplicationController {
         return $average_payroll;
     }
 
-    private function getLoanAmount() {
+    public function getAveragePayrollAmount() {
+        return number_format($this->getAveragePayroll(), 2);
+    }
+
+    public function getLoanAmount() {
         $average_payroll = $this->getAveragePayroll();
-
-        $loan_amount = 0;
-
+        
         $used_EIDL_amount = $this->elements["used_loan_amount"]["#default_value"];
         $used_EIDL_amount = str_replace(",", "", $used_EIDL_amount);
         $used_EIDL_amount = floatval(substr($used_EIDL_amount, 2));
@@ -551,10 +546,17 @@ class ApplicationController {
         if ($loan_amount < 0) {
             $loan_amount = 0;
         }
+        
         return number_format($loan_amount, 2);
     }
 
     private function getPurposeList() {
+        $cs_position = $this->getCompanyStructurePosition();
+        $company_structure = new Checkbox([
+            'document_id' => "1", 'page_number' => "1",
+            "x_position" => $cs_position["x"], "y_position" => $cs_position["y"],
+            "selected" => "true"]);
+
         $payroll_percentage = $this->elements["payroll_costs_"]["#default_value"];
         $less_percentage = $this->elements["less_mortgage_interest_"]["#default_value"];
         $utilities_percentage = $this->elements["utilities_"]["#default_value"];
@@ -610,6 +612,7 @@ class ApplicationController {
         ]);
 
         $checkbox_list = [
+            $company_structure,
             $payroll_checkbox,
             $less_checkbox,
             $utilities_checkbox,
@@ -617,6 +620,62 @@ class ApplicationController {
         ];
 
         return $checkbox_list;
+    }
+
+    private function getCompanyStructurePosition() {
+        $company_structure = $this->elements["company_structure"]["#default_value"];
+        $position = [];
+        $position["x"] = 109;
+        $position["y"] = 62;
+        if ($company_structure == "Sole Proprietorship") {
+            $position["x"] = 109;
+            $position["y"] = 62;
+        }
+        else if ($company_structure == "General Partnership") {
+            $position["x"] = 180;
+            $position["y"] = 65;
+        }
+        else if ($company_structure == "C Corporation") {
+            $position["x"] = 234;
+            $position["y"] = 65;
+        }
+        else if ($company_structure == "S Corporation") {
+            $position["x"] = 274;
+            $position["y"] = 65;
+        }
+        else if ($company_structure == "Limited Liability Company") {
+            $position["x"] = 312;
+            $position["y"] = 65;
+        }
+        else if ($company_structure == "Independent Contractor") {
+            $position["x"] = 112;
+            $position["y"] = 75;
+        }
+        else if ($company_structure == "Eligible Self-employed Individual") {
+            $position["x"] = 208;
+            $position["y"] = 75;
+        }
+        
+        else if ($company_structure == "501 (c)(3) nonprofit") {
+            $position["x"] = 112;
+            $position["y"] = 85;
+        }
+        else if ($company_structure == "501 (c)(19) veterans organization") {
+            $position["x"] = 194;
+            $position["y"] = 85;
+        }
+        else if ($company_structure == "Tribal business (sec. 31 (b)(2)(c) of Small Business Act)") {
+            $position["x"] = 112;
+            $position["y"] = 95;
+        }
+        else if ($company_structure == "Other") {
+            $position["x"] = 330;
+            $position["y"] = 65;
+        }
+        
+        
+        return $position;
+
     }
 
 
@@ -1352,5 +1411,255 @@ class ApplicationController {
         }
         return $real_path;
     }
+
+    /**
+     * Creates envelope definition
+     * Document 1: A Borrower Form PDF document.
+     * DocuSign will convert all of the documents to the PDF format.
+     * The recipients' field tags are placed using <b>anchor</b> strings.
+     *
+     * Parameters for the envelope: signer_email, signer_name, signer_client_id
+     *
+     * @param  $args array
+     * @return EnvelopeDefinition -- returns an envelope definition
+     */
+    private function make_envelope_v2(array $args): EnvelopeDefinition
+    {
+        #
+        # The envelope has two recipients.
+        # recipient 1 - signer
+        # recipient 2 - cc
+        # The envelope will be sent first to the signer.
+        # After it is signed, a copy is sent to the cc person.
+        #
+        # create the envelope definition
+        $envelope_definition = new EnvelopeDefinition([
+           'email_subject' => 'Please sign this borrower form'
+        ]);
+        # read files 2 and 3 from a local directory
+        # The reads could raise an exception if the file is not available!
+        $content_bytes = file_get_contents(self::DOCS_PATH . "PPP-Borrower-Application-Form-508.pdf");
+        $borrower_form_b64 = base64_encode($content_bytes);
+        
+        # Create the document models
+        $document = new Document([  # create the DocuSign document object
+            'document_base64' => $borrower_form_b64,
+            'name' => 'PPP Borrower Application Form',  # can be different from actual file name
+            'file_extension' => 'pdf',  # many different document types are accepted
+            'document_id' => '1'  # a label used to reference the doc
+        ]);
+        
+        $business_name_text = new Text(['document_id' => "1", "page_number" => "1",
+            "x_position" => "100", "y_position" => "125",
+            "font" => "Arial", "font_size" => "size11",
+            "value" => $this->elements["business_name"]["#default_value"],
+            "height" => "20", "width" => "140", "required" => "false"
+        ]);
+        
+        $business_address_1_text = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "100", "y_position" => "155",
+            "font" => "Arial", "font_size" => "size11",
+            "value" => $this->getBusinessAddress(),
+            "height" => "20", "width" => "140", "required" => "false"
+        ]);
+
+        
+        $business_address_2_text = new Text(['document_id' => "1", "page_number" => "1",
+            "x_position" => "100", "y_position" => "175",
+            "font" => "Arial", "font_size" => "size11",
+            "value" => $this->getBusinessAddress2(),
+            "height" => "20", "width" => "140", "required" => "false"
+        ]);
+
+        $ssn_text = new Text(['document_id' => "1", "page_number" => "1",
+            "x_position" => "380", "y_position" => "153",
+            "font" => "Arial", "font_size" => "size11",
+            "value" => $this->elements["social_security_number"]["#default_value"],
+            "height" => "20", "width" => "140", "required" => "false"
+        ]);
+
+        $business_phone_text = new Text(['document_id' => "1", "page_number" => "1",
+            "x_position" => "480", "y_position" => "153",
+            "font" => "Arial", "font_size" => "size11",
+            "value" => $this->elements["business_phone_number"]["#default_value"],
+            "height" => "20", "width" => "140", "required" => "false"
+        ]);
+        // Primary Contact
+        $primary_contact = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "380", "y_position" => "178",
+            "font" => "Arial", "font_size" => "size11",
+            "value" => $this->getPrintName(),
+            "height" => "20", "width" => "140", "required" => "false"
+        ]);
+        
+        
+        $email_text = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "480", "y_position" => "178",
+            "font" => "Arial", "font_size" => "size11",
+            "value" => $this->getBorrowerEmail(),
+            "height" => "20", "width" => "140", "required" => "false"
+        ]);
+
+        $num_of_employees_text = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "540", "y_position" => "208",
+            "font" => "Arial", "font_size" => "size11",
+            "value" => $this->elements["number_of_employees"]["#default_value"],
+            "height" => "20", "width" => "140", "required" => "false"
+        ]);
+
+        $average_monthly_payroll = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "170", "y_position" => "208",
+            "font" => "Arial", "font_size" => "size11",
+            "value" => $this->getAveragePayroll(),
+            "height" => "20", "width" => "100", "required" => "false"
+        ]);
+
+        $loan_amount = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "364", "y_position" => "208",
+            "font" => "Arial", "font_size" => "size11",
+            "value" => $this->getLoanAmount(),
+            "height" => "20", "width" => "100", "required" => "false"
+        ]);
+
+        $owner_name = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "40", "y_position" => "325",
+            "font" => "Arial", "font_size" => "size10",
+            "value" => $this->getPrintName(),
+            "height" => "14", "width" => "100", "required" => "false"
+        ]);
+
+        $owner_job_title = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "230", "y_position" => "325",
+            "font" => "Arial", "font_size" => "size10",
+            "value" => $this->getJobTitle(),
+            "height" => "14", "width" => "100", "required" => "false"
+        ]);
+
+        $ownership = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "315", "y_position" => "325",
+            "font" => "Arial", "font_size" => "size10",
+            "value" => "100%",
+            "height" => "14", "width" => "60", "required" => "false"
+        ]);
+
+        $owner_ssn = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "360", "y_position" => "325",
+            "font" => "Arial", "font_size" => "size10",
+            "value" => $this->elements["social_security_number"]["#default_value"],
+            "height" => "14", "width" => "60", "required" => "false"
+        ]);
+
+        $owner_address = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "425", "y_position" => "325",
+            "font" => "Arial", "font_size" => "size10",
+            "value" => $this->getBusinessAddress(),
+            "height" => "14", "width" => "60", "required" => "false"
+        ]);
+
+
+        $another_business_name = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "410", "y_position" => "85",
+            "font" => "Arial", "font_size" => "size16",
+            "value" => $this->elements["another_business_name"]["#default_value"],
+            "height" => "32", "width" => "160", "required" => "false"
+        ]);
+
+        $today = new Text([
+            'document_id' => "1", "page_number" => "2",
+            "x_position" => "380", "y_position" => "670",
+            "font" => "Arial", "font_size" => "size12",
+            "value" => date("m-j-Y"),
+            "height" => "20", "width" => "100", "required" => "false"
+        ]);
+        
+        $print_name = new Text([
+            'document_id' => "1", "page_number" => "2",
+            "x_position" => "40", "y_position" => "705",
+            "font" => "Arial", "font_size" => "size12",
+            "value" => $this->getPrintName(),
+            "height" => "20", "width" => "200", "required" => "false"
+        ]);
+
+        $job_title = new Text([
+            'document_id' => "1", "page_number" => "2",
+            "x_position" => "380", "y_position" => "705",
+            "font" => "Arial", "font_size" => "size12",
+            "value" => $this->getJobTitle(),
+            "height" => "20", "width" => "200", "required" => "false"
+        ]);
+        
+        
+        $sign_here = new SignHere(['document_id' => "1", 'page_number' => "2",
+        'x_position' => '40', 'y_position' => '650']);
+
+        # Create the signer recipient model
+        $signer = new Signer([
+            'email' => $args['signer_email'], 'name' => $args['signer_name'],
+            'role_name' => 'signer', 'recipient_id' => "1", 'routing_order' => "1"]);
+        # routingOrder (lower means earlier) determines the order of deliveries
+        # to the recipients. Parallel routing order is supported by using the
+        # same integer as the order for two or more recipients.
+        
+        $radio_groups = $this->getRadioGroup();
+
+        $purpose_list = $this->getPurposeList();
+
+        $initial_here_list = $this->getInitialList();
+        
+        $signer->setTabs(new Tabs(['sign_here_tabs' => [$sign_here],
+            'initial_here_tabs' => $initial_here_list,
+            'radio_group_tabs' => $radio_groups,
+            'checkbox_tabs' => $purpose_list,
+            'text_tabs' => [
+                $business_name_text,
+                $business_address_1_text,
+                $business_address_2_text,
+                $ssn_text,
+                $business_phone_text,
+                $primary_contact,
+                $email_text,
+                $num_of_employees_text,
+                $average_monthly_payroll,
+                $loan_amount,
+                $another_business_name,
+                $today,
+                $print_name,
+                $job_title,
+                $owner_name,
+                $owner_job_title,
+                $ownership,
+                $owner_ssn,
+                $owner_address,
+            ]
+        ]));
+
+        # Add the recipients to the envelope object
+        $recipients = new Recipients([
+            'signers' => [$signer]
+        ]);
+        $envelope_definition->setRecipients($recipients);
+
+        # The order in the docs array determines the order in the envelope
+        $envelope_definition->setDocuments([$document]);
+
+        # Request that the envelope be sent by setting |status| to "sent".
+        # To request that the envelope be created as a draft, set to "created"
+        $envelope_definition->setStatus($args["status"]);
+
+        return $envelope_definition;
+    }
+
 
 }
