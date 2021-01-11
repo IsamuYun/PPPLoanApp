@@ -89,7 +89,7 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
         $elements["loan_officer"]["#value"] = $officer_uid;
         $elements["loan_officer"]["#default_value"] = $officer_uid;
     }
-    if ($elements["adjusted_loan_amount"]["#default_value"] == 0) {
+    if (empty($elements["adjusted_loan_amount"]["#default_value"])) {
         $elements["adjusted_loan_amount"]["#value"] = $application_controller->getLoanAmount();
         $elements["adjusted_loan_amount"]["#default_value"] = $application_controller->getLoanAmount();
     }
