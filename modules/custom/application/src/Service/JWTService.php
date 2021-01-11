@@ -79,8 +79,8 @@ class JWTService
         // requests against the service provider's API.
         $_SESSION['ds_access_token'] = self::$access_token->getAccessToken();
         $_SESSION['ds_refresh_token'] = self::$access_token->getRefreshToken();
-        $_SESSION['ds_expiration'] = time() + (self::$access_token->getExpiresIn() * 1000); # expiration time.
-        #$_SESSION['ds_expiration'] = time() + self::TOKEN_REPLACEMENT_IN_SECONDS;
+        //$_SESSION['ds_expiration'] = time() + (self::$access_token->getExpiresIn() * 1000); # expiration time.
+        $_SESSION['ds_expiration'] = time() + self::TOKEN_REPLACEMENT_IN_SECONDS;
         // Using the access token, we may look up details about the
         // resource owner.
         $_SESSION['ds_user_name'] = self::$account[0]->getName();
@@ -115,8 +115,8 @@ class JWTService
 
             // we found consent_required in the response body meaning 1st time consent is needed
             if (strpos($th->getMessage(), "consent_required") !== false) {
-                $authorizationURL = 'https://account-d.docusign.com/oauth/auth?' . http_build_query([
-                #$authorizationURL = 'https://account.docusign.com/oauth/auth?' . http_build_query([
+                #$authorizationURL = 'https://account-d.docusign.com/oauth/auth?' . http_build_query([
+                $authorizationURL = 'https://account.docusign.com/oauth/auth?' . http_build_query([
                     'scope'         => 'signature impersonation',
                     'redirect_uri'  => $GLOBALS['DS_CONFIG']['app_url'] . '/dslistener',
                     'client_id'     => $GLOBALS['JWT_CONFIG']['ds_client_id'],
