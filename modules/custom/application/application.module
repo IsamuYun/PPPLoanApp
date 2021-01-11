@@ -137,6 +137,7 @@ function application_form_webform_submission_apply_for_flp_loan_add_form_alter(a
 function application_save_data(array &$form, FormStateInterface &$form_state) {
     $entity = $form_state->getFormObject()->getEntity();
     $data = $entity->getData();
+    $data["adjusted_loan_amount"] = $form["elements"]["loan_officer_page"]["adjusted_loan_amount"]["#default_value"];
     $entity->setData($data);
     $entity->save();
 }
