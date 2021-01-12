@@ -625,10 +625,10 @@ class ApplicationController {
     private function getCompanyStructurePosition() {
         $company_structure = $this->elements["company_structure"]["#default_value"];
         $position = [];
-        $position["x"] = 109;
+        $position["x"] = 104;
         $position["y"] = 62;
         if ($company_structure == "Sole Proprietorship") {
-            $position["x"] = 109;
+            $position["x"] = 104;
             $position["y"] = 62;
         }
         else if ($company_structure == "General Partnership") {
@@ -664,7 +664,7 @@ class ApplicationController {
             $position["x"] = 194;
             $position["y"] = 85;
         }
-        else if ($company_structure == "Tribal business (sec. 31 (b)(2)(c) of Small Business Act)") {
+        else if ($company_structure == "Tribal Business") {
             $position["x"] = 112;
             $position["y"] = 95;
         }
