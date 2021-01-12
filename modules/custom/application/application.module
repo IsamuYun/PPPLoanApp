@@ -106,11 +106,11 @@ function application_form_webform_submission_apply_for_ppp_loan_add_form_alter(a
     $elements["borrower_email"]["value"] = \Drupal::currentUser()->getEmail();
     $elements["borrower_email"]["#default_value"] = \Drupal::currentUser()->getEmail();
 
-    $entity = $form_state->getFormObject()->getEntity();
-    $data = $entity->getData();
-    $data["borrower_email"] = \Drupal::currentUser()->getEmail();
-    $entity->setData($data);
-    $entity->save();
+    #$entity = $form_state->getFormObject()->getEntity();
+    #$data = $entity->getData();
+    #$data["borrower_email"] = \Drupal::currentUser()->getEmail();
+    #$entity->setData($data);
+    #$entity->save();
     
 }
 
