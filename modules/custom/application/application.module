@@ -93,6 +93,11 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
         $elements["adjusted_loan_amount"]["#value"] = $application_controller->getLoanAmount();
         $elements["adjusted_loan_amount"]["#default_value"] = $application_controller->getLoanAmount();
     }
+
+    if (empty($elements["adjusted_average_payroll"]["#default_value"])) {
+        $elements["adjusted_average_payroll"]["#value"] = $application_controller->getAveragePayrollAmount();
+        $elements["adjusted_average_payroll"]["#default_value"] = $application_controller->getAveragePayrollAmount();
+    }
     
     $controller = new LenderController();
     $controller->createLenderFormPDF($form, $form_state);
@@ -227,7 +232,6 @@ function application_cancel_loan(array &$form, FormStateInterface $form_state) {
         ],
     ]);
 
-
     $result = json_decode($request->getBody());
     
     #dpm(json_decode($result->ResponseData));
@@ -238,39 +242,7 @@ function application_cancel_loan(array &$form, FormStateInterface $form_state) {
 }
 
 function application_send_to_sba(array &$form, FormStateInterface $form_state) {
-    $elements = WebformFormHelper::flattenElements($form);
-    $request_data_str = application_json_builder($elements);
-    #dpm($request_data_str);
-    $data = [
-        'MethodNamePhysical' => 'Originate3',
-        'CLSUsername' => 'alctester',
-        'CLSPassword' => 'Squall39478',
-        'CLSPIN' => '303330',
-        'EMail' => 'yun@rmdslab.com',
-        'FormatIn' => 'JSON',
-        'RequestData' => $request_data_str,
-        'SoftwareVendorCode' => "WZHZUDAQX",
-	    'SoftwareVendorName' => "AMERICANLENDINGCENTER"
-    ];
-
-    $json_data = json_encode($data);
     
-    $client = \Drupal::httpClient();
-    $request = $client->post('https://catweb2.sba.gov/rest/elend/flexible/SharedEntryPoint', [
-        'body' => $json_data,
-        'headers' => [
-            'Content-type' => 'application/json',
-        ],
-    ]);
-
-
-    $result = json_decode($request->getBody());
-    
-    #dpm(json_decode($result->ResponseData));
-    
-    $form["elements"]["loan_officer_page"]["sba_response"]["#value"] = $result->{"ResponseData"};
-
-    return $form["elements"]["loan_officer_page"]["sba_response"];
 }
 
 function application_cancel_loan_builder(array &$elements) {

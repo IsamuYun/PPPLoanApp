@@ -9,7 +9,7 @@ use DocuSign\eSign\Configuration;
 
 class JWTService
 {
-    const TOKEN_REPLACEMENT_IN_SECONDS = 3600; # 60 minutes
+    const TOKEN_REPLACEMENT_IN_SECONDS = 3600; # 10 minutes
     protected static $expires_in;
     protected static $access_token;
     protected static $expiresInTimestamp;
@@ -20,6 +20,7 @@ class JWTService
     {
         $config = new Configuration();
         self::$apiClient = new ApiClient($config);
+        self::$expires_in = 3600;
     }
 
     /**
@@ -35,7 +36,7 @@ class JWTService
         }
     }
 
-    private function checkSession() {
+    private function checkSessionValidation() {
         if (!isset($_SESSION['ds_access_token'])) {
             return false;
         }
@@ -55,7 +56,7 @@ class JWTService
             session_start();
         }
         
-        if ($this->checkSession()) {
+        if ($this->checkSessionValidation()) {
             return;
         }
         
@@ -64,7 +65,7 @@ class JWTService
             return;
         }
         
-        self::$expiresInTimestamp = time() + self::$expires_in;
+        self::$expiresInTimestamp = time() + self::$access_token->getExpiresIn();
 
         if (is_null(self::$account)) {
             self::$account = self::$apiClient->getUserInfo(self::$access_token->getAccessToken());
@@ -79,8 +80,8 @@ class JWTService
         // requests against the service provider's API.
         $_SESSION['ds_access_token'] = self::$access_token->getAccessToken();
         $_SESSION['ds_refresh_token'] = self::$access_token->getRefreshToken();
-        $_SESSION['ds_expiration'] = time() + (self::$access_token->getExpiresIn() * 1000); # expiration time.
-        #$_SESSION['ds_expiration'] = time() + self::TOKEN_REPLACEMENT_IN_SECONDS;
+        $_SESSION['ds_expiration'] = time() + self::$access_token->getExpiresIn(); # expiration time.
+        
         // Using the access token, we may look up details about the
         // resource owner.
         $_SESSION['ds_user_name'] = self::$account[0]->getName();
