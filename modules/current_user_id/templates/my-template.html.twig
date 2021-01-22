@@ -20,6 +20,7 @@
 
           {% set menu_items = simplify_menu('main') %}
           {% set support_menu_items = simplify_menu('support-center') %}
+          {% set contact_menu_items = simplify_menu('contact-us') %}
 
 
           <div class="col-sm-3 col-md-6 col-lg-6" id="logo_container"><a href="https://alcppp.com/"><img alt="alc_logo" data-entity-type="file" data-entity-uuid="e337f9b1-4521-4271-90da-1d6bf8abca30" id="alc_logo" src="https://alcppp.com/sites/default/files/inline-images/ALC_logo.png" style="width: 10%;" /></a></div>
@@ -27,7 +28,7 @@
 
 
           <div id="drp_container" class="col-sm-6 col-md-6 col-lg-6" style="display: flex; justify-content: flex-end;">
-            <div class="dropdown" id="drp_div_btn">
+            <div class="dropdown  support-center-menu" id="drp_div_btn">
 
               <div href="#" data-toggle="dropdown">
 
@@ -42,7 +43,28 @@
                     </li>
                 {% endfor %}
               </ul>
+
+
             </div>
+
+              <div class="dropdown  contact-us-menu" id="drp_div_btn">
+
+                <div href="#" data-toggle="dropdown">
+
+                  <div style="margin-top: 0.5rem; margin-right: 1.5rem; font-size: 1.2rem;cursor: pointer;">Contact Us</div>
+
+                </div>
+                <ul class="dropdown-menu">
+
+                  {% for menu_item in contact_menu_items.menu_tree %}
+                    <li class="nav-item navigation__item">
+                      <span class="nav-link">{{ menu_item.text }}</span>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </div>
+
+
 
             <div class="dropdown" id="drp_div_btn">
 
