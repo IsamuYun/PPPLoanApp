@@ -798,60 +798,60 @@ class SecondDrawBorrowerForm {
 
         $Initial_8 = new InitialHere([
             'document_id' => "1", "page_number" => "2",
-            "x_position" => "30", "y_position" => "586",
+            "x_position" => "30", "y_position" => "580",
             "height" => "10", "width" => "40", "required" => "false"
         ]);
 
         $Initial_9 = new InitialHere([
             'document_id' => "1", "page_number" => "2",
-            "x_position" => "30", "y_position" => "640",
+            "x_position" => "30", "y_position" => "643",
             "height" => "10", "width" => "40", "required" => "false"
         ]);
 
         $Initial_10 = new InitialHere([
             'document_id' => "1", "page_number" => "2",
-            "x_position" => "30", "y_position" => "670",
+            "x_position" => "30", "y_position" => "680",
             "height" => "10", "width" => "40", "required" => "false"
         ]);
 
         $Initial_11 = new InitialHere([
             'document_id' => "1", "page_number" => "2",
-            "x_position" => "30", "y_position" => "684",
+            "x_position" => "30", "y_position" => "700",
             "height" => "10", "width" => "40", "required" => "false"
         ]);
 
         $Initial_12 = new InitialHere([
-            'document_id' => "1", "page_number" => "2",
+            'document_id' => "1", "page_number" => "3",
             "x_position" => "30", "y_position" => "40",
             "height" => "10", "width" => "40", "required" => "false"
         ]);
 
         $Initial_13 = new InitialHere([
-            'document_id' => "1", "page_number" => "2",
+            'document_id' => "1", "page_number" => "3",
             "x_position" => "30", "y_position" => "80",
             "height" => "10", "width" => "40", "required" => "false"
         ]);
 
         $Initial_14 = new InitialHere([
-            'document_id' => "1", "page_number" => "2",
+            'document_id' => "1", "page_number" => "3",
             "x_position" => "30", "y_position" => "160",
             "height" => "10", "width" => "40", "required" => "false"
         ]);
 
         $Initial_15 = new InitialHere([
-            'document_id' => "1", "page_number" => "2",
+            'document_id' => "1", "page_number" => "3",
             "x_position" => "30", "y_position" => "200",
             "height" => "10", "width" => "40", "required" => "false"
         ]);
 
         $Initial_16 = new InitialHere([
-            'document_id' => "1", "page_number" => "2",
+            'document_id' => "1", "page_number" => "3",
             "x_position" => "30", "y_position" => "240",
             "height" => "10", "width" => "40", "required" => "false"
         ]);
 
         $Initial_17 = new InitialHere([
-            'document_id' => "1", "page_number" => "2",
+            'document_id' => "1", "page_number" => "3",
             "x_position" => "30", "y_position" => "320",
             "height" => "10", "width" => "40", "required" => "false"
         ]);
