@@ -651,7 +651,7 @@ class SecondDrawBorrowerForm {
         else {
             $selected = false;
         }
-        $q5_radio_group = new RadioGroup(['document_id' => "1", 'group_name' => "q5_radio",
+        $q4_radio_group = new RadioGroup(['document_id' => "1", 'group_name' => "q5_radio",
         'radios' => [
             new Radio(['page_number' => "1", 'x_position' => "540", 'y_position' => "620",
                 'value' => "Yes",
@@ -669,7 +669,7 @@ class SecondDrawBorrowerForm {
         else {
             $selected = false;
         }
-        $q6_radio_group = new RadioGroup(['document_id' => "1", 'group_name' => "q6_radio",
+        $q5_radio_group = new RadioGroup(['document_id' => "1", 'group_name' => "q6_radio",
         'radios' => [
             new Radio(['page_number' => "1", 'x_position' => "540", 'y_position' => "665",
                 'value' => "Yes",
@@ -687,7 +687,7 @@ class SecondDrawBorrowerForm {
         else {
             $selected = false;
         }
-        $q7_radio_group = new RadioGroup(['document_id' => "1", 'group_name' => "q7_radio",
+        $q6_radio_group = new RadioGroup(['document_id' => "1", 'group_name' => "q7_radio",
         'radios' => [
             new Radio(['page_number' => "1", 'x_position' => "540", 'y_position' => "690",
                 'value' => "Yes",
@@ -699,13 +699,13 @@ class SecondDrawBorrowerForm {
                 'required' => "false"])
         ]]);
 
-        if ($this->elements["is_residence_"]["#default_value"] === "Yes") {
+        if ($this->elements["is_franchise_listed_in"]["#default_value"] === "Yes") {
             $selected = true;
         }
         else {
             $selected = false;
         }
-        $q8_radio_group = new RadioGroup(['document_id' => "1", 'group_name' => "q8_radio",
+        $q7_radio_group = new RadioGroup(['document_id' => "1", 'group_name' => "q8_radio",
         'radios' => [
             new Radio(['page_number' => "1", 'x_position' => "540", 'y_position' => "702",
                 'value' => "Yes",
@@ -723,7 +723,7 @@ class SecondDrawBorrowerForm {
         else {
             $selected = false;
         }
-        $q9_radio_group = new RadioGroup(['document_id' => "1", 'group_name' => "q9_radio",
+        $q8_radio_group = new RadioGroup(['document_id' => "1", 'group_name' => "q9_radio",
         'radios' => [
             new Radio(['page_number' => "1", 'x_position' => "540", 'y_position' => "715",
                 'value' => "Yes",
@@ -739,11 +739,11 @@ class SecondDrawBorrowerForm {
             $q1_radio_group, 
             $q2_radio_group,
             $q3_radio_group,
+            $q4_radio_group,
             $q5_radio_group,
             $q6_radio_group,
             $q7_radio_group,
-            $q8_radio_group,
-            $q9_radio_group
+            $q8_radio_group
         ];
 
         return $radio_groups;
