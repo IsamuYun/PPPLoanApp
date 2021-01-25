@@ -26,7 +26,7 @@ use NumberFormatter;
 
 class SecondDrawBorrowerForm {
     public const DOCS_PATH = __DIR__ . '/../../documents/';
-
+    private $elements;
     /**
      * Creates envelope definition
      * Document 1: A Borrower Form PDF document.
@@ -38,9 +38,9 @@ class SecondDrawBorrowerForm {
      * @param  $args array
      * @return EnvelopeDefinition -- returns an envelope definition
      */
-    public function make_envelope(array $args, ApplicationController $controller): EnvelopeDefinition
+    public function make_envelope(array $args, ApplicationController $controller, &$elements): EnvelopeDefinition
     {
-        $this->elements = $controller->getElements();
+        $this->elements = $elements;
         #
         # The envelope has two recipients.
         # recipient 1 - signer
@@ -65,219 +65,394 @@ class SecondDrawBorrowerForm {
             'document_id' => '1'  # a label used to reference the doc
         ]);
          
-        $business_name_text = new Text(['document_id' => "1", "page_number" => "1",
-            "x_position" => "100", "y_position" => "125",
-            "font" => "Arial", "font_size" => "size11",
+        $business_name = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "80", "y_position" => "124",
+            "font" => "Arial", "font_size" => "size10",
             "value" => $this->elements["business_name"]["#default_value"],
             "height" => "20", "width" => "140", "required" => "false"
         ]);
+        
+        $another_business_name = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "360", "y_position" => "85",
+            "font" => "Arial", "font_size" => "size11",
+            "value" => $this->elements["another_business_name"]["#default_value"],
+            "height" => "24", "width" => "160", "required" => "false"
+        ]);
+
+        $date_established = new Text([
+            "document_id" => "1", "page_number" => "1",
+            "x_position" => "480", "y_position" => "85",
+            "font" => "Arial", "font_size" => "size11",
+            "value" => $controller->getDateEstablished(),
+            "height" => "24", "width" => "160", "required" => "false"
+        ]);
+        
+        $naics_code = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "360", "y_position" => "124",
+            "font" => "Arial", "font_size" => "size10",
+            "value" => $this->elements["naics_code"]["#default_value"],
+            "height" => "20", "width" => "200", "required" => "false"
+        ]);
          
-         $business_address_1_text = new Text([
-             'document_id' => "1", "page_number" => "1",
-             "x_position" => "100", "y_position" => "155",
-             "font" => "Arial", "font_size" => "size11",
-             "value" => $controller->getBusinessAddress(),
-             "height" => "20", "width" => "140", "required" => "false"
-         ]);
- 
+        $business_address_1 = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "80", "y_position" => "158",
+            "font" => "Arial", "font_size" => "size10",
+            "value" => $controller->getBusinessAddress(),
+            "height" => "20", "width" => "140", "required" => "false"
+        ]);
          
-         $business_address_2_text = new Text(['document_id' => "1", "page_number" => "1",
-             "x_position" => "100", "y_position" => "175",
-             "font" => "Arial", "font_size" => "size11",
-             "value" => $controller->getBusinessAddress2(),
-             "height" => "20", "width" => "140", "required" => "false"
-         ]);
+        $business_address_2 = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "80", "y_position" => "175",
+            "font" => "Arial", "font_size" => "size10",
+            "value" => $controller->getBusinessAddress2(),
+            "height" => "20", "width" => "140", "required" => "false"
+        ]);
  
-         $ssn_text = new Text(['document_id' => "1", "page_number" => "1",
-             "x_position" => "380", "y_position" => "153",
-             "font" => "Arial", "font_size" => "size11",
-             "value" => $this->elements["social_security_number"]["#default_value"],
-             "height" => "20", "width" => "140", "required" => "false"
-         ]);
+        $ssn = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "360", "y_position" => "155",
+            "font" => "Arial", "font_size" => "size10",
+            "value" => $this->elements["social_security_number"]["#default_value"],
+            "height" => "20", "width" => "140", "required" => "false"
+        ]);
  
-         $business_phone_text = new Text(['document_id' => "1", "page_number" => "1",
-             "x_position" => "480", "y_position" => "153",
-             "font" => "Arial", "font_size" => "size11",
-             "value" => $this->elements["business_phone_number"]["#default_value"],
-             "height" => "20", "width" => "140", "required" => "false"
-         ]);
-         // Primary Contact
-         $primary_contact = new Text([
-             'document_id' => "1", "page_number" => "1",
-             "x_position" => "380", "y_position" => "178",
-             "font" => "Arial", "font_size" => "size11",
-             "value" => $this->getPrintName(),
-             "height" => "20", "width" => "140", "required" => "false"
-         ]);
+        $business_phone = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "460", "y_position" => "155",
+            "font" => "Arial", "font_size" => "size10",
+            "value" => $this->elements["business_phone_number"]["#default_value"],
+            "height" => "20", "width" => "140", "required" => "false"
+        ]);
+         
+        $primary_contact = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "360", "y_position" => "182",
+            "font" => "Arial", "font_size" => "size10",
+            "value" => $controller->getPrintName(),
+            "height" => "20", "width" => "140", "required" => "false"
+        ]);
+         
+        $email = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "460", "y_position" => "182",
+            "font" => "Arial", "font_size" => "size10",
+            "value" => $controller->getBorrowerEmail(),
+            "height" => "20", "width" => "140", "required" => "false"
+        ]);
+
+        $average_monthly_payroll = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "140", "y_position" => "214",
+            "font" => "Arial", "font_size" => "size10",
+            "value" => $controller->getAmount($controller->getAdjustedAveragePayrollAmount()),
+            "height" => "20", "width" => "100", "required" => "false"
+        ]);
+
+        $loan_amount = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "333", "y_position" => "214",
+            "font" => "Arial", "font_size" => "size10",
+            "value" => $controller->getAmount($controller->getAdjustedLoanAmount()),
+            "height" => "20", "width" => "100", "required" => "false"
+        ]);
+ 
+        $num_of_employees = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "536", "y_position" => "214",
+            "font" => "Arial", "font_size" => "size10",
+            "value" => $this->elements["number_of_employees"]["#default_value"],
+            "height" => "20", "width" => "140", "required" => "false"
+        ]);
+
+        $other_purpose = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "472", "y_position" => "290",
+            "font" => "Arial", "font_size" => "size8",
+            "value" => $controller->getOtherPurpose(),
+            "height" => "10", "width" => "100", "required" => "false"
+        ]);
+
+        $sba_loan_num = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "136", "y_position" => "310",
+            "font" => "Arial", "font_size" => "size10",
+            "value" => $this->elements["first_draw_sba_loan_number"]["#default_value"],
+            "height" => "20", "width" => "200", "required" => "false"
+        ]);
+
+        $quarter_2020 = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "300", "y_position" => "335",
+            "font" => "Arial", "font_size" => "size10",
+            "value" => $this->elements["2020_quarter"]["#value"] . " 2020",
+            "height" => "20", "width" => "200", "required" => "false"
+        ]);
+
+        $quarter_2019 = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "485", "y_position" => "335",
+            "font" => "Arial", "font_size" => "size10",
+            "value" => $this->elements["reference_2019_quarter"]["#value"] . " 2019",
+            "height" => "20", "width" => "200", "required" => "false"
+        ]);
+
+        $gross_receipts_2020 = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "300", "y_position" => "360",
+            "font" => "Arial", "font_size" => "size10",
+            "value" => $controller->getAmount($this->elements["2020_gross_receipts"]["#value"]),
+            "height" => "20", "width" => "200", "required" => "false"
+        ]);
+
+        $gross_receipts_2019 = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "485", "y_position" => "360",
+            "font" => "Arial", "font_size" => "size10",
+            "value" => $controller->getAmount($this->elements["2019_gross_receipts"]["#value"]),
+            "height" => "20", "width" => "200", "required" => "false"
+        ]);
+
+        $owner_name_0 = new Text([
+            "document_id" => "1", "page_number" => "1",
+            "x_position" => "40", "y_position" => "430",
+            "font" => "Arial", "font_size" => "size8",
+            "value" => $controller->getPrintName(),
+            "height" => "10", "width" => "100", "required" => "false"
+        ]);
+        
+        $owner_name_1 = new Text([
+            "document_id" => "1", "page_number" => "1",
+            "x_position" => "40", "y_position" => "445",
+            "font" => "Arial", "font_size" => "size8",
+            "value" => $controller->getOwnerName1(),
+            "height" => "10", "width" => "100", "required" => "false"
+        ]);
+
+        $owner_name_2 = new Text([
+            "document_id" => "1", "page_number" => "1",
+            "x_position" => "40", "y_position" => "455",
+            "font" => "Arial", "font_size" => "size8",
+            "value" => $controller->getOwnerName2(),
+            "height" => "10", "width" => "100", "required" => "false"
+        ]);
+
+        $owner_job_title_0 = new Text([
+            "document_id" => "1", "page_number" => "1",
+            "x_position" => "235", "y_position" => "430",
+            "font" => "Arial", "font_size" => "size8",
+            "value" => $controller->getJobTitle(),
+            "height" => "10", "width" => "100", "required" => "false"
+        ]);
+ 
+        $owner_job_title_1 = new Text([
+            "document_id" => "1", "page_number" => "1",
+            "x_position" => "235", "y_position" => "445",
+            "font" => "Arial", "font_size" => "size8",
+            "value" => $controller->getOwnerJobTitle1(),
+            "height" => "10", "width" => "100", "required" => "false"
+        ]);
+
+        $owner_job_title_2 = new Text([
+            "document_id" => "1", "page_number" => "1",
+            "x_position" => "235", "y_position" => "455",
+            "font" => "Arial", "font_size" => "size8",
+            "value" => $controller->getOwnerJobTitle2(),
+            "height" => "10", "width" => "100", "required" => "false"
+        ]);
+
+        $ownership_0 = new Text([
+            "document_id" => "1", "page_number" => "1",
+            "x_position" => "325", "y_position" => "430",
+            "font" => "Arial", "font_size" => "size8",
+            "value" => $this->elements["percentage_of_business"]["#value"],
+            "height" => "10", "width" => "60", "required" => "false"
+        ]);
+ 
+        $ownership_1 = new Text([
+            "document_id" => "1", "page_number" => "1",
+            "x_position" => "325", "y_position" => "445",
+            "font" => "Arial", "font_size" => "size8",
+            "value" => $controller->getOwnership1(),
+            "height" => "10", "width" => "60", "required" => "false"
+        ]);
+
+        $ownership_2 = new Text([
+            "document_id" => "1", "page_number" => "1",
+            "x_position" => "325", "y_position" => "455",
+            "font" => "Arial", "font_size" => "size8",
+            "value" => $controller->getOwnership2(),
+            "height" => "10", "width" => "60", "required" => "false"
+        ]);
+
+        $owner_tin_0 = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "365", "y_position" => "430",
+            "font" => "Arial", "font_size" => "size8",
+            "value" => $this->elements["social_security_number"]["#value"],
+            "height" => "10", "width" => "60", "required" => "false"
+        ]);
+ 
+        $owner_tin_1 = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "365", "y_position" => "445",
+            "font" => "Arial", "font_size" => "size8",
+            "value" => $controller->getOwnerTIN1(),
+            "height" => "10", "width" => "60", "required" => "false"
+        ]);
+        
+        $owner_tin_2 = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "365", "y_position" => "455",
+            "font" => "Arial", "font_size" => "size8",
+            "value" => $controller->getOwnerTIN2(),
+            "height" => "10", "width" => "60", "required" => "false"
+        ]);
+        
+        $owner_address_0 = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "425", "y_position" => "430",
+            "font" => "Arial", "font_size" => "size8",
+            "value" => $controller->getFullBusinessAddress(),
+            "height" => "10", "width" => "120", "required" => "false"
+        ]);
+ 
+        $owner_address_1 = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "425", "y_position" => "445",
+            "font" => "Arial", "font_size" => "size8",
+            "value" => $controller->getOwnerAddress1(),
+            "height" => "10", "width" => "120", "required" => "false"
+        ]);
+
+        $owner_address_2 = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "425", "y_position" => "455",
+            "font" => "Arial", "font_size" => "size8",
+            "value" => $controller->getOwnerAddress2(),
+            "height" => "10", "width" => "120", "required" => "false"
+        ]);
+        
+        $sba_franchise_identifier_code = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "440", "y_position" => "711",
+            "font" => "Arial", "font_size" => "size8",
+            "value" => $this->elements["sba_franchise_identifier_code"]["#default_value"],
+            "height" => "10", "width" => "80", "required" => "false"
+        ]);
+ 
+        $today = new Text([
+            'document_id' => "1", "page_number" => "3",
+            "x_position" => "380", "y_position" => "345",
+            "font" => "Arial", "font_size" => "size11",
+            "value" => date("m-j-Y"),
+            "height" => "20", "width" => "100", "required" => "false"
+        ]);
+         
+        $print_name = new Text([
+            'document_id' => "1", "page_number" => "3",
+            "x_position" => "40", "y_position" => "385",
+            "font" => "Arial", "font_size" => "size11",
+            "value" => $controller->getPrintName(),
+            "height" => "20", "width" => "200", "required" => "false"
+        ]);
+ 
+        $job_title = new Text([
+            'document_id' => "1", "page_number" => "3",
+            "x_position" => "380", "y_position" => "385",
+            "font" => "Arial", "font_size" => "size11",
+            "value" => $controller->getJobTitle(),
+            "height" => "20", "width" => "200", "required" => "false"
+        ]);
          
          
-         $email_text = new Text([
-             'document_id' => "1", "page_number" => "1",
-             "x_position" => "480", "y_position" => "178",
-             "font" => "Arial", "font_size" => "size11",
-             "value" => $this->getBorrowerEmail(),
-             "height" => "20", "width" => "140", "required" => "false"
-         ]);
+        $sign_here = new SignHere([
+            "document_id" => "1", "page_number" => "3",
+            "x_position" => "40", "y_position" => "320"]);
  
-         $num_of_employees_text = new Text([
-             'document_id' => "1", "page_number" => "1",
-             "x_position" => "540", "y_position" => "208",
-             "font" => "Arial", "font_size" => "size11",
-             "value" => $this->elements["number_of_employees"]["#default_value"],
-             "height" => "20", "width" => "140", "required" => "false"
-         ]);
- 
-         $average_monthly_payroll = new Text([
-             'document_id' => "1", "page_number" => "1",
-             "x_position" => "170", "y_position" => "208",
-             "font" => "Arial", "font_size" => "size11",
-             "value" => $this->getAveragePayroll(),
-             "height" => "20", "width" => "100", "required" => "false"
-         ]);
- 
-         $loan_amount = new Text([
-             'document_id' => "1", "page_number" => "1",
-             "x_position" => "364", "y_position" => "208",
-             "font" => "Arial", "font_size" => "size11",
-             "value" => $this->getLoanAmount(),
-             "height" => "20", "width" => "100", "required" => "false"
-         ]);
- 
-         $owner_name = new Text([
-             'document_id' => "1", "page_number" => "1",
-             "x_position" => "40", "y_position" => "325",
-             "font" => "Arial", "font_size" => "size10",
-             "value" => $this->getPrintName(),
-             "height" => "14", "width" => "100", "required" => "false"
-         ]);
- 
-         $owner_job_title = new Text([
-             'document_id' => "1", "page_number" => "1",
-             "x_position" => "230", "y_position" => "325",
-             "font" => "Arial", "font_size" => "size10",
-             "value" => $this->getJobTitle(),
-             "height" => "14", "width" => "100", "required" => "false"
-         ]);
- 
-         $ownership = new Text([
-             'document_id' => "1", "page_number" => "1",
-             "x_position" => "315", "y_position" => "325",
-             "font" => "Arial", "font_size" => "size10",
-             "value" => "100%",
-             "height" => "14", "width" => "60", "required" => "false"
-         ]);
- 
-         $owner_ssn = new Text([
-             'document_id' => "1", "page_number" => "1",
-             "x_position" => "360", "y_position" => "325",
-             "font" => "Arial", "font_size" => "size10",
-             "value" => $this->elements["social_security_number"]["#default_value"],
-             "height" => "14", "width" => "60", "required" => "false"
-         ]);
- 
-         $owner_address = new Text([
-             'document_id' => "1", "page_number" => "1",
-             "x_position" => "425", "y_position" => "325",
-             "font" => "Arial", "font_size" => "size10",
-             "value" => $this->getBusinessAddress(),
-             "height" => "14", "width" => "60", "required" => "false"
-         ]);
- 
- 
-         $another_business_name = new Text([
-             'document_id' => "1", "page_number" => "1",
-             "x_position" => "410", "y_position" => "85",
-             "font" => "Arial", "font_size" => "size16",
-             "value" => $this->elements["another_business_name"]["#default_value"],
-             "height" => "32", "width" => "160", "required" => "false"
-         ]);
- 
-         $today = new Text([
-             'document_id' => "1", "page_number" => "2",
-             "x_position" => "380", "y_position" => "670",
-             "font" => "Arial", "font_size" => "size12",
-             "value" => date("m-j-Y"),
-             "height" => "20", "width" => "100", "required" => "false"
-         ]);
+        # Create the signer recipient model
+        $signer = new Signer([
+            'email' => $args['signer_email'], 'name' => $args['signer_name'],
+            'role_name' => 'signer', 'recipient_id' => "1", 'routing_order' => "1"]);
+        # routingOrder (lower means earlier) determines the order of deliveries
+        # to the recipients. Parallel routing order is supported by using the
+        # same integer as the order for two or more recipients.
          
-         $print_name = new Text([
-             'document_id' => "1", "page_number" => "2",
-             "x_position" => "40", "y_position" => "705",
-             "font" => "Arial", "font_size" => "size12",
-             "value" => $this->getPrintName(),
-             "height" => "20", "width" => "200", "required" => "false"
-         ]);
+        $radio_groups = $this->getRadioGroup();
  
-         $job_title = new Text([
-             'document_id' => "1", "page_number" => "2",
-             "x_position" => "380", "y_position" => "705",
-             "font" => "Arial", "font_size" => "size12",
-             "value" => $this->getJobTitle(),
-             "height" => "20", "width" => "200", "required" => "false"
-         ]);
+        $checkbox_list = $this->getCheckboxList();
+ 
+        $initial_here_list = $this->getInitialList();
          
-         
-         $sign_here = new SignHere(['document_id' => "1", 'page_number' => "2",
-         'x_position' => '40', 'y_position' => '650']);
+        $signer->setTabs(new Tabs([
+            'sign_here_tabs' => [$sign_here],
+            'initial_here_tabs' => $initial_here_list,
+            'radio_group_tabs' => $radio_groups,
+            'checkbox_tabs' => $checkbox_list,
+            'text_tabs' => [
+                $another_business_name,
+                $date_established,
+                $business_name,
+                $naics_code,
+                $business_address_1,
+                $business_address_2,
+                $ssn,
+                $business_phone,
+                $primary_contact,
+                $email,
+                $average_monthly_payroll,
+                $loan_amount,
+                $num_of_employees,
+                $other_purpose,
+                $sba_loan_num,
+                $quarter_2020,
+                $quarter_2019,
+                $gross_receipts_2020,
+                $gross_receipts_2019,
+                $owner_name_0,
+                $owner_name_1,
+                $owner_name_2,
+                $owner_job_title_0,
+                $owner_job_title_1,
+                $owner_job_title_2,
+                $ownership_0,
+                $ownership_1,
+                $ownership_2,
+                $owner_tin_0,
+                $owner_tin_1,
+                $owner_tin_2,
+                $owner_address_0,
+                $owner_address_1,
+                $owner_address_2,
+                $sba_franchise_identifier_code,
+                $today,
+                $print_name,
+                $job_title,
+            ]
+        ]));
  
-         # Create the signer recipient model
-         $signer = new Signer([
-             'email' => $args['signer_email'], 'name' => $args['signer_name'],
-             'role_name' => 'signer', 'recipient_id' => "1", 'routing_order' => "1"]);
-         # routingOrder (lower means earlier) determines the order of deliveries
-         # to the recipients. Parallel routing order is supported by using the
-         # same integer as the order for two or more recipients.
-         
-         $radio_groups = $this->getRadioGroup();
+        # Add the recipients to the envelope object
+        $recipients = new Recipients([
+            'signers' => [$signer]
+        ]);
+        $envelope_definition->setRecipients($recipients);
  
-         $purpose_list = $this->getPurposeList();
+        # The order in the docs array determines the order in the envelope
+        $envelope_definition->setDocuments([$document]);
  
-         $initial_here_list = $this->getInitialList();
-         
-         $signer->setTabs(new Tabs(['sign_here_tabs' => [$sign_here],
-             'initial_here_tabs' => $initial_here_list,
-             'radio_group_tabs' => $radio_groups,
-             'checkbox_tabs' => $purpose_list,
-             'text_tabs' => [
-                 $business_name_text,
-                 $business_address_1_text,
-                 $business_address_2_text,
-                 $ssn_text,
-                 $business_phone_text,
-                 $primary_contact,
-                 $email_text,
-                 $num_of_employees_text,
-                 $average_monthly_payroll,
-                 $loan_amount,
-                 $another_business_name,
-                 $today,
-                 $print_name,
-                 $job_title,
-                 $owner_name,
-                 $owner_job_title,
-                 $ownership,
-                 $owner_ssn,
-                 $owner_address,
-             ]
-         ]));
+        # Request that the envelope be sent by setting |status| to "sent".
+        # To request that the envelope be created as a draft, set to "created"
+        $envelope_definition->setStatus($args["status"]);
  
-         # Add the recipients to the envelope object
-         $recipients = new Recipients([
-             'signers' => [$signer]
-         ]);
-         $envelope_definition->setRecipients($recipients);
- 
-         # The order in the docs array determines the order in the envelope
-         $envelope_definition->setDocuments([$document]);
- 
-         # Request that the envelope be sent by setting |status| to "sent".
-         # To request that the envelope be created as a draft, set to "created"
-         $envelope_definition->setStatus($args["status"]);
- 
-         return $envelope_definition;
+        return $envelope_definition;
     }
 
-    private function getCompanyStructurePosition($company_structure) {
+    private function getCompanyStructurePosition() {
+        $company_structure = $this->elements["company_structure"]["#default_value"];
         $position = [];
         $position["x"] = 105;
         $position["y"] = 59;
@@ -333,73 +508,80 @@ class SecondDrawBorrowerForm {
         return $position;
     }
 
-    public function getCheckboxList(ApplicationController $controller) {
-        $cs_position = $this->getCompanyStructurePosition($controller->getCompanyStructure());
+    public function getCheckboxList() {
+        $cs_position = $this->getCompanyStructurePosition();
         $company_structure = new Checkbox([
             'document_id' => "1", 'page_number' => "1",
             "x_position" => $cs_position["x"], "y_position" => $cs_position["y"],
             "selected" => "true"]);
         
-        $payroll_percentage = $this->elements["payroll_costs_"]["#default_value"];
-        $less_percentage = $this->elements["less_mortgage_interest_"]["#default_value"];
-        $utilities_percentage = $this->elements["utilities_"]["#default_value"];
-        $other = $this->elements["other_costs"]["#default_value"];
+        $payroll_costs = $this->elements["payroll_costs"]["#default_value"];
+        $less_mortgage_interest = $this->elements["less_mortgage_interest"]["#default_value"];
+        $utilities = $this->elements["utilities"]["#default_value"];
+        $covered_operations_expenditures = $this->elements["covered_operations_expenditures"]["#default_value"];
+        $covered_property_damage = $this->elements["covered_property_damage"]["#default_value"];
+        $covered_supplier_costs = $this->elements["covered_supplier_costs"]["#default_value"];
+        $covered_worker_protection_expenditures = $this->elements["covered_worker_protection_expenditures"]["#default_value"];
+        $other_cost = $this->elements["other_cost"]["#default_value"];
         
-        $selected = "false";
-        if ($payroll_percentage > 0) {
-            $selected = "true";
-        }
-        else {
-            $selected = "false";
-        }
         $payroll_checkbox = new Checkbox([
             'document_id' => '1', 'page_number' => '1',
-            'x_position' => "162", 'y_position' => "263",
-            'selected' => $selected
+            'x_position' => "141", 'y_position' => "250",
+            'selected' => $payroll_costs ? "true" : "false",
         ]);
         
-        if ($less_percentage > 0) {
-            $selected = "true";
-        }
-        else {
-            $selected = "false";
-        }
         $less_checkbox = new Checkbox([
             'document_id' => '1', 'page_number' => '1',
-            'x_position' => "200", 'y_position' => "263",
-            'selected' => $selected
+            'x_position' => "235", 'y_position' => "250",
+            'selected' => $less_mortgage_interest ? "true" : "false",
         ]);
-
-        if ($utilities_percentage > 0) {
-            $selected = "true";
-        }
-        else {
-            $selected = "false";
-        }
+        
         $utilities_checkbox = new Checkbox([
             'document_id' => '1', 'page_number' => '1',
-            'x_position' => "300", 'y_position' => "263",
-            'selected' => $selected
+            'x_position' => "361", 'y_position' => "250",
+            'selected' => $utilities ? "true" : "false",
         ]);
 
-        if ($other > 0) {
-            $selected = "true";
-        }
-        else {
-            $selected = "false";
-        }
+        $cb_covered_1 = new Checkbox([
+            'document_id' => '1', 'page_number' => '1',
+            'x_position' => "470", 'y_position' => "245",
+            'selected' => $covered_operations_expenditures ? "true" : "false",
+        ]);
+
+        $cb_covered_2 = new Checkbox([
+            'document_id' => '1', 'page_number' => '1',
+            'x_position' => "141", 'y_position' => "276",
+            'selected' => $covered_property_damage ? "true" : "false",
+        ]);
+
+        $cb_covered_3 = new Checkbox([
+            'document_id' => '1', 'page_number' => '1',
+            'x_position' => "235", 'y_position' => "281",
+            'selected' => $covered_supplier_costs ? "true" : "false",
+        ]);
+
+        $cb_covered_4 = new Checkbox([
+            'document_id' => '1', 'page_number' => '1',
+            'x_position' => "361", 'y_position' => "276",
+            'selected' => $covered_worker_protection_expenditures ? "true" : "false",
+        ]);
+
         $other_checkbox = new Checkbox([
             'document_id' => '1', 'page_number' => '1',
-            'x_position' => "350", 'y_position' => "263",
-            'selected' => $selected
+            'x_position' => "470", 'y_position' => "276",
+            'selected' => $other_cost ? "true" : "false",
         ]);
-
+        
         $checkbox_list = [
             $company_structure,
             $payroll_checkbox,
             $less_checkbox,
             $utilities_checkbox,
-            $other_checkbox
+            $cb_covered_1,
+            $cb_covered_2,
+            $cb_covered_3,
+            $cb_covered_4,
+            $other_checkbox,
         ];
 
         return $checkbox_list;
@@ -408,7 +590,7 @@ class SecondDrawBorrowerForm {
     private function getRadioGroup() {
         $selected = false;
         
-        if ($this->elements["question_step_18_1"]["#default_value"] === "Yes") {
+        if ($this->elements["question_step_18_1"]["#default_value"] == "Yes") {
             $selected = true;
         }
         else {
@@ -416,18 +598,18 @@ class SecondDrawBorrowerForm {
         }
         $q1_radio_group = new RadioGroup(['document_id' => "1", 'group_name' => "q1_radio",
         'radios' => [
-            new Radio(['page_number' => "1", 'x_position' => "540", 'y_position' => "400",
+            new Radio(['page_number' => "1", 'x_position' => "540", 'y_position' => "500",
                 'value' => "Yes",
-                'selected' => $selected ? "true" : "false", 
+                'selected' => $selected ? "true" : "false",
                 'required' => "false"]),
-            new Radio(['page_number' => "1", 'x_position' => "560", 'y_position' => "400",
+            new Radio(['page_number' => "1", 'x_position' => "565", 'y_position' => "500",
                 'value' => "No", 
                 'selected' => $selected ? "false" : "true",
                 'required' => "false"])
         ]]);
 
 
-        if ($this->elements["question_18_2"]["#default_value"] === "Yes") {
+        if ($this->elements["question_18_2"]["#default_value"] == "Yes") {
             $selected = true;
         }
         else {
@@ -435,11 +617,11 @@ class SecondDrawBorrowerForm {
         }
         $q2_radio_group = new RadioGroup(['document_id' => "1", 'group_name' => "q2_radio",
         'radios' => [
-            new Radio(['page_number' => "1", 'x_position' => "540", 'y_position' => "440",
+            new Radio(['page_number' => "1", 'x_position' => "540", 'y_position' => "540",
                 'value' => "Yes",
                 'selected' => $selected ? "true" : "false",  
                 'required' => "false"]),
-            new Radio(['page_number' => "1", 'x_position' => "560", 'y_position' => "440",
+            new Radio(['page_number' => "1", 'x_position' => "565", 'y_position' => "540",
                 'value' => "No", 
                 'selected' => $selected ? "false" : "true",
                 'required' => "false"])
@@ -453,29 +635,11 @@ class SecondDrawBorrowerForm {
         }
         $q3_radio_group = new RadioGroup(['document_id' => "1", 'group_name' => "q3_radio",
         'radios' => [
-            new Radio(['page_number' => "1", 'x_position' => "540", 'y_position' => "480",
+            new Radio(['page_number' => "1", 'x_position' => "540", 'y_position' => "575",
                 'value' => "Yes",
                 'selected' => $selected ? "true" : "false", 
                 'required' => "false"]),
-            new Radio(['page_number' => "1", 'x_position' => "560", 'y_position' => "480",
-                'value' => "No", 
-                'selected' => $selected ? "false" : "true",
-                'required' => "false"])
-        ]]);
-
-        if ($this->elements["has_received_loan"]["#default_value"] === "Yes") {
-            $selected = true;
-        }
-        else {
-            $selected = false;
-        }
-        $q4_radio_group = new RadioGroup(['document_id' => "1", 'group_name' => "q4_radio",
-        'radios' => [
-            new Radio(['page_number' => "1", 'x_position' => "540", 'y_position' => "510",
-                'value' => "Yes",
-                'selected' => $selected ? "true" : "false", 
-                'required' => "false"]),
-            new Radio(['page_number' => "1", 'x_position' => "560", 'y_position' => "510",
+            new Radio(['page_number' => "1", 'x_position' => "565", 'y_position' => "575",
                 'value' => "No", 
                 'selected' => $selected ? "false" : "true",
                 'required' => "false"])
@@ -489,11 +653,11 @@ class SecondDrawBorrowerForm {
         }
         $q5_radio_group = new RadioGroup(['document_id' => "1", 'group_name' => "q5_radio",
         'radios' => [
-            new Radio(['page_number' => "1", 'x_position' => "515", 'y_position' => "575",
+            new Radio(['page_number' => "1", 'x_position' => "540", 'y_position' => "620",
                 'value' => "Yes",
                 'selected' => $selected ? "true" : "false", 
                 'required' => "false"]),
-            new Radio(['page_number' => "1", 'x_position' => "550", 'y_position' => "575",
+            new Radio(['page_number' => "1", 'x_position' => "565", 'y_position' => "620",
                 'value' => "No", 
                 'selected' => $selected ? "false" : "true",
                 'required' => "false"])
@@ -507,11 +671,11 @@ class SecondDrawBorrowerForm {
         }
         $q6_radio_group = new RadioGroup(['document_id' => "1", 'group_name' => "q6_radio",
         'radios' => [
-            new Radio(['page_number' => "1", 'x_position' => "515", 'y_position' => "630",
+            new Radio(['page_number' => "1", 'x_position' => "540", 'y_position' => "665",
                 'value' => "Yes",
                 'selected' => $selected ? "true" : "false", 
                 'required' => "false"]),
-            new Radio(['page_number' => "1", 'x_position' => "550", 'y_position' => "630",
+            new Radio(['page_number' => "1", 'x_position' => "565", 'y_position' => "665",
                 'value' => "No", 
                 'selected' => $selected ? "false" : "true",
                 'required' => "false"])
@@ -525,11 +689,29 @@ class SecondDrawBorrowerForm {
         }
         $q7_radio_group = new RadioGroup(['document_id' => "1", 'group_name' => "q7_radio",
         'radios' => [
-            new Radio(['page_number' => "1", 'x_position' => "515", 'y_position' => "690",
+            new Radio(['page_number' => "1", 'x_position' => "540", 'y_position' => "690",
                 'value' => "Yes",
                 'selected' => $selected ? "true" : "false", 
                 'required' => "false"]),
-            new Radio(['page_number' => "1", 'x_position' => "550", 'y_position' => "690",
+            new Radio(['page_number' => "1", 'x_position' => "565", 'y_position' => "690",
+                'value' => "No", 
+                'selected' => $selected ? "false" : "true",
+                'required' => "false"])
+        ]]);
+
+        if ($this->elements["is_residence_"]["#default_value"] === "Yes") {
+            $selected = true;
+        }
+        else {
+            $selected = false;
+        }
+        $q8_radio_group = new RadioGroup(['document_id' => "1", 'group_name' => "q8_radio",
+        'radios' => [
+            new Radio(['page_number' => "1", 'x_position' => "540", 'y_position' => "702",
+                'value' => "Yes",
+                'selected' => $selected ? "true" : "false", 
+                'required' => "false"]),
+            new Radio(['page_number' => "1", 'x_position' => "565", 'y_position' => "702",
                 'value' => "No", 
                 'selected' => $selected ? "false" : "true",
                 'required' => "false"])
@@ -541,28 +723,27 @@ class SecondDrawBorrowerForm {
         else {
             $selected = false;
         }
-        $q8_radio_group = new RadioGroup(['document_id' => "1", 'group_name' => "q8_radio",
+        $q9_radio_group = new RadioGroup(['document_id' => "1", 'group_name' => "q9_radio",
         'radios' => [
-            new Radio(['page_number' => "1", 'x_position' => "515", 'y_position' => "720",
+            new Radio(['page_number' => "1", 'x_position' => "540", 'y_position' => "715",
                 'value' => "Yes",
                 'selected' => $selected ? "true" : "false", 
                 'required' => "false"]),
-            new Radio(['page_number' => "1", 'x_position' => "550", 'y_position' => "720",
+            new Radio(['page_number' => "1", 'x_position' => "565", 'y_position' => "715",
                 'value' => "No", 
                 'selected' => $selected ? "false" : "true",
                 'required' => "false"])
         ]]);
 
-
         $radio_groups = [
             $q1_radio_group, 
             $q2_radio_group,
             $q3_radio_group,
-            $q4_radio_group,
             $q5_radio_group,
             $q6_radio_group,
             $q7_radio_group,
-            $q8_radio_group
+            $q8_radio_group,
+            $q9_radio_group
         ];
 
         return $radio_groups;
@@ -605,7 +786,6 @@ class SecondDrawBorrowerForm {
             'document_id' => "1", "page_number" => "2",
             "x_position" => "40", "y_position" => "445",
             "font" => "Arial", "font_size" => "size10",
-            "value" => $this->getInitialName(),
             "height" => "12", "width" => "40", "required" => "false"
         ]);
 
@@ -613,7 +793,6 @@ class SecondDrawBorrowerForm {
             'document_id' => "1", "page_number" => "2",
             "x_position" => "40", "y_position" => "490",
             "font" => "Arial", "font_size" => "size10",
-            "value" => $this->getInitialName(),
             "height" => "12", "width" => "40", "required" => "false"
         ]);
 

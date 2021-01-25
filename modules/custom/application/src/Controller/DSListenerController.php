@@ -90,10 +90,10 @@ class DSListenerController extends ControllerBase {
         }
         $objJsonDocument = json_encode($objXmlDocument);
         $payload = json_decode($objJsonDocument, TRUE);
-        $payload_str = print_r($payload, true);
+        #$payload_str = print_r($payload, true);
         // Use temporarily to inspect payload.
         if ($this->debug) {
-            $this->logger->debug('<pre>@payload</pre>', ['@payload' => print_r($oayload, true)]);
+            $this->logger->debug('<pre>@payload</pre>', ['@payload' => print_r($payload, true)]);
         }
 
         // Add the $payload to our defined queue.
@@ -102,35 +102,25 @@ class DSListenerController extends ControllerBase {
         if (isset($payload["EnvelopeStatus"]) && isset($payload["EnvelopeStatus"]["EnvelopeID"])) {
             $EnvelopeID = $payload["EnvelopeStatus"]["EnvelopeID"];
         }
-
-        $database = \Drupal::database();
-        $query = $database->select("webform_submission_data", "wsd");
-        $query->condition("wsd.name", "envelope_id", '=');
-        $query->condition("wsd.value", $EnvelopeID, '=');
-        $query->addField("wsd", "sid");
-
-        $result = $query->execute()->fetchAll();
-        $sid = 0;
-        if (!empty($result)) {
-            $sid = $result[0]->sid;
-        }
-        else {
-            return;
+        $update_status = false;
+        $updated_status = $this->checkFLPEnvelopeStatus($EnvelopeID);
+        if ($update_status) {
+            $response->setContent('FLP Success!');
+            return $response;
         }
 
-        \Drupal::logger("ProcessPayload")->notice("Submission ID: " . $sid . ", Envelope ID: " . $EnvelopeID);
+        $update_status = $this->checkPPPBorrowerEnvelopeStatus($EnvelopeID);
+        if ($update_status) {
+            $response->setContent('PPP Borrower Success!');
+            return $response;
+        }
 
-        $update_query = \Drupal::database()->update('webform_submission_data');
-        $update_query->fields([
-            'value' => "completed"
-        ]);
-        $update_query->condition("sid", $sid);
-        $update_query->condition("name", "envelope_status");
-        $update_query->execute();
-        \Drupal::logger("ProcessPayload")->notice("Submission ID: " . $sid . " Envelope status has been updated.");
-
-
-        $response->setContent('Success!');
+        $update_status = $this->checkPPPSBAEnvelopeStatus($EnvelopeID);
+        if ($update_status) {
+            $response->setContent('PPP SBA Success!');
+            return $response;
+        }
+        
         return $response;
   }
 
@@ -149,5 +139,96 @@ class DSListenerController extends ControllerBase {
         //}
         //return AccessResult::forbidden();
         return AccessResult::allowed();
+    }
+
+    private function checkFLPEnvelopeStatus($EnvelopeID) {
+        if (empty($EnvelopeID)) {
+            return false;
+        }
+
+        $database = \Drupal::database();
+        $query = $database->select("webform_submission_data", "wsd");
+        $query->condition("wsd.name", "envelope_id", '=');
+        $query->condition("wsd.value", $EnvelopeID, '=');
+        $query->addField("wsd", "sid");
+
+        $result = $query->execute()->fetchAll();
+        if (empty($result)) {
+            return false;
+        }
+        $sid = $result[0]->sid;
+
+        \Drupal::logger("ProcessPayload")->notice("FLP Submission ID: " . $sid . ", Envelope ID: " . $EnvelopeID);
+
+        $update_query = \Drupal::database()->update('webform_submission_data');
+        $update_query->fields([
+            'value' => "completed"
+        ]);
+        $update_query->condition("sid", $sid);
+        $update_query->condition("name", "envelope_status");
+        $update_query->execute();
+        \Drupal::logger("ProcessPayload")->notice("Submission ID: " . $sid . " Envelope status has been updated.");
+
+        return true;
+    }
+
+    private function checkPPPBorrowerEnvelopeStatus($EnvelopeID) {
+        if (empty($EnvelopeID)) {
+            return false;
+        }
+
+        $database = \Drupal::database();
+        $query = $database->select("webform_submission_data", "wsd");
+        $query->condition("wsd.name", "borrower_envelope_id", '=');
+        $query->condition("wsd.value", $EnvelopeID, '=');
+        $query->addField("wsd", "sid");
+
+        $result = $query->execute()->fetchAll();
+        if (empty($result)) {
+            return false;
+        }
+        $sid = $result[0]->sid;
+
+        \Drupal::logger("ProcessPayload")->notice("PPP Submission ID: " . $sid . ", Borrower Envelope ID: " . $EnvelopeID);
+
+        $update_query = \Drupal::database()->update('webform_submission_data');
+        $update_query->fields([
+            'value' => "completed"
+        ]);
+        $update_query->condition("sid", $sid);
+        $update_query->condition("name", "borrower_envelope_status");
+        $update_query->execute();
+        \Drupal::logger("ProcessPayload")->notice("Submission ID: " . $sid . " Borrower Envelope status has been updated.");
+        return true;
+    }
+
+    private function checkPPPSBAEnvelopeStatus($EnvelopeID) {
+        if (empty($EnvelopeID)) {
+            return false;
+        }
+
+        $database = \Drupal::database();
+        $query = $database->select("webform_submission_data", "wsd");
+        $query->condition("wsd.name", "sba_envelope_id", '=');
+        $query->condition("wsd.value", $EnvelopeID, '=');
+        $query->addField("wsd", "sid");
+
+        $result = $query->execute()->fetchAll();
+        if (empty($result)) {
+            return false;
+        }
+        $sid = $result[0]->sid;
+        
+        \Drupal::logger("ProcessPayload")->notice("PPP Submission ID: " . $sid . ", SBA Envelope ID: " . $EnvelopeID);
+
+        $update_query = \Drupal::database()->update('webform_submission_data');
+        $update_query->fields([
+            'value' => "completed"
+        ]);
+        $update_query->condition("sid", $sid);
+        $update_query->condition("name", "sba_envelope_status");
+        $update_query->execute();
+        \Drupal::logger("ProcessPayload")->notice("Submission ID: " . $sid . " SBA Envelope status has been updated.");
+        return true;
     }
 }

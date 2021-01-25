@@ -147,23 +147,23 @@ class FirstDrawBorrowerForm {
  
         $average_monthly_payroll = new Text([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "136", "y_position" => "277",
+            "x_position" => "136", "y_position" => "276",
             "font" => "Arial", "font_size" => "size9",
-            "value" => $controller->getAdjustedAveragePayrollAmount(),
+            "value" => $controller->getAmount($controller->getAdjustedAveragePayrollAmount()),
             "height" => "20", "width" => "100", "required" => "false"
         ]);
  
         $loan_amount = new Text([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "339", "y_position" => "277",
+            "x_position" => "339", "y_position" => "276",
             "font" => "Arial", "font_size" => "size9",
-            "value" => $controller->getAdjustedLoanAmount(),
+            "value" => $controller->getAmount($controller->getAdjustedLoanAmount()),
             "height" => "20", "width" => "100", "required" => "false"
         ]);
 
         $num_of_employees_text = new Text([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "500", "y_position" => "277",
+            "x_position" => "500", "y_position" => "276",
             "font" => "Arial", "font_size" => "size9",
             "value" => $this->elements["number_of_employees"]["#default_value"],
             "height" => "20", "width" => "140", "required" => "false"
@@ -176,10 +176,18 @@ class FirstDrawBorrowerForm {
             "value" => $controller->getOtherPurpose(),
             "height" => "20", "width" => "100", "required" => "false"
         ]);
+
+        $owner_name_0 = new Text([
+            "document_id" => "1", "page_number" => "1",
+            "x_position" => "40", "y_position" => "402",
+            "font" => "Arial", "font_size" => "size8",
+            "value" => $controller->getPrintName(),
+            "height" => "10", "width" => "100", "required" => "false"
+        ]);
         
         $owner_name_1 = new Text([
             "document_id" => "1", "page_number" => "1",
-            "x_position" => "40", "y_position" => "402",
+            "x_position" => "40", "y_position" => "412",
             "font" => "Arial", "font_size" => "size8",
             "value" => $controller->getOwnerName1(),
             "height" => "10", "width" => "100", "required" => "false"
@@ -187,15 +195,23 @@ class FirstDrawBorrowerForm {
 
         $owner_name_2 = new Text([
             "document_id" => "1", "page_number" => "1",
-            "x_position" => "40", "y_position" => "412",
+            "x_position" => "40", "y_position" => "422",
             "font" => "Arial", "font_size" => "size8",
             "value" => $controller->getOwnerName2(),
+            "height" => "10", "width" => "100", "required" => "false"
+        ]);
+
+        $owner_job_title_0 = new Text([
+            "document_id" => "1", "page_number" => "1",
+            "x_position" => "235", "y_position" => "402",
+            "font" => "Arial", "font_size" => "size8",
+            "value" => $controller->getJobTitle(),
             "height" => "10", "width" => "100", "required" => "false"
         ]);
  
         $owner_job_title_1 = new Text([
             "document_id" => "1", "page_number" => "1",
-            "x_position" => "235", "y_position" => "402",
+            "x_position" => "235", "y_position" => "412",
             "font" => "Arial", "font_size" => "size8",
             "value" => $controller->getOwnerJobTitle1(),
             "height" => "10", "width" => "100", "required" => "false"
@@ -203,15 +219,23 @@ class FirstDrawBorrowerForm {
 
         $owner_job_title_2 = new Text([
             "document_id" => "1", "page_number" => "1",
-            "x_position" => "235", "y_position" => "412",
+            "x_position" => "235", "y_position" => "422",
             "font" => "Arial", "font_size" => "size8",
             "value" => $controller->getOwnerJobTitle2(),
             "height" => "10", "width" => "100", "required" => "false"
         ]);
+
+        $ownership_0 = new Text([
+            "document_id" => "1", "page_number" => "1",
+            "x_position" => "325", "y_position" => "402",
+            "font" => "Arial", "font_size" => "size8",
+            "value" => $this->elements["percentage_of_business"]["#value"],
+            "height" => "10", "width" => "60", "required" => "false"
+        ]);
  
         $ownership_1 = new Text([
             "document_id" => "1", "page_number" => "1",
-            "x_position" => "325", "y_position" => "402",
+            "x_position" => "325", "y_position" => "412",
             "font" => "Arial", "font_size" => "size8",
             "value" => $controller->getOwnership1(),
             "height" => "10", "width" => "60", "required" => "false"
@@ -219,32 +243,47 @@ class FirstDrawBorrowerForm {
 
         $ownership_2 = new Text([
             "document_id" => "1", "page_number" => "1",
-            "x_position" => "325", "y_position" => "412",
+            "x_position" => "325", "y_position" => "422",
             "font" => "Arial", "font_size" => "size8",
             "value" => $controller->getOwnership2(),
             "height" => "10", "width" => "60", "required" => "false"
         ]);
+
+        $owner_tin_0 = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "365", "y_position" => "402",
+            "font" => "Arial", "font_size" => "size8",
+            "value" => $this->elements["social_security_number"]["#value"],
+            "height" => "10", "width" => "60", "required" => "false"
+        ]);
  
         $owner_tin_1 = new Text([
-             'document_id' => "1", "page_number" => "1",
-             "x_position" => "365", "y_position" => "402",
-             "font" => "Arial", "font_size" => "size8",
-             "value" => $controller->getOwnerTIN1(),
-             "height" => "10", "width" => "60", "required" => "false"
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "365", "y_position" => "412",
+            "font" => "Arial", "font_size" => "size8",
+            "value" => $controller->getOwnerTIN1(),
+            "height" => "10", "width" => "60", "required" => "false"
         ]);
         
         $owner_tin_2 = new Text([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "365", "y_position" => "412",
+            "x_position" => "365", "y_position" => "422",
             "font" => "Arial", "font_size" => "size8",
             "value" => $controller->getOwnerTIN2(),
             "height" => "10", "width" => "60", "required" => "false"
-       ]);
-
+        ]);
+        
+        $owner_address_0 = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "425", "y_position" => "402",
+            "font" => "Arial", "font_size" => "size8",
+            "value" => $controller->getFullBusinessAddress(),
+            "height" => "10", "width" => "120", "required" => "false"
+        ]);
  
         $owner_address_1 = new Text([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "425", "y_position" => "402",
+            "x_position" => "425", "y_position" => "412",
             "font" => "Arial", "font_size" => "size8",
             "value" => $controller->getOwnerAddress1(),
             "height" => "10", "width" => "120", "required" => "false"
@@ -252,7 +291,7 @@ class FirstDrawBorrowerForm {
 
         $owner_address_2 = new Text([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "425", "y_position" => "412",
+            "x_position" => "425", "y_position" => "422",
             "font" => "Arial", "font_size" => "size8",
             "value" => $controller->getOwnerAddress2(),
             "height" => "10", "width" => "120", "required" => "false"
@@ -329,14 +368,19 @@ class FirstDrawBorrowerForm {
                 $average_monthly_payroll,
                 $loan_amount,
                 $other_purpose,
+                $owner_name_0,
                 $owner_name_1,
                 $owner_name_2,
+                $owner_job_title_0,
                 $owner_job_title_1,
                 $owner_job_title_2,
+                $ownership_0,
                 $ownership_1,
                 $ownership_2,
+                $owner_tin_0,
                 $owner_tin_1,
                 $owner_tin_2,
+                $owner_address_0,
                 $owner_address_1,
                 $owner_address_2,
                 $sba_franchise_identifier_code,
@@ -607,11 +651,11 @@ class FirstDrawBorrowerForm {
         }
         $q6_radio_group = new RadioGroup(['document_id' => "1", 'group_name' => "q6_radio",
         'radios' => [
-            new Radio(['page_number' => "1", 'x_position' => "515", 'y_position' => "630",
+            new Radio(['page_number' => "1", 'x_position' => "540", 'y_position' => "645",
                 'value' => "Yes",
                 'selected' => $selected ? "true" : "false", 
                 'required' => "false"]),
-            new Radio(['page_number' => "1", 'x_position' => "550", 'y_position' => "630",
+            new Radio(['page_number' => "1", 'x_position' => "565", 'y_position' => "645",
                 'value' => "No", 
                 'selected' => $selected ? "false" : "true",
                 'required' => "false"])
@@ -625,17 +669,17 @@ class FirstDrawBorrowerForm {
         }
         $q7_radio_group = new RadioGroup(['document_id' => "1", 'group_name' => "q7_radio",
         'radios' => [
-            new Radio(['page_number' => "1", 'x_position' => "515", 'y_position' => "690",
+            new Radio(['page_number' => "1", 'x_position' => "540", 'y_position' => "682",
                 'value' => "Yes",
                 'selected' => $selected ? "true" : "false", 
                 'required' => "false"]),
-            new Radio(['page_number' => "1", 'x_position' => "550", 'y_position' => "690",
+            new Radio(['page_number' => "1", 'x_position' => "565", 'y_position' => "682",
                 'value' => "No", 
                 'selected' => $selected ? "false" : "true",
                 'required' => "false"])
         ]]);
 
-        if ($this->elements["is_franchise_listed_in"]["#default_value"] === "Yes") {
+        if ($this->elements["is_residence_"]["#default_value"] === "Yes") {
             $selected = true;
         }
         else {
@@ -643,11 +687,11 @@ class FirstDrawBorrowerForm {
         }
         $q8_radio_group = new RadioGroup(['document_id' => "1", 'group_name' => "q8_radio",
         'radios' => [
-            new Radio(['page_number' => "1", 'x_position' => "540", 'y_position' => "705",
+            new Radio(['page_number' => "1", 'x_position' => "540", 'y_position' => "695",
                 'value' => "Yes",
                 'selected' => $selected ? "true" : "false", 
                 'required' => "false"]),
-            new Radio(['page_number' => "1", 'x_position' => "560", 'y_position' => "705",
+            new Radio(['page_number' => "1", 'x_position' => "565", 'y_position' => "695",
                 'value' => "No", 
                 'selected' => $selected ? "false" : "true",
                 'required' => "false"])
@@ -689,77 +733,75 @@ class FirstDrawBorrowerForm {
     private function getInitialList() {
         $initial_1 = new InitialHere([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "292", "y_position" => "590",
+            "x_position" => "310", "y_position" => "587",
             "height" => "10", "width" => "40", "required" => "false"
         ]);
 
         $initial_2 = new InitialHere([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "328", "y_position" => "658",
+            "x_position" => "310", "y_position" => "644",
             "height" => "10", "width" => "40", "required" => "false"
         ]);
         
         $initial_3 = new InitialHere([
             'document_id' => "1", "page_number" => "2",
-            "x_position" => "40", "y_position" => "350",
+            "x_position" => "25", "y_position" => "344",
             "height" => "10", "width" => "40", "required" => "false"
         ]);
 
         $initial_4 = new InitialHere([
             'document_id' => "1", "page_number" => "2",
-            "x_position" => "40", "y_position" => "380",
+            "x_position" => "25", "y_position" => "380",
             "height" => "10", "width" => "40", "required" => "false"
         ]);
 
         $initial_5 = new InitialHere([
             'document_id' => "1", "page_number" => "2",
-            "x_position" => "40", "y_position" => "406",
+            "x_position" => "25", "y_position" => "392",
             "height" => "10", "width" => "40", "required" => "false"
         ]);
 
         $initial_6 = new InitialHere([
             'document_id' => "1", "page_number" => "2",
-            "x_position" => "40", "y_position" => "445",
+            "x_position" => "25", "y_position" => "437",
             "height" => "10", "width" => "40", "required" => "false"
         ]);
 
         $initial_7 = new InitialHere([
             'document_id' => "1", "page_number" => "2",
-            "x_position" => "40", "y_position" => "490",
+            "x_position" => "25", "y_position" => "492",
             "height" => "10", "width" => "40", "required" => "false"
         ]);
 
         $initial_8 = new InitialHere([
             'document_id' => "1", "page_number" => "2",
-            "x_position" => "40", "y_position" => "524",
+            "x_position" => "25", "y_position" => "528",
             "height" => "10", "width" => "40", "required" => "false"
         ]);
 
         $initial_9 = new InitialHere([
             'document_id' => "1", "page_number" => "2",
-            "x_position" => "40", "y_position" => "554",
+            "x_position" => "25", "y_position" => "542",
             "height" => "10", "width" => "40", "required" => "false"
         ]);
 
         $initial_10 = new InitialHere([
             'document_id' => "1", "page_number" => "2",
-            "x_position" => "40", "y_position" => "618",
+            "x_position" => "25", "y_position" => "577",
             "height" => "10", "width" => "40", "required" => "false"
         ]);
 
         $initial_11 = new InitialHere([
             "document_id" => "1", "page_number" => "2",
-            "x_position" => "40", "y_position" => "618",
+            "x_position" => "25", "y_position" => "600",
             "height" => "10", "width" => "40", "required" => "false"
         ]);
 
         $initial_12 = new InitialHere([
             'document_id' => "1", "page_number" => "2",
-            "x_position" => "40", "y_position" => "618",
+            "x_position" => "25", "y_position" => "658",
             "height" => "10", "width" => "40", "required" => "false"
         ]);
-
-
 
         return [
             $initial_1, $initial_2, $initial_3, $initial_4,

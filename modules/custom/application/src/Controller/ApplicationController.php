@@ -154,7 +154,7 @@ class ApplicationController {
         # 1. Create the envelope request object
         $envelope_definition = null;
         if ($this->elements["round"]["#default_value"] == "Yes") {
-            //$borrower_form = new SecondDrawBorrowerForm();
+            $borrower_form = new SecondDrawBorrowerForm();
         }
         else {
             $borrower_form = new FirstDrawBorrowerForm();
@@ -211,6 +211,10 @@ class ApplicationController {
         return $address2;
     }
 
+    public function getFullBusinessAddress() {
+        return $this->getBusinessAddress() . ", " . $this->getBusinessAddress2();
+    }
+
     public function getDateEstablished() {
         $month = $this->elements["date_established"]["#value"]["month"];
         $day = $this->elements["date_established"]["#value"]["day"];
@@ -263,13 +267,6 @@ class ApplicationController {
     }
 
     public function getOwnerJobTitle2() {
-        #dpm($this->elements);
-        #dpm($this->elements["address"]);
-        #dpm($this->elements["state"]);
-        #dpm($this->elements["city"]);
-        #dpm($this->elements["postal_code"]);
-        #dpm($this->elements["ssn"]);
-        #dpm($this->elements["zip_code"]);
         return $this->getOwnerProperty("title", 1);
     }
     
@@ -335,18 +332,7 @@ class ApplicationController {
     public function getOtherPurpose() {
         return $this->elements["purpose_of_loan_other"]["#default_value"];
     }
-
-    /*
-    public function getInitialName() {
-        $first_name = $this->elements["first_name"]["#default_value"];
-        $last_name = $this->elements["last_name"]["#default_value"];
-        
-        $initial_first = strtoupper(substr($first_name, 0, 1));
-        $initial_last = strtoupper(substr($last_name, 0, 1));
-        return $initial_first . $initial_last;
-    }
-    */
-
+    
     public function getJobTitle() {
         $title = $this->elements["job_title"]["#default_value"];
         return $title;
@@ -395,6 +381,11 @@ class ApplicationController {
         }
 
         return $average_payroll;
+    }
+
+    public function getAmount($num) {
+        $float_num = str_replace(",", "", $num);
+        return number_format($float_num, 2);
     }
 
     public function getAveragePayrollAmount() {
@@ -499,6 +490,9 @@ class ApplicationController {
     }
 
     public function downloadBorrowerForm(array &$form, FormStateInterface &$form_state) {
+        if ($this->elements["borrower_envelope_status"]["#default_value"] != "completed") {
+            return false;
+        }
         if (!empty($form["elements"]["loan_officer_page"]["borrower_application_form"]["#default_value"])) {
             return false;
         }
@@ -558,6 +552,9 @@ class ApplicationController {
     }
 
     public function downloadSBADocuments(array &$form, FormStateInterface &$form_state) {
+        if ($this->elements["sba_envelope_status"]["#default_value"] != "completed") {
+            return false;
+        }
         if (!empty($this->elements["sba_documents"]["#default_value"])) {
             return false;
         }
