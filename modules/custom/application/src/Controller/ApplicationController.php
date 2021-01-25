@@ -305,14 +305,22 @@ class ApplicationController {
         $city = $this->getOwnerProperty("city", 3);
         $state = $this->getOwnerProperty("state", 0);
         $zip_code = $this->getOwnerProperty("zip_code", 0);
+        if (empty($address)) {
+            return "";
+        }
+
         return $address . ", " . $city . ", " . $state . ", " . $zip_code;
     }
     
     public function getOwnerAddress2() {
+        
         $address = $this->getOwnerProperty("address", 4);
         $city = $this->getOwnerProperty("city", 4);
         $state = $this->getOwnerProperty("state", 1);
         $zip_code = $this->getOwnerProperty("zip_code", 1);
+        if (empty($address)) {
+            return "";
+        }
         return $address . ", " . $city . ", " . $state . ", " . $zip_code;
     }
 
