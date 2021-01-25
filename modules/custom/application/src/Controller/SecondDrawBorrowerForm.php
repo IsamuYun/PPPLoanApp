@@ -822,19 +822,19 @@ class SecondDrawBorrowerForm {
 
         $Initial_12 = new InitialHere([
             'document_id' => "1", "page_number" => "3",
-            "x_position" => "30", "y_position" => "28",
+            "x_position" => "30", "y_position" => "24",
             "height" => "10", "width" => "40", "required" => "false"
         ]);
 
         $Initial_13 = new InitialHere([
             'document_id' => "1", "page_number" => "3",
-            "x_position" => "30", "y_position" => "64",
+            "x_position" => "30", "y_position" => "56",
             "height" => "10", "width" => "40", "required" => "false"
         ]);
 
         $Initial_14 = new InitialHere([
             'document_id' => "1", "page_number" => "3",
-            "x_position" => "30", "y_position" => "110",
+            "x_position" => "30", "y_position" => "120",
             "height" => "10", "width" => "40", "required" => "false"
         ]);
 
@@ -852,7 +852,7 @@ class SecondDrawBorrowerForm {
 
         $Initial_17 = new InitialHere([
             'document_id' => "1", "page_number" => "3",
-            "x_position" => "30", "y_position" => "220",
+            "x_position" => "30", "y_position" => "250",
             "height" => "10", "width" => "40", "required" => "false"
         ]);
 
