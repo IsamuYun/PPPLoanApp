@@ -679,7 +679,7 @@ class FirstDrawBorrowerForm {
                 'required' => "false"])
         ]]);
 
-        if ($this->elements["is_residence_"]["#default_value"] === "Yes") {
+        if ($this->elements["is_franchise_listed_in"]["#default_value"] === "Yes") {
             $selected = true;
         }
         else {
