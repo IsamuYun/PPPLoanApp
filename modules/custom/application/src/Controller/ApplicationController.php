@@ -76,10 +76,10 @@ class ApplicationController {
      */
     private function getTemplateArgs(): array
     {
-        #$signer_name = $this->getPrintName();
-        #$signer_email = $this->getBorrowerEmail();
-        $signer_name = "Isamu";
-        $signer_email = "yunforreg@gmail.com";
+        $signer_name = $this->getPrintName();
+        $signer_email = $this->getBorrowerEmail();
+        #$signer_name = "Isamu";
+        #$signer_email = "yunforreg@gmail.com";
         #$cc_name = "";
         #$cc_email = "";
 

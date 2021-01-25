@@ -615,11 +615,11 @@ class FirstDrawBorrowerForm {
         }
         $q4_radio_group = new RadioGroup(['document_id' => "1", 'group_name' => "q4_radio",
         'radios' => [
-            new Radio(['page_number' => "1", 'x_position' => "540", 'y_position' => "550",
+            new Radio(['page_number' => "1", 'x_position' => "540", 'y_position' => "555",
                 'value' => "Yes",
                 'selected' => $selected ? "true" : "false", 
                 'required' => "false"]),
-            new Radio(['page_number' => "1", 'x_position' => "565", 'y_position' => "550",
+            new Radio(['page_number' => "1", 'x_position' => "565", 'y_position' => "555",
                 'value' => "No", 
                 'selected' => $selected ? "false" : "true",
                 'required' => "false"])

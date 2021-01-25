@@ -347,7 +347,7 @@ class SecondDrawBorrowerForm {
  
         $today = new Text([
             'document_id' => "1", "page_number" => "3",
-            "x_position" => "380", "y_position" => "345",
+            "x_position" => "380", "y_position" => "341",
             "font" => "Arial", "font_size" => "size11",
             "value" => date("m-j-Y"),
             "height" => "20", "width" => "100", "required" => "false"
@@ -355,7 +355,7 @@ class SecondDrawBorrowerForm {
          
         $print_name = new Text([
             'document_id' => "1", "page_number" => "3",
-            "x_position" => "40", "y_position" => "385",
+            "x_position" => "40", "y_position" => "381",
             "font" => "Arial", "font_size" => "size11",
             "value" => $controller->getPrintName(),
             "height" => "20", "width" => "200", "required" => "false"
@@ -363,7 +363,7 @@ class SecondDrawBorrowerForm {
  
         $job_title = new Text([
             'document_id' => "1", "page_number" => "3",
-            "x_position" => "380", "y_position" => "385",
+            "x_position" => "380", "y_position" => "381",
             "font" => "Arial", "font_size" => "size11",
             "value" => $controller->getJobTitle(),
             "height" => "20", "width" => "200", "required" => "false"
@@ -754,64 +754,106 @@ class SecondDrawBorrowerForm {
     private function getInitialList() {
         $Initial_1 = new InitialHere([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "292", "y_position" => "590",
-            "height" => "12", "width" => "40", "required" => "false"
+            "x_position" => "310", "y_position" => "598",
+            "height" => "10", "width" => "40", "required" => "false"
         ]);
 
         $Initial_2 = new InitialHere([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "328", "y_position" => "658",
-            "height" => "12", "width" => "40", "required" => "false"
+            "x_position" => "310", "y_position" => "650",
+            "height" => "10", "width" => "40", "required" => "false"
         ]);
         
         $Initial_3 = new InitialHere([
             'document_id' => "1", "page_number" => "2",
-            "x_position" => "40", "y_position" => "350",
-            "height" => "12", "width" => "40", "required" => "false"
+            "x_position" => "30", "y_position" => "365",
+            "height" => "10", "width" => "40", "required" => "false"
         ]);
 
         $Initial_4 = new InitialHere([
             'document_id' => "1", "page_number" => "2",
-            "x_position" => "40", "y_position" => "380",
-            "height" => "12", "width" => "40", "required" => "false"
+            "x_position" => "30", "y_position" => "408",
+            "height" => "10", "width" => "40", "required" => "false"
         ]);
 
         $Initial_5 = new InitialHere([
             'document_id' => "1", "page_number" => "2",
-            "x_position" => "40", "y_position" => "406",
-            "height" => "12", "width" => "40", "required" => "false"
+            "x_position" => "30", "y_position" => "428",
+            "height" => "10", "width" => "40", "required" => "false"
         ]);
 
         $Initial_6 = new InitialHere([
             'document_id' => "1", "page_number" => "2",
-            "x_position" => "40", "y_position" => "445",
+            "x_position" => "30", "y_position" => "486",
             "font" => "Arial", "font_size" => "size10",
-            "height" => "12", "width" => "40", "required" => "false"
+            "height" => "10", "width" => "40", "required" => "false"
         ]);
 
         $Initial_7 = new InitialHere([
             'document_id' => "1", "page_number" => "2",
-            "x_position" => "40", "y_position" => "490",
+            "x_position" => "30", "y_position" => "526",
             "font" => "Arial", "font_size" => "size10",
-            "height" => "12", "width" => "40", "required" => "false"
+            "height" => "10", "width" => "40", "required" => "false"
         ]);
 
         $Initial_8 = new InitialHere([
             'document_id' => "1", "page_number" => "2",
-            "x_position" => "40", "y_position" => "524",
-            "height" => "12", "width" => "40", "required" => "false"
+            "x_position" => "30", "y_position" => "586",
+            "height" => "10", "width" => "40", "required" => "false"
         ]);
 
         $Initial_9 = new InitialHere([
             'document_id' => "1", "page_number" => "2",
-            "x_position" => "40", "y_position" => "554",
-            "height" => "12", "width" => "40", "required" => "false"
+            "x_position" => "30", "y_position" => "640",
+            "height" => "10", "width" => "40", "required" => "false"
         ]);
 
         $Initial_10 = new InitialHere([
             'document_id' => "1", "page_number" => "2",
-            "x_position" => "40", "y_position" => "618",
-            "height" => "12", "width" => "40", "required" => "false"
+            "x_position" => "30", "y_position" => "670",
+            "height" => "10", "width" => "40", "required" => "false"
+        ]);
+
+        $Initial_11 = new InitialHere([
+            'document_id' => "1", "page_number" => "2",
+            "x_position" => "30", "y_position" => "684",
+            "height" => "10", "width" => "40", "required" => "false"
+        ]);
+
+        $Initial_12 = new InitialHere([
+            'document_id' => "1", "page_number" => "2",
+            "x_position" => "30", "y_position" => "40",
+            "height" => "10", "width" => "40", "required" => "false"
+        ]);
+
+        $Initial_13 = new InitialHere([
+            'document_id' => "1", "page_number" => "2",
+            "x_position" => "30", "y_position" => "80",
+            "height" => "10", "width" => "40", "required" => "false"
+        ]);
+
+        $Initial_14 = new InitialHere([
+            'document_id' => "1", "page_number" => "2",
+            "x_position" => "30", "y_position" => "160",
+            "height" => "10", "width" => "40", "required" => "false"
+        ]);
+
+        $Initial_15 = new InitialHere([
+            'document_id' => "1", "page_number" => "2",
+            "x_position" => "30", "y_position" => "200",
+            "height" => "10", "width" => "40", "required" => "false"
+        ]);
+
+        $Initial_16 = new InitialHere([
+            'document_id' => "1", "page_number" => "2",
+            "x_position" => "30", "y_position" => "240",
+            "height" => "10", "width" => "40", "required" => "false"
+        ]);
+
+        $Initial_17 = new InitialHere([
+            'document_id' => "1", "page_number" => "2",
+            "x_position" => "30", "y_position" => "320",
+            "height" => "10", "width" => "40", "required" => "false"
         ]);
 
         return [
@@ -825,6 +867,13 @@ class SecondDrawBorrowerForm {
             $Initial_8,
             $Initial_9,
             $Initial_10,
+            $Initial_11,
+            $Initial_12,
+            $Initial_13,
+            $Initial_14,
+            $Initial_15,
+            $Initial_16,
+            $Initial_17,
         ];
     }
 
