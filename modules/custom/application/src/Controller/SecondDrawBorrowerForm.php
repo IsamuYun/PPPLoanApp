@@ -117,13 +117,13 @@ class SecondDrawBorrowerForm {
             'document_id' => "1", "page_number" => "1",
             "x_position" => "360", "y_position" => "155",
             "font" => "Arial", "font_size" => "size10",
-            "value" => $this->elements["social_security_number"]["#default_value"],
+            "value" => $controller->getTIN(),
             "height" => "20", "width" => "140", "required" => "false"
         ]);
  
         $business_phone = new Text([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "460", "y_position" => "155",
+            "x_position" => "450", "y_position" => "155",
             "font" => "Arial", "font_size" => "size10",
             "value" => $this->elements["business_phone_number"]["#default_value"],
             "height" => "20", "width" => "140", "required" => "false"
@@ -139,8 +139,8 @@ class SecondDrawBorrowerForm {
          
         $email = new Text([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "460", "y_position" => "182",
-            "font" => "Arial", "font_size" => "size10",
+            "x_position" => "450", "y_position" => "182",
+            "font" => "Arial", "font_size" => "size7",
             "value" => $controller->getBorrowerEmail(),
             "height" => "20", "width" => "140", "required" => "false"
         ]);
@@ -293,7 +293,7 @@ class SecondDrawBorrowerForm {
             'document_id' => "1", "page_number" => "1",
             "x_position" => "365", "y_position" => "430",
             "font" => "Arial", "font_size" => "size8",
-            "value" => $this->elements["social_security_number"]["#value"],
+            "value" => $controller->getTIN(),
             "height" => "10", "width" => "60", "required" => "false"
         ]);
  
@@ -316,7 +316,7 @@ class SecondDrawBorrowerForm {
         $owner_address_0 = new Text([
             'document_id' => "1", "page_number" => "1",
             "x_position" => "425", "y_position" => "430",
-            "font" => "Arial", "font_size" => "size8",
+            "font" => "Arial", "font_size" => "size7",
             "value" => $controller->getFullBusinessAddress(),
             "height" => "10", "width" => "120", "required" => "false"
         ]);
@@ -324,7 +324,7 @@ class SecondDrawBorrowerForm {
         $owner_address_1 = new Text([
             'document_id' => "1", "page_number" => "1",
             "x_position" => "425", "y_position" => "445",
-            "font" => "Arial", "font_size" => "size8",
+            "font" => "Arial", "font_size" => "size7",
             "value" => $controller->getOwnerAddress1(),
             "height" => "10", "width" => "120", "required" => "false"
         ]);
@@ -332,7 +332,7 @@ class SecondDrawBorrowerForm {
         $owner_address_2 = new Text([
             'document_id' => "1", "page_number" => "1",
             "x_position" => "425", "y_position" => "455",
-            "font" => "Arial", "font_size" => "size8",
+            "font" => "Arial", "font_size" => "size7",
             "value" => $controller->getOwnerAddress2(),
             "height" => "10", "width" => "120", "required" => "false"
         ]);

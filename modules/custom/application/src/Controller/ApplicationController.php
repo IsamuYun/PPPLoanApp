@@ -194,6 +194,11 @@ class ApplicationController {
         return $address;
     }
 
+    public function getTIN() {
+        $tax_id_number = $this->elements["tax_id_number"]["#default_value"];
+        return $tax_id_number;
+    }
+
     public function getBusinessAddress2() {
         $is_us_address = $this->elements["is_us_address"]["#default_value"];
         $address2 = "";
