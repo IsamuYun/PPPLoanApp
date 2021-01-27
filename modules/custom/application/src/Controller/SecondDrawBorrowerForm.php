@@ -293,7 +293,7 @@ class SecondDrawBorrowerForm {
             'document_id' => "1", "page_number" => "1",
             "x_position" => "365", "y_position" => "430",
             "font" => "Arial", "font_size" => "size8",
-            "value" => $controller->getTIN(),
+            "value" => $this->elements["social_security_number"]["#default_value"],
             "height" => "10", "width" => "60", "required" => "false"
         ]);
  
