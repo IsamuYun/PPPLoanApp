@@ -203,10 +203,15 @@ class ApplicationController {
         $is_us_address = $this->elements["is_us_address"]["#default_value"];
         $address2 = "";
         if ($is_us_address == 1) {
-            $address2 = $this->elements["business_address"]["#default_value"]["city"]
-            . ", " . $this->elements["business_address"]["#default_value"]["state_province"]
-            . ", " . $this->elements["business_address"]["#default_value"]["postal_code"];
-
+            $state = $this->elements["business_address"]["#default_value"]["state_province"];
+            $state_abbr = $this->convertState($state);
+            $address2 = $this->elements["business_address"]["#default_value"]["city"] . ',';
+            if ($state_abbr) {
+                $address2 .= $state_abbr . ',';
+            }
+            if ($this->elements["business_address"]["#default_value"]["postal_code"]) {
+                $address2 .= $this->elements["business_address"]["#default_value"]["postal_code"] . ',';
+            }
         }
         else {
             $address2 = $this->elements["global_business_address"]["#default_value"]["city"]
@@ -309,6 +314,8 @@ class ApplicationController {
         $address = $this->getOwnerProperty("address", 3);
         $city = $this->getOwnerProperty("city", 3);
         $state = $this->getOwnerProperty("state", 0);
+
+        $state = $this->convertState($state);
         $zip_code = $this->getOwnerProperty("zip_code", 0);
         if (empty($address)) {
             return "";
@@ -322,6 +329,7 @@ class ApplicationController {
         $address = $this->getOwnerProperty("address", 4);
         $city = $this->getOwnerProperty("city", 4);
         $state = $this->getOwnerProperty("state", 1);
+        $state = $this->convertState($state);
         $zip_code = $this->getOwnerProperty("zip_code", 1);
         if (empty($address)) {
             return "";
@@ -931,5 +939,90 @@ class ApplicationController {
         }
         return $real_path;
     }
+
+    /* -----------------------------------
+    * CONVERT STATE NAMES!
+    * Goes both ways. e.g.
+    * $name = 'Orgegon' -> returns "OR"
+    * $name = 'OR' -> returns "Oregon"
+    * ----------------------------------- */
+    public function convertState($name) {
+        $states = array(
+            array('name'=>'Alabama', 'abbr'=>'AL'),
+            array('name'=>'Alaska', 'abbr'=>'AK'),
+            array('name'=>'Arizona', 'abbr'=>'AZ'),
+            array('name'=>'Arkansas', 'abbr'=>'AR'),
+            array('name'=>'California', 'abbr'=>'CA'),
+            array('name'=>'Colorado', 'abbr'=>'CO'),
+            array('name'=>'Connecticut', 'abbr'=>'CT'),
+            array('name'=>'Delaware', 'abbr'=>'DE'),
+            array('name'=>'Florida', 'abbr'=>'FL'),
+            array('name'=>'Georgia', 'abbr'=>'GA'),
+            array('name'=>'Hawaii', 'abbr'=>'HI'),
+            array('name'=>'Idaho', 'abbr'=>'ID'),
+            array('name'=>'Illinois', 'abbr'=>'IL'),
+            array('name'=>'Indiana', 'abbr'=>'IN'),
+            array('name'=>'Iowa', 'abbr'=>'IA'),
+            array('name'=>'Kansas', 'abbr'=>'KS'),
+            array('name'=>'Kentucky', 'abbr'=>'KY'),
+            array('name'=>'Louisiana', 'abbr'=>'LA'),
+            array('name'=>'Maine', 'abbr'=>'ME'),
+            array('name'=>'Maryland', 'abbr'=>'MD'),
+            array('name'=>'Massachusetts', 'abbr'=>'MA'),
+            array('name'=>'Michigan', 'abbr'=>'MI'),
+            array('name'=>'Minnesota', 'abbr'=>'MN'),
+            array('name'=>'Mississippi', 'abbr'=>'MS'),
+            array('name'=>'Missouri', 'abbr'=>'MO'),
+            array('name'=>'Montana', 'abbr'=>'MT'),
+            array('name'=>'Nebraska', 'abbr'=>'NE'),
+            array('name'=>'Nevada', 'abbr'=>'NV'),
+            array('name'=>'New Hampshire', 'abbr'=>'NH'),
+            array('name'=>'New Jersey', 'abbr'=>'NJ'),
+            array('name'=>'New Mexico', 'abbr'=>'NM'),
+            array('name'=>'New York', 'abbr'=>'NY'),
+            array('name'=>'North Carolina', 'abbr'=>'NC'),
+            array('name'=>'North Dakota', 'abbr'=>'ND'),
+            array('name'=>'Ohio', 'abbr'=>'OH'),
+            array('name'=>'Oklahoma', 'abbr'=>'OK'),
+            array('name'=>'Oregon', 'abbr'=>'OR'),
+            array('name'=>'Pennsylvania', 'abbr'=>'PA'),
+            array('name'=>'Rhode Island', 'abbr'=>'RI'),
+            array('name'=>'South Carolina', 'abbr'=>'SC'),
+            array('name'=>'South Dakota', 'abbr'=>'SD'),
+            array('name'=>'Tennessee', 'abbr'=>'TN'),
+            array('name'=>'Texas', 'abbr'=>'TX'),
+            array('name'=>'Utah', 'abbr'=>'UT'),
+            array('name'=>'Vermont', 'abbr'=>'VT'),
+            array('name'=>'Virginia', 'abbr'=>'VA'),
+            array('name'=>'Washington', 'abbr'=>'WA'),
+            array('name'=>'West Virginia', 'abbr'=>'WV'),
+            array('name'=>'Wisconsin', 'abbr'=>'WI'),
+            array('name'=>'Wyoming', 'abbr'=>'WY'),
+            array('name'=>'Virgin Islands', 'abbr'=>'V.I.'),
+            array('name'=>'Guam', 'abbr'=>'GU'),
+            array('name'=>'Puerto Rico', 'abbr'=>'PR')
+        );
+    
+        $return_name = $name;   
+        $strlen = strlen($name);
+        if (strlen($name) <= 2) {
+            return $return_name;
+        }
+
+        foreach ($states as $state) {
+            //else if ($strlen == 2) {
+            //    if (strtolower($state['abbr']) == strtolower($name)) {
+            //        $return = $state['name'];
+            //        break;
+            //    }   
+            //} 
+            if (strtolower($state['name']) == strtolower($name)) {
+                $return_name = strtoupper($state['abbr']);
+                break;
+            }         
+        };
+    
+        return $return_name;
+    } // end function convertState()
 
 }

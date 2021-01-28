@@ -102,25 +102,7 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
     
     $controller = new LenderController();
     $controller->createLenderFormPDF($form, $form_state);
-
-    //application_verify_netearnings($form, $form_state);
 }
-
-/*
-function application_form_webform_submission_apply_for_ppp_loan_add_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
-    #$elements = WebformFormHelper::flattenElements($form);
-    
-    #$elements["borrower_email"]["value"] = \Drupal::currentUser()->getEmail();
-    #$elements["borrower_email"]["#default_value"] = \Drupal::currentUser()->getEmail();
-
-    #$entity = $form_state->getFormObject()->getEntity();
-    #$data = $entity->getData();
-    #$data["borrower_email"] = \Drupal::currentUser()->getEmail();
-    #$entity->setData($data);
-    #$entity->save();
-    
-}
-*/
 
 function application_form_webform_submission_apply_for_flp_loan_add_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
     $elements = WebformFormHelper::flattenElements($form);
@@ -209,55 +191,11 @@ function application_verify_netearnings(array &$form, FormStateInterface $form_s
 }
 
 function application_cancel_loan(array &$form, FormStateInterface $form_state) {
-    $elements = WebformFormHelper::flattenElements($form);
-    $data = [
-        'MethodNamePhysical' => 'Servicing2',
-        'CLSUsername' => 'alctester',
-        'CLSPassword' => 'Squall39478',
-        'CLSPIN' => '303330',
-        'EMail' => 'yun@rmdslab.com',
-        'FormatIn' => 'XML',
-        'FormatOut' => 'JSON',
-        'RequestData' => "<SBA_ETran version=\"6.0\"><SBALoan action=\"cancel\"><Loan action=\"update\"><LoanApplicNmb>155878</LoanApplicNmb><LoanNmb>8936745005</LoanNmb></Loan></SBALoan></SBA_ETran>",
-        'SoftwareVendorCode' => "WZHZUDAQX",
-	    'SoftwareVendorName' => "AMERICANLENDINGCENTER"
-    ];
-
-    $json_data = json_encode($data);
     
-    $client = \Drupal::httpClient();
-    $request = $client->post('https://catweb2.sba.gov/rest/elend/flexible/SharedEntryPoint', [
-        'body' => $json_data,
-        'headers' => [
-            'Content-type' => 'application/json',
-        ],
-    ]);
-
-    $result = json_decode($request->getBody());
-    
-    #dpm(json_decode($result->ResponseData));
-    
-    $form["elements"]["loan_officer_page"]["sba_response"]["#value"] = $result->{"ResponseData"};
-
-    return $form["elements"]["loan_officer_page"]["sba_response"];
 }
 
 function application_send_to_sba(array &$form, FormStateInterface $form_state) {
     
-}
-
-function application_cancel_loan_builder(array &$elements) {
-    $request_data = new stdClass();
-    $request_data->version = "6.0";
-    $App = new stdClass();
-    $App->action = "cancel";
-    $LoanApplication = new stdClass();
-    $LoanApplication->action = "update";
-    $LoanApplication->LoanApplicNmb = "155878";
-    $LoanApplication->LoanNmb = "89367450-05";
-    $App->LoanApplication = [$LoanApplication];
-    $request_data->App = $App;
-    return json_encode($request_data);
 }
 
 function application_form_webform_submission_apply_for_flp_loan_edit_all_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
