@@ -314,7 +314,7 @@ class ApplicationController {
         $address = $this->getOwnerProperty("address", 3);
         $city = $this->getOwnerProperty("city", 3);
         $state = $this->getOwnerProperty("state", 0);
-
+        dpm($this->elements["state"]);
         $state = $this->convertState($state);
         $zip_code = $this->getOwnerProperty("zip_code", 0);
         if (empty($address)) {
