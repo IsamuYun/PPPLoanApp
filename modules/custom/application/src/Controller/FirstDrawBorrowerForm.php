@@ -69,8 +69,8 @@ class FirstDrawBorrowerForm {
 
         $another_business_name = new Text([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "380", "y_position" => "90",
-            "font" => "Arial", "font_size" => "size16",
+            "x_position" => "360", "y_position" => "90",
+            "font" => "Arial", "font_size" => "size9",
             "value" => $this->elements["another_business_name"]["#default_value"],
             "height" => "24", "width" => "160", "required" => "false"
         ]);
