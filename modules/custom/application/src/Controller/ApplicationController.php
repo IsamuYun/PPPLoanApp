@@ -205,12 +205,12 @@ class ApplicationController {
         if ($is_us_address == 1) {
             $state = $this->elements["business_address"]["#default_value"]["state_province"];
             $state_abbr = $this->convertState($state);
-            $address2 = $this->elements["business_address"]["#default_value"]["city"] . ',';
+            $address2 = $this->elements["business_address"]["#default_value"]["city"] . ", ";
             if ($state_abbr) {
-                $address2 .= $state_abbr . ',';
+                $address2 .= $state_abbr . ", ";
             }
             if ($this->elements["business_address"]["#default_value"]["postal_code"]) {
-                $address2 .= $this->elements["business_address"]["#default_value"]["postal_code"] . ',';
+                $address2 .= $this->elements["business_address"]["#default_value"]["postal_code"];
             }
         }
         else {
@@ -314,7 +314,6 @@ class ApplicationController {
         $address = $this->getOwnerProperty("address", 3);
         $city = $this->getOwnerProperty("city", 3);
         $state = $this->getOwnerProperty("state", 0);
-        dpm($this->elements["state"]);
         $state = $this->convertState($state);
         $zip_code = $this->getOwnerProperty("zip_code", 0);
         if (empty($address)) {
