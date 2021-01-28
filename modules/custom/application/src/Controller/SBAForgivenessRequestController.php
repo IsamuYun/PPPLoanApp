@@ -33,7 +33,6 @@ class SBAForgivenessRequestController {
      * @return void
      */
     public function __construct() {
-        //$this->elements = $elements;
     }
 
     public function sendForgivenessRequest(array &$elements, array &$form, FormStateInterface $form_state) {
