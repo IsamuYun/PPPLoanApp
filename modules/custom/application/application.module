@@ -15,6 +15,7 @@ use Drupal\application\Controller\ApplicationController;
 use Drupal\application\Controller\SBAForgivenessRequestController;
 use Drupal\application\Controller\SBALFAController;
 use Drupal\application\Controller\LenderController;
+use Drupal\application\Controller\SBALoanController;
 
 function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
     $elements = WebformFormHelper::flattenElements($form);
@@ -67,23 +68,20 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
             ],
         ]
     ];
-    /*
-    $form["elements"]["loan_officer_page"]["btn_send_sba_doc"] = [
+    
+    $form["elements"]["loan_officer_page"]["btn_request_to_sba"] = [
         "#type" => "button",
-        "#value" => "Send SBA Documents",
+        "#value" => "Request Loan",
         "#ajax" => [
-            "callback" => "application_send_sba_documents",
+            "callback" => "application_request_to_sba",
             "event" => "click",
             "wrapper" => "loan-officer-ajax-wrapper",
             "progress" => [
                 "type" => "throbber",
-                "message" => "Sending...",
+                "message" => "Requesting...",
             ],
         ]
     ];
-    */
-
-    #$email = \Drupal::currentUser()->getEmail();
     
     if ($elements["loan_officer"]["#default_value"] == 0) {
         $officer_uid = \Drupal::currentUser()->id();
@@ -136,11 +134,9 @@ function application_send_borrower_docusign_form(array &$form, FormStateInterfac
     return $form["elements"]["loan_officer_page"];
 }
 
-function application_send_sba_documents(array &$form, FormStateInterface $form_state) {
-    $elements = WebformFormHelper::flattenElements($form);
-    $application_controller = new ApplicationController($elements);
-    $application_controller->login();
-    $application_controller->sendSBAFiles($form, $form_state);
+function application_request_to_sba(array &$form, FormStateInterface $form_state) {
+    $controller = new SBALoanController();
+    $controller->sendLoanRequest($form, $form_state);
     return $form["elements"]["loan_officer_page"];
 }
 

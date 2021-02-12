@@ -246,6 +246,9 @@ class ApplicationController {
         if (count($this->elements["first_name"]) <= $num) {
             return "";
         }
+        if (empty($this->elements["first_name"][$num])) {
+            return "";
+        }
 
         return $this->elements["first_name"][$num]["#default_value"];
     }
@@ -258,6 +261,9 @@ class ApplicationController {
             return "";
         }
         if (count($this->elements["last_name"]) <= $num) {
+            return "";
+        }
+        if (empty($this->elements["last_name"][$num])) {
             return "";
         }
         return $this->elements["last_name"][$num]["#default_value"];
