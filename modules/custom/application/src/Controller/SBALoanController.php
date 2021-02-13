@@ -133,7 +133,7 @@ class SBALoanController {
             $request->applicant_has_reduction_in_gross_receipts = true;
             $request->applicant_wont_receive_another_second_draw = true;
         }
-        $request->lender_contracted_third_party = $this->contactedThirdParty();
+        $request->lender_contracted_third_party = false;
         $request->loan_request_is_necessary = true;
         $request->lender_application_number = $this->getLenderApplicationNumber();
         
