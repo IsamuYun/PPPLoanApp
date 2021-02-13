@@ -166,14 +166,15 @@ class SBALoanController {
             $business->business_type == 17) {
             $business->first_name = $this->getFirstName(0);
             $business->last_name = $this->getLastName(0);
-            
+            $business->tin_type = 1;
+            $business->tin = $this->getSSN();
         }
         else {
             $business->legal_name = $this->getBusinessName();
-            
+            $business->tin_type = 0;
+            $business->tin = $this->getTIN();
         }
-        $business->tin_type = 0;
-        $business->tin = $this->getTIN();
+        
         $business->address_line_1 = $this->getAddressLine1();
         $business->address_line_2 = $this->getAddressLine2();
         $business->city = $this->getCity();
