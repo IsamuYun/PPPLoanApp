@@ -186,7 +186,10 @@ class SBALoanController {
         $business->primary_contact_email = $this->getPrimaryContactEmail();
         $business->is_franchise = $this->isFranchise();
         $business->is_sba_listed_franchise = $this->isFranchise();
-        $business->franchise_code = $this->getFranchiseCode();
+        if ($business->is_franchise && $business->is_sba_listed_franchise) {
+            $business->franchise_code = $this->getFranchiseCode();
+        }
+        
         $business->date_of_establishment = $this->getDateEstablishment();
         return $business;
     }
@@ -444,10 +447,10 @@ class SBALoanController {
     }
 
     private function getFranchiseCode() {
-	if (empty($this->elements["sba_franchise_identifier_code"]["#default_value"])) {
-                return "";
+        if (empty($this->elements["sba_franchise_identifier_code"]["#default_value"])) {
+            return "";
         }
-        return $this->elements["sba_franchise_identifier_code"]["#default_value"];	
+        return $this->elements["sba_franchise_identifier_code"]["#default_value"];
     }
 
     private function getDateEstablishment() {
