@@ -137,7 +137,6 @@ class SBALoanController {
         $request->loan_request_is_necessary = true;
         $request->lender_application_number = $this->getLenderApplicationNumber();
         
-        dpm($request);
         return json_encode($request);
     }
 
@@ -445,6 +444,9 @@ class SBALoanController {
     }
 
     private function getFranchiseCode() {
+        if (empty($this->elements["sba_franchise_identifier_code"]["#default_value"])) {
+            return "";
+        }
         return $this->elements["sba_franchise_identifier_code"]["#default_value"];
     }
 
