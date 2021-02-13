@@ -186,7 +186,10 @@ class SBALoanController {
         $business->primary_contact_email = $this->getPrimaryContactEmail();
         $business->is_franchise = $this->isFranchise();
         $business->is_sba_listed_franchise = $this->isFranchise();
-        $business->franchise_code = $this->getFranchiseCode();
+        if ($business->is_franchise && $business->is_sba_listed_franchise) {
+            $business->franchise_code = $this->getFranchiseCode();
+        }
+        
         $business->date_of_establishment = $this->getDateEstablishment();
         return $business;
     }
