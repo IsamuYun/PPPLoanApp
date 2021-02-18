@@ -54,20 +54,6 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
             ],
         ]
     ];
-
-    $form["elements"]["loan_officer_page"]["btn_send_lender_form"] = [
-        "#type" => "button",
-        "#value" => "Send Lender Form",
-        "#ajax" => [
-            "callback" => "application_send_lender_docusign_form",
-            "event" => "click",
-            "wrapper" => "loan-officer-ajax-wrapper",
-            "progress" => [
-                "type" => "throbber",
-                "message" => "Sending...",
-            ],
-        ]
-    ];
     
     $form["elements"]["loan_officer_page"]["btn_request_to_sba"] = [
         "#type" => "button",
@@ -85,7 +71,7 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
 
     $form["elements"]["loan_officer_page"]["btn_send_sba_note"] = [
         "#type" => "button",
-        "#value" => "Request Loan",
+        "#value" => "Send Note",
         "#ajax" => [
             "callback" => "application_send_sba_note",
             "event" => "click",
@@ -93,6 +79,20 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
             "progress" => [
                 "type" => "throbber",
                 "message" => "Requesting...",
+            ],
+        ]
+    ];
+
+    $form["elements"]["loan_officer_page"]["btn_send_lender_form"] = [
+        "#type" => "button",
+        "#value" => "Send Lender Form",
+        "#ajax" => [
+            "callback" => "application_send_lender_docusign_form",
+            "event" => "click",
+            "wrapper" => "loan-officer-ajax-wrapper",
+            "progress" => [
+                "type" => "throbber",
+                "message" => "Sending...",
             ],
         ]
     ];

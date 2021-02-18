@@ -588,9 +588,10 @@ class ApplicationController {
     }
 
     public function downloadSBADocuments(array &$form, FormStateInterface &$form_state) {
-        if ($this->elements["sba_envelope_status"]["#default_value"] != "completed") {
-            return false;
-        }
+        
+        //if ($this->elements["sba_envelope_status"]["#default_value"] != "completed") {
+        //    return false;
+        //}
         if (!empty($this->elements["sba_documents"]["#default_value"])) {
             return false;
         }
@@ -606,7 +607,6 @@ class ApplicationController {
             $results = $this->download_worker($args);
         }
         catch (ApiException $e) {
-            dpm($e);
             return false;
         }
         ob_clean();
