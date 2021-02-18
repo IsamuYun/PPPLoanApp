@@ -728,7 +728,7 @@ class ApplicationController {
         
         $sign_here_1 = new SignHere([
             'document_id' => "1", 'page_number' => "7",
-            'x_position' => '340', 'y_position' => '120'
+            'x_position' => '340', 'y_position' => '123'
         ]);
 
         $sign_here_2 = new SignHere([
@@ -858,7 +858,7 @@ class ApplicationController {
         // Primary Contact
         $primary_contact_2 = new Text([
             'document_id' => "1", "page_number" => "8",
-            "x_position" => "80", "y_position" => "606",
+            "x_position" => "80", "y_position" => "605",
             "font" => "Arial", "font_size" => "size12",
             "value" => $this->getPrintName(),
             "height" => "20", "width" => "140", "required" => "false"
@@ -866,7 +866,7 @@ class ApplicationController {
 
         $job_title = new Text([
             'document_id' => "1", "page_number" => "8",
-            "x_position" => "80", "y_position" => "644",
+            "x_position" => "80", "y_position" => "645",
             "font" => "Arial", "font_size" => "size12",
             "value" => $this->getJobTitle(),
             "height" => "14", "width" => "100", "required" => "false"
@@ -874,7 +874,7 @@ class ApplicationController {
 
         $date_3 = new Text([
             'document_id' => "1", 'page_number' => "8",
-            "x_position" => "80", "y_position" => "682",
+            "x_position" => "80", "y_position" => "684",
             "font" => "Arial", "font_size" => "size12",
             "value" => date("m-j-Y"),
             "height" => "20", "width" => "140", "required" => "false"
