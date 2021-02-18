@@ -30,6 +30,7 @@ class LenderController {
         $pdf = new Fpdi();
 
         $elements = WebformFormHelper::flattenElements($form);
+
         try {
             $pageCount = $pdf->setSourceFile(self::DOC_PATH . "PPP Lender Application Form-508.pdf");
             $templateId = $pdf->importPage(1);
@@ -47,6 +48,10 @@ class LenderController {
             $pdf->useTemplate($templateId);
             $this->printEligibility2($pdf, $elements);
             $this->printLenderCertification($pdf, $elements);
+
+            $templateId = $pdf->importPage(3);
+            $pdf->AddPage();
+            $pdf->useTemplate($templateId);
 
             $submission_id = $form_state->getFormObject()->getEntity()->id();
             

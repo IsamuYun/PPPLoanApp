@@ -589,9 +589,9 @@ class ApplicationController {
 
     public function downloadSBADocuments(array &$form, FormStateInterface &$form_state) {
         
-        //if ($this->elements["sba_envelope_status"]["#default_value"] != "completed") {
-        //    return false;
-        //}
+        if ($this->elements["sba_envelope_status"]["#default_value"] != "completed") {
+            return false;
+        }
         if (!empty($this->elements["sba_documents"]["#default_value"])) {
             return false;
         }
@@ -728,12 +728,12 @@ class ApplicationController {
         
         $sign_here_1 = new SignHere([
             'document_id' => "1", 'page_number' => "7",
-            'x_position' => '350', 'y_position' => '140'
+            'x_position' => '340', 'y_position' => '120'
         ]);
 
         $sign_here_2 = new SignHere([
             'document_id' => "1", 'page_number' => "8",
-            'x_position' => '80', 'y_position' => '550'
+            'x_position' => '80', 'y_position' => '546'
         ]);
 
         # Create the signer recipient model
@@ -826,7 +826,7 @@ class ApplicationController {
         // Primary Contact
         $borrower_name_1 = new Text([
             'document_id' => "1", "page_number" => "7",
-            "x_position" => "90", "y_position" => "138",
+            "x_position" => "96", "y_position" => "136",
             "font" => "Arial", "font_size" => "size12",
             "value" => $this->getPrintName(),
             "height" => "20", "width" => "140", "required" => "false"
@@ -848,7 +848,7 @@ class ApplicationController {
         ]);
 
         $business_name_2 = new Text(['document_id' => "1", "page_number" => "8",
-            "x_position" => "260", "y_position" => "180",
+            "x_position" => "250", "y_position" => "177",
             "font" => "Arial", "font_size" => "size11",
             "value" => $this->elements["business_name"]["#default_value"],
             "height" => "20", "width" => "140", "required" => "false"
@@ -858,7 +858,7 @@ class ApplicationController {
         // Primary Contact
         $primary_contact_2 = new Text([
             'document_id' => "1", "page_number" => "8",
-            "x_position" => "80", "y_position" => "600",
+            "x_position" => "80", "y_position" => "606",
             "font" => "Arial", "font_size" => "size12",
             "value" => $this->getPrintName(),
             "height" => "20", "width" => "140", "required" => "false"
@@ -866,7 +866,7 @@ class ApplicationController {
 
         $job_title = new Text([
             'document_id' => "1", "page_number" => "8",
-            "x_position" => "80", "y_position" => "650",
+            "x_position" => "80", "y_position" => "644",
             "font" => "Arial", "font_size" => "size12",
             "value" => $this->getJobTitle(),
             "height" => "14", "width" => "100", "required" => "false"
@@ -874,7 +874,7 @@ class ApplicationController {
 
         $date_3 = new Text([
             'document_id' => "1", 'page_number' => "8",
-            "x_position" => "80", "y_position" => "700",
+            "x_position" => "80", "y_position" => "682",
             "font" => "Arial", "font_size" => "size12",
             "value" => date("m-j-Y"),
             "height" => "20", "width" => "140", "required" => "false"
