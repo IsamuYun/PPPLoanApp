@@ -121,7 +121,7 @@ class ApplicationController {
         $this->elements["borrower_envelope_id"]["#value"] = $result["envelope_id"];
     }
 
-    public function sendSBAFiles(array &$form, FormStateInterface $form_state) {
+    public function sendSBANote(array &$form, FormStateInterface $form_state) {
         $result = $this->sba_worker($this->args);
 
         if ($result && empty($result["envelope_id"])) {
@@ -362,6 +362,16 @@ class ApplicationController {
     public function getJobTitle() {
         $title = $this->elements["job_title"]["#default_value"];
         return $title;
+    }
+
+    public function getSBALoanNumber() {
+        return $this->elements["sba_loan_number"]["#default_value"];
+    }
+
+    public function getSBALoanAmount() {
+        $amount = $this->elements["sba_loan_amount"]["#default_value"];
+        $amount = str_replace(",", "", $amount);
+        return number_format($amount, 2);
     }
 
     public function getAveragePayroll() {
@@ -606,7 +616,7 @@ class ApplicationController {
 
         $real_path = $this->getRealPath($submission_path);
 
-        $errors_file_name = "sba_errors_and_omissions_" . $submission_id . ".pdf";
+        $errors_file_name = "sba_note_and_eo_" . $submission_id . ".pdf";
         $file1 = new SplFileObject($real_path . "/" . $errors_file_name, "w+");
         $file = $results["data"];
         clearstatcache();
@@ -618,7 +628,7 @@ class ApplicationController {
                 $submission_path . "/" . $errors_file_name,
                 \Drupal\Core\File\FileSystemInterface::EXISTS_REPLACE);
         $attachment_id = intval($attachment_file->id());
-
+        /*
         $args = $this->getDownloadArgs("2", $envelope_id);
         $result = null;
         try {
@@ -641,12 +651,12 @@ class ApplicationController {
                 $submission_path . "/" . $note_file_name,
                 \Drupal\Core\File\FileSystemInterface::EXISTS_REPLACE);
         $note_id = intval($note_file->id());
-        
-        $form["elements"]["loan_officer_page"]["sba_documents"]["#default_value"] = [$attachment_id, $note_id];
+        */
+        $form["elements"]["loan_officer_page"]["sba_documents"]["#default_value"] = [$attachment_id];
 
         $entity = $form_state->getFormObject()->getEntity();
         $data = $entity->getData();
-        $data["sba_documents"] = [$attachment_id, $note_id];
+        $data["sba_documents"] = $attachment_id;
         $entity->setData($data);
         $entity->save();
         return true;
@@ -701,38 +711,28 @@ class ApplicationController {
         #
         # create the envelope definition
         $envelope_definition = new EnvelopeDefinition([
-            'email_subject' => 'Please sign SBA PPP Errors and Omissions Agreement and Note'
+            'email_subject' => 'Please sign SBA PPP Note and Errors and Omissions Agreement'
         ]);
         # read files 2 and 3 from a local directory
         # The reads could raise an exception if the file is not available!
-        $content_bytes = file_get_contents(self::DOCS_PATH . "SBA PPP Errors and Omissions Agreement.pdf");
+        $content_bytes = file_get_contents(self::DOCS_PATH . "SBA PPP Note And EO.pdf");
         $sba_form_b64 = base64_encode($content_bytes);
         
         # Create the document models
         $ppp_doc = new Document([  # create the DocuSign document object
             'document_base64' => $sba_form_b64,
-            'name' => 'SBA PPP Errors and Omissions Agreement',  # can be different from actual file name
+            'name' => 'SBA PPP Note and Errors and Omissions Agreement',  # can be different from actual file name
             'file_extension' => 'pdf',  # many different document types are accepted
             'document_id' => '1'  # a label used to reference the doc
         ]);
-
-        $note_bytes = file_get_contents(self::DOCS_PATH . "SBA PPP Note.pdf");
-        $note_b64 = base64_encode($note_bytes);
-
-        $note_doc = new Document([
-            "document_base64" => $note_b64,
-            "name" => "SBA PPP Note",
-            "file_extension" => "pdf",
-            "document_id" => "2"
-        ]);
-
+        
         $sign_here_1 = new SignHere([
             'document_id' => "1", 'page_number' => "1",
             'x_position' => '40', 'y_position' => '470'
         ]);
 
         $sign_here_2 = new SignHere([
-            'document_id' => "2", 'page_number' => "7",
+            'document_id' => "1", 'page_number' => "8",
             'x_position' => '80', 'y_position' => '85'
         ]);
 
@@ -745,10 +745,6 @@ class ApplicationController {
         # same integer as the order for two or more recipients.
         
         $text_list = $this->build_sba_text_list();
-        $text_list_2 = $this->build_note_text_list();
-        foreach ($text_list_2 as $text) {
-            $text_list[] = $text;
-        }
         
         $signer->setTabs(new Tabs([
             'sign_here_tabs' => [$sign_here_1, $sign_here_2],
@@ -762,7 +758,7 @@ class ApplicationController {
         $envelope_definition->setRecipients($recipients);
 
         # The order in the docs array determines the order in the envelope
-        $envelope_definition->setDocuments([$ppp_doc, $note_doc]);
+        $envelope_definition->setDocuments([$ppp_doc]);
 
         # Request that the envelope be sent by setting |status| to "sent".
         # To request that the envelope be created as a draft, set to "created"
@@ -772,82 +768,15 @@ class ApplicationController {
     }
 
     private function build_sba_text_list() {
-        $sba_loan_number = new Text([
+        $sba_loan_number_1 = new Text([
             'document_id' => "1", 'page_number' => "1",
-            "x_position" => "280", "y_position" => "130",
-            "font" => "Arial", "font_size" => "size12", 
-            "value" => "1234567890",
-            "height" => "20", "width" => "140", "required" => "false"]);
-        
-        $date_1 = new Text([
-            'document_id' => "1", 'page_number' => "1",
-            "x_position" => "460", "y_position" => "130",
-            "font" => "Arial", "font_size" => "size12",
-            "value" => date("m-j-Y"),
-            "height" => "20", "width" => "140", "required" => "false"
-        ]);
-
-        $borrower_name_1 = new Text(['document_id' => "1", "page_number" => "1",
-            "x_position" => "186", "y_position" => "186",
-            "font" => "Arial", "font_size" => "size11",
-            "value" => $this->elements["business_name"]["#default_value"],
-            "height" => "20", "width" => "140", "required" => "false"
-        ]);
-        
-        $borrower_name_2 = new Text(['document_id' => "1", "page_number" => "1",
-            "x_position" => "84", "y_position" => "460",
-            "font" => "Arial", "font_size" => "size11",
-            "value" => $this->elements["business_name"]["#default_value"],
-            "height" => "20", "width" => "140", "required" => "false"
-        ]);
-
-        $date_2 = new Text([
-            'document_id' => "1", 'page_number' => "1",
-            "x_position" => "340", "y_position" => "500",
-            "font" => "Arial", "font_size" => "size12",
-            "value" => date("m-j-Y"),
-            "height" => "20", "width" => "140", "required" => "false"
-        ]);
-        
-        // Primary Contact
-        $primary_contact = new Text([
-            'document_id' => "1", "page_number" => "1",
-            "x_position" => "40", "y_position" => "530",
-            "font" => "Arial", "font_size" => "size12",
-            "value" => $this->getPrintName(),
-            "height" => "20", "width" => "140", "required" => "false"
-        ]);
-
-        $job_title = new Text([
-            'document_id' => "1", "page_number" => "1",
-            "x_position" => "340", "y_position" => "530",
-            "font" => "Arial", "font_size" => "size12",
-            "value" => $this->getJobTitle(),
-            "height" => "14", "width" => "100", "required" => "false"
-        ]);
-
-        $array = [
-            $sba_loan_number,
-            $date_1,
-            $borrower_name_1,
-            $borrower_name_2,
-            $date_2,
-            $primary_contact,
-            $job_title
-        ];
-        return $array;
-    }
-
-    private function build_note_text_list() {
-        $sba_loan_number = new Text([
-            'document_id' => "2", 'page_number' => "1",
             "x_position" => "180", "y_position" => "156",
             "font" => "Arial", "font_size" => "size12", 
-            "value" => "1234567890",
+            "value" => $this->getSBALoanNumber(),
             "height" => "20", "width" => "140", "required" => "false"]);
         
         $date_1 = new Text([
-            'document_id' => "2", 'page_number' => "1",
+            'document_id' => "1", 'page_number' => "1",
             "x_position" => "180", "y_position" => "230",
             "font" => "Arial", "font_size" => "size12",
             "value" => date("m-j-Y"),
@@ -855,16 +784,16 @@ class ApplicationController {
         ]);
         
         $loan_amount = new Text([
-            'document_id' => "2", "page_number" => "1",
+            'document_id' => "1", "page_number" => "1",
             "x_position" => "180", "y_position" => "260",
             "font" => "Arial", "font_size" => "size11",
-            "value" => "$ " . $this->getLoanAmount(),
+            "value" => "$ " . $this->getSBALoanAmount(),
             "height" => "20", "width" => "100", "required" => "false"
         ]);
         
         // Primary Contact
-        $primary_contact = new Text([
-            'document_id' => "2", "page_number" => "1",
+        $primary_contact_1 = new Text([
+            'document_id' => "1", "page_number" => "1",
             "x_position" => "180", "y_position" => "320",
             "font" => "Arial", "font_size" => "size12",
             "value" => $this->getPrintName(),
@@ -873,66 +802,102 @@ class ApplicationController {
 
         // Business Name
         $business_name_1 = new Text([
-            'document_id' => "2", "page_number" => "1",
+            'document_id' => "1", "page_number" => "1",
             "x_position" => "180", "y_position" => "365",
             "font" => "Arial", "font_size" => "size12",
             "value" => $this->elements["business_name"]["#default_value"],
             "height" => "20", "width" => "200", "required" => "false"
         ]);
 
-        $amount_number = str_replace(",", "", $this->getLoanAmount());
+        $amount_number = str_replace(",", "", $this->getSBALoanAmount());
 
         $f = new NumberFormatter("en", NumberFormatter::SPELLOUT);
         $spell_number = $f->format($amount_number);
+        $spell_number = strtoupper($spell_number);
 
         $spell_amount = new Text([
-            'document_id' => "2", "page_number" => "1",
+            'document_id' => "1", "page_number" => "1",
             "x_position" => "96", "y_position" => "502",
             "font" => "Arial", "font_size" => "size11",
             "value" => $spell_number,
-            "height" => "20", "width" => "360", "required" => "false"
+            "height" => "20", "width" => "480", "required" => "false"
         ]);
         
+        // Primary Contact
+        $borrower_name_1 = new Text([
+            'document_id' => "1", "page_number" => "7",
+            "x_position" => "80", "y_position" => "145",
+            "font" => "Arial", "font_size" => "size12",
+            "value" => $this->getPrintName(),
+            "height" => "20", "width" => "140", "required" => "false"
+        ]);
+        
+        $sba_loan_number_2 = new Text([
+            'document_id' => "1", 'page_number' => "8",
+            "x_position" => "280", "y_position" => "130",
+            "font" => "Arial", "font_size" => "size12", 
+            "value" => $this->getSBALoanNumber(),
+            "height" => "20", "width" => "140", "required" => "false"]);
+        
         $date_2 = new Text([
-            'document_id' => "2", 'page_number' => "7",
-            "x_position" => "375", "y_position" => "100",
+            'document_id' => "1", 'page_number' => "8",
+            "x_position" => "460", "y_position" => "130",
             "font" => "Arial", "font_size" => "size12",
             "value" => date("m-j-Y"),
             "height" => "20", "width" => "140", "required" => "false"
         ]);
 
+        $business_name_2 = new Text(['document_id' => "1", "page_number" => "8",
+            "x_position" => "186", "y_position" => "186",
+            "font" => "Arial", "font_size" => "size11",
+            "value" => $this->elements["business_name"]["#default_value"],
+            "height" => "20", "width" => "140", "required" => "false"
+        ]);
+        
+        
         // Primary Contact
-        $borrower_name = new Text([
-            'document_id' => "2", "page_number" => "7",
-            "x_position" => "80", "y_position" => "145",
+        $primary_contact_2 = new Text([
+            'document_id' => "1", "page_number" => "8",
+            "x_position" => "80", "y_position" => "530",
             "font" => "Arial", "font_size" => "size12",
             "value" => $this->getPrintName(),
             "height" => "20", "width" => "140", "required" => "false"
         ]);
 
         $job_title = new Text([
-            'document_id' => "2", "page_number" => "7",
-            "x_position" => "375", "y_position" => "145",
+            'document_id' => "1", "page_number" => "8",
+            "x_position" => "80", "y_position" => "530",
             "font" => "Arial", "font_size" => "size12",
             "value" => $this->getJobTitle(),
             "height" => "14", "width" => "100", "required" => "false"
         ]);
-        
+
+        $date_3 = new Text([
+            'document_id' => "1", 'page_number' => "8",
+            "x_position" => "80", "y_position" => "500",
+            "font" => "Arial", "font_size" => "size12",
+            "value" => date("m-j-Y"),
+            "height" => "20", "width" => "140", "required" => "false"
+        ]);
         
         $array = [
-            $sba_loan_number,
+            $sba_loan_number_1,
             $date_1,
             $loan_amount,
-            $primary_contact,
+            $primary_contact_1,
             $business_name_1,
             $spell_amount,
+            $borrower_name_1,
+            $sba_loan_number_2,
             $date_2,
-            $borrower_name,
-            $job_title
+            $business_name_2,
+            $primary_contact_2,
+            $job_title,
+            $date_3,
         ];
         return $array;
     }
-
+    
     private function getSubmissionPath($submission_id) {
         return "private://webform/apply_for_ppp_loan/" . $submission_id;
     }

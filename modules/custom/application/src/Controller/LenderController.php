@@ -31,7 +31,7 @@ class LenderController {
 
         $elements = WebformFormHelper::flattenElements($form);
         try {
-            $pageCount = $pdf->setSourceFile(self::DOC_PATH . "PPP-Lender-Application-Form-508.pdf");
+            $pageCount = $pdf->setSourceFile(self::DOC_PATH . "PPP Lender Application Form-508.pdf");
             $templateId = $pdf->importPage(1);
             $pdf->AddPage();
             $pdf->useTemplate($templateId);
