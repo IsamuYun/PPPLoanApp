@@ -811,7 +811,7 @@ class ApplicationController {
 
         $amount_number = str_replace(",", "", $this->getSBALoanAmount());
 
-        $amount_whole = floor($amount_number);
+        $amount_whole = (int)$amount_number;
 
         $amount_fraction = $amount_number - $amount_whole;
 
