@@ -810,15 +810,17 @@ class ApplicationController {
         ]);
 
         $amount_number = str_replace(",", "", $this->getSBALoanAmount());
-
+        $point_index = strpos($amount_number, '.');
         $amount_whole = (int)$amount_number;
-
-        $amount_fraction = $amount_number - $amount_whole;
+        if ($point_index) {
+            $amount_fraction = substr($amount_number, $point_index + 1);
+        }
+        else {
+            $amount_fraction = "";
+        }
+        
 
         if ($amount_fraction) {
-            
-            $amount_fraction = $amount_fraction * 100;
-            $amount_fraction = substr($amount_fraction, 0, 2);
             $amount_fraction = " AND " . $amount_fraction . " / 100";
         }
         else {
