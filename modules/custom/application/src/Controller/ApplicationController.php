@@ -817,7 +817,8 @@ class ApplicationController {
 
         if ($amount_fraction) {
             
-            $amount_fraction = substr($amount_fraction, 2, 2);
+            $amount_fraction = $amount_fraction * 100;
+            $amount_fraction = substr($amount_fraction, 0, 2);
             $amount_fraction = " AND " . $amount_fraction . " / 100";
         }
         else {
