@@ -821,10 +821,10 @@ class ApplicationController {
         
 
         if ($amount_fraction) {
-            $amount_fraction = " AND " . $amount_fraction . " / 100";
+            $amount_fraction = " AND " . $amount_fraction . "/100";
         }
         else {
-            $amount_fraction = " AND 00 / 100";
+            $amount_fraction = " AND 00/100";
         }
 
         $f = new NumberFormatter("en", NumberFormatter::SPELLOUT);
