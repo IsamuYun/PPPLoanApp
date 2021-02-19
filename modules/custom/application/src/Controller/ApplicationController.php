@@ -816,7 +816,9 @@ class ApplicationController {
         $amount_fraction = $amount_number - $amount_whole;
 
         if ($amount_fraction) {
-            $amount_fraction = " AND " . str_replace(".", "", $amount_fraction) . " / 100";
+            
+            $amount_fraction = substr($amount_fraction, 2, 2);
+            $amount_fraction = " AND " . $amount_fraction . " / 100";
         }
         else {
             $amount_fraction = " AND 00 / 100";
