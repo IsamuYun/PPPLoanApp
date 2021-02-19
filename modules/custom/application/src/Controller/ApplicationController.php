@@ -811,9 +811,22 @@ class ApplicationController {
 
         $amount_number = str_replace(",", "", $this->getSBALoanAmount());
 
+        $amount_whole = floor($amount_number);
+
+        $amount_fraction = $amount_number - $amount_whole;
+
+        if ($amount_fraction) {
+            $amount_fraction = " AND " . str_replace(".", "", $amount_fraction) . " / 100";
+        }
+        else {
+            $amount_fraction = " AND 00 / 100";
+        }
+
         $f = new NumberFormatter("en", NumberFormatter::SPELLOUT);
-        $spell_number = $f->format($amount_number);
+        $spell_number = $f->format($amount_whole);
         $spell_number = strtoupper($spell_number);
+
+        $spell_number .= $amount_fraction;
 
         $spell_amount = new Text([
             'document_id' => "1", "page_number" => "1",
