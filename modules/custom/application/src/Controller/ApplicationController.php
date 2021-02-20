@@ -841,7 +841,7 @@ class ApplicationController {
             'document_id' => "1", "page_number" => "7",
             "x_position" => "96", "y_position" => "136",
             "font" => "Arial", "font_size" => "size12",
-            "value" => $this->elements["business_name"]["#default_value"],
+            "value" => $this->getPrintName(),
             "height" => "20", "width" => "140", "required" => "false"
         ]);
         
