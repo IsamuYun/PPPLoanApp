@@ -831,7 +831,7 @@ class ApplicationController {
         $spell_amount = new Text([
             'document_id' => "1", "page_number" => "1",
             "x_position" => "96", "y_position" => "506",
-            "font" => "Arial", "font_size" => "size11",
+            "font" => "Arial", "font_size" => "size9",
             "value" => $spell_number,
             "height" => "20", "width" => "480", "required" => "false"
         ]);
