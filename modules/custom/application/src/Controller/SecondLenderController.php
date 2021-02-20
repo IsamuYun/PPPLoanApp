@@ -14,7 +14,7 @@ use Drupal\file\FileInterface;
  * Define Lender Form Template Builder
  */
 
-class LenderController {
+class SecondLenderController {
     public const DOC_PATH = __DIR__ . "/../../documents/";
 
     /**
@@ -30,7 +30,7 @@ class LenderController {
         $elements = WebformFormHelper::flattenElements($form);
 
         try {
-            $pageCount = $pdf->setSourceFile(self::DOC_PATH . "PPP Lender Application Form-508.pdf");
+            $pageCount = $pdf->setSourceFile(self::DOC_PATH . "PPP Second Draw Lender Application Form-508.pdf");
             $templateId = $pdf->importPage(1);
             $pdf->AddPage();
             $pdf->useTemplate($templateId);
