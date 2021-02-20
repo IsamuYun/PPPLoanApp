@@ -374,6 +374,10 @@ class ApplicationController {
         return number_format($amount, 2);
     }
 
+    public function getSBADecisionDate() {
+        return $this->elements["sba_decision_date"]["#default_value"];
+    }
+
     public function getAveragePayroll() {
         $number_of_employees = $this->elements["number_of_employees"]["#default_value"];
         $net_earnings = $this->elements["net_earnings"]["#default_value"];
@@ -779,7 +783,7 @@ class ApplicationController {
             'document_id' => "1", 'page_number' => "1",
             "x_position" => "180", "y_position" => "230",
             "font" => "Arial", "font_size" => "size12",
-            "value" => date("m-j-Y"),
+            "value" => $this->getSBADecisionDate(),
             "height" => "20", "width" => "140", "required" => "false"
         ]);
         
@@ -792,23 +796,14 @@ class ApplicationController {
         ]);
         
         // Primary Contact
-        $primary_contact_1 = new Text([
+        $business_name_1 = new Text([
             'document_id' => "1", "page_number" => "1",
             "x_position" => "180", "y_position" => "320",
             "font" => "Arial", "font_size" => "size12",
-            "value" => $this->getPrintName(),
+            "value" => $this->elements["business_name"]["#default_value"],
             "height" => "20", "width" => "140", "required" => "false"
         ]);
-
-        // Business Name
-        $business_name_1 = new Text([
-            'document_id' => "1", "page_number" => "1",
-            "x_position" => "180", "y_position" => "365",
-            "font" => "Arial", "font_size" => "size12",
-            "value" => $this->elements["business_name"]["#default_value"],
-            "height" => "20", "width" => "200", "required" => "false"
-        ]);
-
+        
         $amount_number = str_replace(",", "", $this->getSBALoanAmount());
         $point_index = strpos($amount_number, '.');
         $amount_whole = (int)$amount_number;
@@ -846,7 +841,7 @@ class ApplicationController {
             'document_id' => "1", "page_number" => "7",
             "x_position" => "96", "y_position" => "136",
             "font" => "Arial", "font_size" => "size12",
-            "value" => $this->getPrintName(),
+            "value" => $this->elements["business_name"]["#default_value"],
             "height" => "20", "width" => "140", "required" => "false"
         ]);
         
@@ -861,7 +856,7 @@ class ApplicationController {
             'document_id' => "1", 'page_number' => "8",
             "x_position" => "460", "y_position" => "130",
             "font" => "Arial", "font_size" => "size12",
-            "value" => date("m-j-Y"),
+            "value" => $this->getSBADecisionDate(),
             "height" => "20", "width" => "140", "required" => "false"
         ]);
 
@@ -902,7 +897,6 @@ class ApplicationController {
             $sba_loan_number_1,
             $date_1,
             $loan_amount,
-            $primary_contact_1,
             $business_name_1,
             $spell_amount,
             $borrower_name_1,
