@@ -305,8 +305,6 @@ class FirstDrawBorrowerForm {
             "height" => "10", "width" => "80", "required" => "false"
         ]);
  
-        
- 
         $today = new Text([
              'document_id' => "1", "page_number" => "2",
              "x_position" => "380", "y_position" => "713",
