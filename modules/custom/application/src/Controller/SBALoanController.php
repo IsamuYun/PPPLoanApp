@@ -45,7 +45,7 @@ class SBALoanController {
             $headers = self::SBA_HEADERS;
             $headers['Content-Type'] = "application/json";
             $request_data = $this->createRequestData();
-            
+            dpm($request_data);
             $url = self::SBA_HOST . "api/origination/";
     
             $response = $client->request('POST', $url, [
@@ -137,6 +137,14 @@ class SBALoanController {
         $request->loan_request_is_necessary = true;
         $request->lender_application_number = $this->getLenderApplicationNumber();
         
+        if ($this->isPersonalBusiness()) {
+            $request->schedule_c_2483_form = true;
+            $request->schedule_c_tax_year = $this->getTaxYear();
+            $request->schedule_c_gross_income = $this->getGrossIncome();
+        }
+        else {
+            $request->schedule_c_2483_form = false;
+        }
         return json_encode($request);
     }
 
@@ -192,6 +200,8 @@ class SBALoanController {
         }
         
         $business->date_of_establishment = $this->getDateEstablishment();
+
+        
         return $business;
     }
 
@@ -440,6 +450,16 @@ class SBALoanController {
         return $business_type;
     }
 
+    private function isPersonalBusiness() {
+        $business_type = $this->getBusinessType();
+        if ($business_type == 1 
+            || $business_type == 16
+            || $business_type == 17) {
+            return true;
+        }
+        return false;
+    }
+
     private function isFranchise() {
         if ($this->elements["is_franchise_listed_in"]["#default_value"] === "Yes") {
             return true;
@@ -501,6 +521,15 @@ class SBALoanController {
     public function getP2Quarter() {
         $value = $this->elements["reference_2019_quarter"]["#value"];
         return $this->getMappedValue($value);
+    }
+
+    public function getGrossIncome() {
+        $amount = $this->elements["net_earnings"]["#default_value"];
+        return str_replace(["$", ",", " "], "", $amount);
+    }
+
+    public function getTaxYear() {
+        return $this->elements["tax_year_used_for_gross_income"]["#default_value"];
     }
 
     private function getMappedValue($value) {
