@@ -45,7 +45,7 @@ class SBALoanController {
             $headers = self::SBA_HEADERS;
             $headers['Content-Type'] = "application/json";
             $request_data = $this->createRequestData();
-            
+            dpm($request_data);
             $url = self::SBA_HOST . "api/origination/";
     
             $response = $client->request('POST', $url, [
@@ -145,7 +145,6 @@ class SBALoanController {
         else {
             $request->schedule_c_2483_form = false;
         }
-
         return json_encode($request);
     }
 
