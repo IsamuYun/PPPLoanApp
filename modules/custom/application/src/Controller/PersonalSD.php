@@ -798,13 +798,13 @@ class PersonalSD {
 
         $initial_9 = new InitialHere([
             'document_id' => "1", "page_number" => "3",
-            "x_position" => "25", "y_position" => "605",
+            "x_position" => "25", "y_position" => "618",
             "height" => "10", "width" => "40", "required" => "false"
         ]);
 
         $initial_10 = new InitialHere([
             'document_id' => "1", "page_number" => "3",
-            "x_position" => "25", "y_position" => "635",
+            "x_position" => "25", "y_position" => "640",
             "height" => "10", "width" => "40", "required" => "false"
         ]);
 
