@@ -22,6 +22,8 @@ use Drupal\application\Service\JWTService;
 
 use Drupal\application\Controller\FirstDrawBorrowerForm;
 use Drupal\application\Controller\SecondDrawBorrowerForm;
+use Drupal\application\Controller\PersonalFD;
+use Drupal\application\Controller\PersonalSD;
 
 use Drupal\webform\Utility\WebformFormHelper;
 use Drupal\Core\Form\FormStateInterface;
@@ -139,6 +141,20 @@ class ApplicationController {
         $this->elements["sba_envelope_id"]["#value"] = $result["envelope_id"];
     }
 
+    private function isPersonalBorrower() {
+        $company_structure = $this->elements["company_structure"]["#default_value"];
+        if ($company_structure == "Sole Proprietorship") {
+            return true;
+        }
+        else if ($company_structure == "Independent Contractor") {
+            return true;
+        }
+        else if ($company_structure == "Eligible Self-employed Individual") {
+            return true;
+        }
+        return false;
+    }
+
     /**
      * Do the work of the example
      * 1. Create the envelope request object
@@ -153,12 +169,23 @@ class ApplicationController {
     {
         # 1. Create the envelope request object
         $envelope_definition = null;
-        if ($this->elements["round"]["#default_value"] == "Yes") {
-            $borrower_form = new SecondDrawBorrowerForm();
+        if ($this->isPersonalBorrower()) {
+            if ($this->elements["round"]["#default_value"] == "Yes") {
+                $borrower_form = new PersonalSD();
+            }
+            else {
+                $borrower_form = new PersonalFD();
+            }
         }
         else {
-            $borrower_form = new FirstDrawBorrowerForm();
+            if ($this->elements["round"]["#default_value"] == "Yes") {
+                $borrower_form = new SecondDrawBorrowerForm();
+            }
+            else {
+                $borrower_form = new FirstDrawBorrowerForm();
+            }
         }
+        
         $envelope_definition = $borrower_form->make_envelope($args["envelope_args"], $this, $this->elements);
         
         $envelope_api = $this->clientService->getEnvelopeApi();
@@ -222,7 +249,7 @@ class ApplicationController {
     }
 
     public function getFullBusinessAddress() {
-        return $this->getBusinessAddress() . ", " . $this->getBusinessAddress2();
+        return $this->getBusinessAddress() . " " . $this->getBusinessAddress2();
     }
 
     public function getDateEstablished() {
@@ -424,12 +451,27 @@ class ApplicationController {
     }
 
     public function getAmount($num) {
-        $float_num = str_replace(",", "", $num);
+        $float_num = str_replace(["$", ",", " "], "", $num);
         return number_format($float_num, 2);
     }
 
     public function getAveragePayrollAmount() {
         return number_format($this->getAveragePayroll(), 2);
+    }
+
+    public function getMonthlyGross() {
+        $num = $this->elements["net_earnings"]["#default_value"];
+        $gross_income = str_replace(["$", ",", " "], "", $num);
+        $gross_income = floatval($gross_income);
+        
+        if ($gross_income > 100000) {
+            $gross_income = 100000;
+        }
+        else if ($gross_income < 0) {
+            return 0.00;
+        }
+        $monthly_gross = $gross_income / 12;
+        return number_format($monthly_gross, 2);
     }
 
     public function getLoanAmount() {
