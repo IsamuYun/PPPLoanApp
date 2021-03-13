@@ -186,6 +186,14 @@ class PersonalSD {
             "height" => "12", "width" => "100", "required" => "false"
         ]);
 
+        $sba_loan_number = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "150", "y_position" => "568",
+            "font" => "Arial", "font_size" => "size8",
+            "value" => $this->elements["first_draw_sba_loan_number"]["#default_value"],
+            "height" => "12", "width" => "100", "required" => "false"
+        ]);
+
         $quarter_2020 = new Text([
             'document_id' => "1", "page_number" => "1",
             "x_position" => "352", "y_position" => "605",
@@ -409,6 +417,7 @@ class PersonalSD {
                 $monthly_gross,
                 $loan_amount,
                 $other_purpose,
+                $sba_loan_number,
                 $quarter_2020,
                 $quarter_2019,
                 $gross_receipts_2020,
