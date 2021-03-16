@@ -45,7 +45,7 @@ class SBALoanController {
             $headers = self::SBA_HEADERS;
             $headers['Content-Type'] = "application/json";
             $request_data = $this->createRequestData();
-            dpm($request_data);
+            //dpm($request_data);
             $url = self::SBA_HOST . "api/origination/";
     
             $response = $client->request('POST', $url, [
@@ -174,8 +174,15 @@ class SBALoanController {
             $business->business_type == 17) {
             $business->first_name = $this->getFirstName(0);
             $business->last_name = $this->getLastName(0);
-            $business->tin_type = 1;
-            $business->tin = $this->getSSN();
+            if ($business->business_type == 1 && $this->shouldUseEIN()) {
+                $business->tin_type = 0;
+                $business->tin = $this->getTIN();
+            }
+            else {
+                $business->tin_type = 1;
+                $business->tin = $this->getSSN();
+            }
+            
         }
         else {
             $business->legal_name = $this->getBusinessName();
@@ -213,6 +220,12 @@ class SBALoanController {
             $owner->last_name = $this->getLastName(0);
             $owner->tin_type = 1;
             $owner->tin = $this->getSSN();
+            /*
+            if ($this->getBusinessType() == 1 && $this->shouldUseEIN()) {
+                $owner->tin_type == 0;
+                $owner->tin = $this->getTIN();
+            }
+            */
         }
         else {
             $owner->business_name = $this->getBusinessName();
@@ -222,6 +235,10 @@ class SBALoanController {
                 $owner->tin = $this->getSSN();
             }
             else {
+                $owner->tin = $this->getTIN();
+            }
+            if ($owner->business_type == 1 && $this->shouldUseEIN()) {
+                $owner->tin_type == 0;
                 $owner->tin = $this->getTIN();
             }
         }
@@ -297,6 +314,13 @@ class SBALoanController {
         }
         
         return $this->elements[$field][$num]["#value"];
+    }
+
+    public function shouldUseEIN() {
+        if ($this->elements["business_tin_type"]["#default_value"] == "EIN") {
+            return true;
+        }
+        return false;
     }
 
     private function getOwnerShipPercentage() {
