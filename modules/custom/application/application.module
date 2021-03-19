@@ -29,7 +29,7 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
 
     $form["elements"]["loan_officer_page"]["btn_save_status"] = [
         "#type" => "button",
-        "#value" => "Save Data",
+        "#value" => "Save",
         "#ajax" => [
             "callback" => "application_save_data",
             "event" => "click",
@@ -43,7 +43,7 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
 
     $form["elements"]["loan_officer_page"]["btn_send_borrower_form"] = [
         "#type" => "button",
-        "#value" => "Send Borrower Form",
+        "#value" => "Send Borrower App",
         "#ajax" => [
             "callback" => "application_send_borrower_docusign_form",
             "event" => "click",
@@ -57,7 +57,7 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
     
     $form["elements"]["loan_officer_page"]["btn_request_to_sba"] = [
         "#type" => "button",
-        "#value" => "Request Loan",
+        "#value" => "Submit to SBA",
         "#ajax" => [
             "callback" => "application_request_to_sba",
             "event" => "click",
@@ -71,7 +71,7 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
 
     $form["elements"]["loan_officer_page"]["btn_send_sba_note"] = [
         "#type" => "button",
-        "#value" => "Send Note",
+        "#value" => "Send Note/EO",
         "#ajax" => [
             "callback" => "application_send_sba_note",
             "event" => "click",
