@@ -114,6 +114,10 @@ class SBALoanController {
             $status = $body->{"status"};
             $sba_decision_date = $body->{"sba_decision_date"};
             $sba_loan_amount = $body->{"loan_amount"};
+
+            if (!empty($sba_loan_amount)) {
+                $sba_loan_amount = number_format($sba_loan_amount, 2);
+            }
             
             $entity = $form_state->getFormObject()->getEntity();
             $data = $entity->getData();
