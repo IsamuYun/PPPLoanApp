@@ -108,7 +108,7 @@ class SBALoanController {
             if (empty($body)) {
                 return;
             }
-            dpm($body);
+            //dpm($body);
             $sba_number = $body->{"sba_number"};
             $confirmation_id = $body->{"submission_confirmation_id"};
             $status = $body->{"status"};
