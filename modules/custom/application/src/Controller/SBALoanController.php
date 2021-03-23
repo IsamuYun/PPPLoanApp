@@ -88,6 +88,64 @@ class SBALoanController {
         }
     }
 
+    public function getLoanStatus(array &$form, FormStateInterface $form_state) {
+        $this->elements = WebformFormHelper::flattenElements($form);
+        try {
+            $client = \Drupal::httpClient();
+
+            $headers = self::SBA_HEADERS;
+            $headers['Content-Type'] = "application/json";
+            $sba_slug = $this->elements["sba_slug"]["#default_value"];
+            if (empty($sba_slug)) {
+                return;
+            }
+            $url = self::SBA_HOST . "api/origination/" . $sba_slug . "/";
+    
+            $response = $client->request('GET', $url, [
+                'headers' => $headers,
+            ]);
+            $body = json_decode($response->getBody());
+            if (empty($body)) {
+                return;
+            }
+            dpm($body);
+            $sba_number = $body->{"sba_number"};
+            $confirmation_id = $body->{"submission_confirmation_id"};
+            $status = $body->{"status"};
+            $sba_decision_date = $body->{"sba_decision_date"};
+            $sba_loan_amount = $body->{"loan_amount"};
+            
+            $entity = $form_state->getFormObject()->getEntity();
+            $data = $entity->getData();
+            $data["sba_loan_number"] = $sba_number;
+            $data["sba_loan_amount"] = $sba_loan_amount;
+            $data["sba_request_status"] = $status;
+            $data["sba_decision_date"] = $sba_decision_date;
+            $entity->setData($data);
+            $entity->save();
+            
+            $form["elements"]["loan_officer_page"]["sba_loan_number"]["#value"] = $sba_number;
+            $form["elements"]["loan_officer_page"]["sba_loan_number"]["#default_value"] = $sba_number;
+            $form["elements"]["loan_officer_page"]["sba_loan_amount"]["#value"] = $sba_loan_amount;
+            $form["elements"]["loan_officer_page"]["sba_loan_amount"]["#default_value"] = $sba_loan_amount;
+            $form["elements"]["loan_officer_page"]["sba_request_status"]["#value"] = $status;
+            $form["elements"]["loan_officer_page"]["sba_request_status"]["#default_value"] = $status;
+
+            $form["elements"]["loan_officer_page"]["sba_decision_date"]["#value"] = $sba_decision_date;
+            $form["elements"]["loan_officer_page"]["sba_decision_date"]["#default_value"] = $sba_decision_date;
+
+                
+            
+        }
+        catch (ClientException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse()->getBody()->getContents();
+                $form["elements"]["loan_officer_page"]["sba_response"]["#value"] = $response;
+                $form["elements"]["loan_officer_page"]["sba_response"]["#default_value"] = $response;
+            }
+        }
+    }
+
     private function createRequestData() {
         $request = new stdClass();
         $request->business = $this->createBusinessData();
