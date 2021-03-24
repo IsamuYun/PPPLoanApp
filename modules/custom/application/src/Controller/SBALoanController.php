@@ -120,7 +120,7 @@ class SBALoanController {
                 $sba_loan_amount = number_format($sba_loan_amount, 2);
             }
 
-            $sba_decision_date = DateTime::createFromFormat('Y-m-d', $sba_decision_date)->format('m-d-Y');
+            //$sba_decision_date = DateTime::createFromFormat('Y-m-d', $sba_decision_date)->format('m-d-Y');
             
             $entity = $form_state->getFormObject()->getEntity();
             $data = $entity->getData();
