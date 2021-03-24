@@ -572,7 +572,7 @@ class ApplicationController {
     }
 
     public function downloadBorrowerForm(array &$form, FormStateInterface &$form_state) {
-        if ($this->elements["borrower_envelope_status"]["#default_value"] != "completed") {
+        if (strpos($this->elements["borrower_envelope_status"]["#default_value"], "Completed") === false) {
             return false;
         }
         if (!empty($form["elements"]["loan_officer_page"]["borrower_application_form"]["#default_value"])) {
@@ -634,8 +634,7 @@ class ApplicationController {
     }
 
     public function downloadSBADocuments(array &$form, FormStateInterface &$form_state) {
-        
-        if ($this->elements["sba_envelope_status"]["#default_value"] != "completed") {
+        if (strpos($this->elements["sba_envelope_status"]["#default_value"], "Completed") === false) {
             return false;
         }
         if (!empty($this->elements["sba_documents"]["#default_value"])) {
