@@ -8,6 +8,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\webform\Utility\WebformFormHelper;
 
 use stdClass;
+use DateTime;
 
 class SBALoanController {
     const SBA_SANDBOX_HEADERS = [
@@ -118,6 +119,8 @@ class SBALoanController {
             if (!empty($sba_loan_amount)) {
                 $sba_loan_amount = number_format($sba_loan_amount, 2);
             }
+
+            $sba_decision_date = DateTime::createFromFormat('Y-m-d', $sba_decision_date)->format('m-d-Y');
             
             $entity = $form_state->getFormObject()->getEntity();
             $data = $entity->getData();
