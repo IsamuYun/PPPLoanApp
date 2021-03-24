@@ -118,8 +118,11 @@ class SBALoanController {
             if (!empty($sba_loan_amount)) {
                 $sba_loan_amount = number_format($sba_loan_amount, 2);
             }
-            $date = strtotime($sba_decision_date);
-            $sba_decision_date = date('m-d-Y', $date);
+            if (!empty($sba_decision_date) || $sba_decision_date != null) {
+                $date = strtotime($sba_decision_date);
+                $sba_decision_date = date('m-d-Y', $date);
+            }
+            
             
             $entity = $form_state->getFormObject()->getEntity();
             $data = $entity->getData();
