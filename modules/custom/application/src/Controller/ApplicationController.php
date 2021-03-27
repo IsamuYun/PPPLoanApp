@@ -459,6 +459,8 @@ class ApplicationController {
         return number_format($this->getAveragePayroll(), 2);
     }
 
+    
+
     public function getMonthlyGross() {
         $num = $this->elements["net_earnings"]["#default_value"];
         $gross_income = str_replace(["$", ",", " "], "", $num);
