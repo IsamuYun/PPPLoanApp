@@ -3,6 +3,7 @@
 namespace Drupal\application\Controller;
 
 use DocuSign\eSign\Client\ApiException;
+use DocuSign\eSign\Model\DateSigned;
 use DocuSign\eSign\Model\EnvelopeDefinition;
 use DocuSign\eSign\Model\Checkbox;
 use DocuSign\eSign\Model\Document;
@@ -153,30 +154,73 @@ class PersonalFD {
             "value" => $this->elements["number_of_employees"]["#default_value"],
             "height" => "18", "width" => "100", "required" => "false"
         ]);
+        if ($this->isSoleProprietor() && $this->hasEmployee()) {
+            $box_a = new Text([
+                'document_id' => "1", "page_number" => "1",
+                "x_position" => "164", "y_position" => "441",
+                "font" => "Arial", "font_size" => "size9",
+                "value" => $controller->getAmount($this->elements["table_b_a"]["#default_value"]),
+                "height" => "18", "width" => "100", "required" => "false"
+            ]);
 
-        $gross_income_2 = new Text([
-            'document_id' => "1", "page_number" => "1",
-            "x_position" => "164", "y_position" => "366",
-            "font" => "Arial", "font_size" => "size9",
-            "value" => $controller->getAmount($this->elements["net_earnings"]["#default_value"]),
-            "height" => "18", "width" => "100", "required" => "false"
-        ]);
-        
-        $monthly_gross = new Text([
-            'document_id' => "1", "page_number" => "1",
-            "x_position" => "344", "y_position" => "366",
-            "font" => "Arial", "font_size" => "size9",
-            "value" => $controller->getMonthlyGross(),
-            "height" => "18", "width" => "100", "required" => "false"
-        ]);
+            $box_b = new Text([
+                'document_id' => "1", "page_number" => "1",
+                "x_position" => "344", "y_position" => "441",
+                "font" => "Arial", "font_size" => "size9",
+                "value" => $controller->getAmount($this->elements["table_b_b"]["#default_value"]),
+                "height" => "18", "width" => "100", "required" => "false"
+            ]);
 
-        $loan_amount = new Text([
-            'document_id' => "1", "page_number" => "1",
-            "x_position" => "514", "y_position" => "369",
-            "font" => "Arial", "font_size" => "size9",
-            "value" => $controller->getAmount($controller->getAdjustedLoanAmount()),
-            "height" => "18", "width" => "100", "required" => "false"
-        ]);
+            $box_c = new Text([
+                'document_id' => "1", "page_number" => "1",
+                "x_position" => "516", "y_position" => "445",
+                "font" => "Arial", "font_size" => "size9",
+                "value" => $controller->getAmount($this->elements["table_b_c"]["#default_value"]),
+                "height" => "18", "width" => "100", "required" => "false"
+            ]);
+            
+            $average_payroll = new Text([
+                'document_id' => "1", "page_number" => "1",
+                "x_position" => "164", "y_position" => "485",
+                "font" => "Arial", "font_size" => "size9",
+                "value" => $controller->getAmount($controller->getAdjustedAveragePayrollAmount()),
+                "height" => "18", "width" => "100", "required" => "false"
+            ]);
+
+            $loan_amount = new Text([
+                'document_id' => "1", "page_number" => "1",
+                "x_position" => "470", "y_position" => "485",
+                "font" => "Arial", "font_size" => "size9",
+                "value" => $controller->getAmount($controller->getAdjustedLoanAmount()),
+                "height" => "18", "width" => "100", "required" => "false"
+            ]);
+
+        }
+        else {
+            $gross_income_2 = new Text([
+                'document_id' => "1", "page_number" => "1",
+                "x_position" => "164", "y_position" => "366",
+                "font" => "Arial", "font_size" => "size9",
+                "value" => $controller->getAmount($this->elements["net_earnings"]["#default_value"]),
+                "height" => "18", "width" => "100", "required" => "false"
+            ]);
+            
+            $monthly_gross = new Text([
+                'document_id' => "1", "page_number" => "1",
+                "x_position" => "344", "y_position" => "366",
+                "font" => "Arial", "font_size" => "size9",
+                "value" => $controller->getMonthlyGross(),
+                "height" => "18", "width" => "100", "required" => "false"
+            ]);
+    
+            $loan_amount = new Text([
+                'document_id' => "1", "page_number" => "1",
+                "x_position" => "514", "y_position" => "369",
+                "font" => "Arial", "font_size" => "size9",
+                "value" => $controller->getAmount($controller->getAdjustedLoanAmount()),
+                "height" => "18", "width" => "100", "required" => "false"
+            ]);
+        }
 
         $other_purpose = new Text([
             'document_id' => "1", "page_number" => "1",
@@ -355,12 +399,47 @@ class PersonalFD {
         $checkbox_list = $this->getCheckboxList();
  
         $initial_here_list = $this->getInitialList();
-         
-        $signer->setTabs(new Tabs(['sign_here_tabs' => [$sign_here],
-            'initial_here_tabs' => $initial_here_list,
-            'radio_group_tabs' => $radio_groups,
-            'checkbox_tabs' => $checkbox_list,
-            'text_tabs' => [
+        
+        $text_list = [
+            $another_business_name,
+            $date_established,
+            $business_name_text,
+            $business_address_1_text,
+            $business_address_2_text,
+            $naics_code,
+            $ssn_text,
+            $business_phone_text,
+            $primary_contact,
+            $email_text,
+            $gross_income_1,
+            $num_of_employees_text,
+            $gross_income_2,
+            $monthly_gross,
+            $loan_amount,
+            $other_purpose,
+            $owner_name_0,
+            $owner_name_1,
+            $owner_name_2,
+            $owner_job_title_0,
+            $owner_job_title_1,
+            $owner_job_title_2,
+            $ownership_0,
+            $ownership_1,
+            $ownership_2,
+            $owner_tin_0,
+            $owner_tin_1,
+            $owner_tin_2,
+            $owner_address_0,
+            $owner_address_1,
+            $owner_address_2,
+            $sba_franchise_identifier_code,
+            $today,
+            $print_name,
+            $job_title,
+        ];
+
+        if ($this->isSoleProprietor() && $this->hasEmployee()) {
+            $text_list = [
                 $another_business_name,
                 $date_established,
                 $business_name_text,
@@ -373,8 +452,10 @@ class PersonalFD {
                 $email_text,
                 $gross_income_1,
                 $num_of_employees_text,
-                $gross_income_2,
-                $monthly_gross,
+                $box_a,
+                $box_b,
+                $box_c,
+                $average_payroll,
                 $loan_amount,
                 $other_purpose,
                 $owner_name_0,
@@ -396,7 +477,15 @@ class PersonalFD {
                 $today,
                 $print_name,
                 $job_title,
-            ]
+            ];
+        }
+        
+         
+        $signer->setTabs(new Tabs(['sign_here_tabs' => [$sign_here],
+            'initial_here_tabs' => $initial_here_list,
+            'radio_group_tabs' => $radio_groups,
+            'checkbox_tabs' => $checkbox_list,
+            'text_tabs' => $text_list,
         ]));
  
          # Add the recipients to the envelope object
@@ -412,6 +501,20 @@ class PersonalFD {
         # To request that the envelope be created as a draft, set to "created"
         $envelope_definition->setStatus($args["status"]);
         return $envelope_definition;
+    }
+
+    private function isSoleProprietor() {
+        if ($this->elements["company_structure"]["#default_value"] == "Sole Proprietorship") {
+            return true;
+        }
+        return false;
+    }
+
+    private function hasEmployee() {
+        if ($this->elements["number_of_employees"]["#default_value"] > 1) {
+            return true;
+        }
+        return false;
     }
 
     private function getCompanyStructurePosition() {
