@@ -16,6 +16,7 @@ use DocuSign\eSign\Model\Signer;
 use DocuSign\eSign\Model\SignHere;
 use DocuSign\eSign\Model\Tabs;
 use DocuSign\eSign\Model\Text;
+use DocuSign\eSign\Model\DateSigned;
 
 use Drupal\application\Service\ClientService;
 use Drupal\application\Service\JWTService;
@@ -794,9 +795,18 @@ class ApplicationController {
         
         $text_list = $this->build_sba_text_list();
         
+        $dateSigned = new DateSigned([
+            'document_id' => "1", 'page_number' => "8",
+            "x_position" => "80", "y_position" => "690",
+            #"font" => "Arial", "font_size" => "size12",
+            #"value" => date("m-j-Y"),
+            "height" => "20", "width" => "140",
+        ]);
+
         $signer->setTabs(new Tabs([
             'sign_here_tabs' => [$sign_here_1, $sign_here_2],
             'text_tabs' => $text_list,
+            'date_signed_tabs' => [$dateSigned],
         ]));
 
         # Add the recipients to the envelope object
@@ -928,7 +938,7 @@ class ApplicationController {
             "value" => $this->getJobTitle(),
             "height" => "14", "width" => "100", "required" => "false"
         ]);
-
+        /*
         $date_3 = new Text([
             'document_id' => "1", 'page_number' => "8",
             "x_position" => "80", "y_position" => "684",
@@ -936,7 +946,8 @@ class ApplicationController {
             "value" => date("m-j-Y"),
             "height" => "20", "width" => "140", "required" => "false"
         ]);
-        
+        */
+
         $array = [
             $sba_loan_number_1,
             $date_1,
@@ -949,7 +960,7 @@ class ApplicationController {
             $business_name_2,
             $primary_contact_2,
             $job_title,
-            $date_3,
+            //$date_3,
         ];
         return $array;
     }
