@@ -124,7 +124,7 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
 
     $sba_controller = new SBALoanController();
     $sba_controller->getLoanStatus($form, $form_state);
-
+    return $form["elements"]["loan_officer_page"];
 }
 
 function application_form_webform_submission_apply_for_flp_loan_add_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
