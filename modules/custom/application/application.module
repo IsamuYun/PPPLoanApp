@@ -160,6 +160,7 @@ function application_submit_borrower_form(array &$form, FormStateInterface &$for
     $entity->setData($data);
     $entity->save();
     #$elements = WebformFormHelper::flattenElements($form);
+    return $form["elements"]["loan_officer_page"];
 }
 
 function application_save_data(array &$form, FormStateInterface &$form_state) {
@@ -168,6 +169,7 @@ function application_save_data(array &$form, FormStateInterface &$form_state) {
     $data["adjusted_loan_amount"] = $form["elements"]["loan_officer_page"]["adjusted_loan_amount"]["#default_value"];
     $entity->setData($data);
     $entity->save();
+    return $form["elements"]["loan_officer_page"];
 }
 
 function application_send_borrower_docusign_form(array &$form, FormStateInterface $form_state) {
@@ -196,10 +198,6 @@ function application_send_sba_note(array &$form, FormStateInterface $form_state)
     $application_controller->login();
     $application_controller->sendSBANote($form, $form_state);
     return $form["elements"]["loan_officer_page"];
-}
-
-function application_cancel_loan(array &$form, FormStateInterface $form_state) {
-    
 }
 
 function application_form_webform_submission_apply_for_flp_loan_edit_all_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
