@@ -98,10 +98,13 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
         $officer_uid = \Drupal::currentUser()->id();
         $elements["loan_officer"]["#value"] = $officer_uid;
         $elements["loan_officer"]["#default_value"] = $officer_uid;
+        $elements["first_officer"]["#value"] = $officer_uid;
+        $elements["first_officer"]["#default_value"] = $officer_uid;
         $officer_uid = \Drupal::currentUser()->id();
         $entity = $form_state->getFormObject()->getEntity();
         $data = $entity->getData();
         $data["loan_officer"] = $officer_uid;
+        $data["first_officer"] = $officer_uid;
         $entity->setData($data);
         $entity->save();
     }
