@@ -26,9 +26,9 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
 
     $form["elements"]["loan_officer_page"]["btn_save_status"] = [
         "#type" => "button",
-        "#value" => "Save",
+        "#value" => "Save Status",
         "#ajax" => [
-            "callback" => "application_save_data",
+            "callback" => "application_save_status",
             "event" => "click",
             "wrapper" => "loan-officer-ajax-wrapper",
             "progress" => [
@@ -96,15 +96,19 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
     
     if ($elements["loan_officer"]["#default_value"] == 0) {
         $officer_uid = \Drupal::currentUser()->id();
+        $officer_email = \Drupal::currentUser()->getEmail();
         $elements["loan_officer"]["#value"] = $officer_uid;
         $elements["loan_officer"]["#default_value"] = $officer_uid;
         $elements["first_officer"]["#value"] = $officer_uid;
         $elements["first_officer"]["#default_value"] = $officer_uid;
+        $elements["loan_officer_email"]["#value"] = $officer_email;
+        $elements["loan_officer_email"]["#default_value"] = $officer_email;
         $officer_uid = \Drupal::currentUser()->id();
         $entity = $form_state->getFormObject()->getEntity();
         $data = $entity->getData();
         $data["loan_officer"] = $officer_uid;
         $data["first_officer"] = $officer_uid;
+        $data["loan_officer_email"] = $officer_email;
         $entity->setData($data);
         $entity->save();
     }
@@ -163,9 +167,21 @@ function application_submit_borrower_form(array &$form, FormStateInterface &$for
     return $form["elements"]["loan_officer_page"];
 }
 
-function application_save_data(array &$form, FormStateInterface &$form_state) {
+function application_save_status(array &$form, FormStateInterface &$form_state) {
     $entity = $form_state->getFormObject()->getEntity();
     $data = $entity->getData();
+    $elements = WebformFormHelper::flattenElements($form);
+    $uid = $elements["loan_officer"]["#default_value"];
+    if ($uid > 0) {
+        $user = \Drupal\user\Entity\User::load($uid);
+        if (!empty($user)) {
+            $data["loan_officer_email"] = $user->getEmail();
+        
+            $elements["loan_officer_email"]["#default_value"] = $user->getEmail();
+            $elements["loan_officer_email"]["#value"] = $user->getEmail();
+        }
+    }
+    
     $data["adjusted_loan_amount"] = $form["elements"]["loan_officer_page"]["adjusted_loan_amount"]["#default_value"];
     $entity->setData($data);
     $entity->save();
