@@ -112,6 +112,20 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
         $entity->setData($data);
         $entity->save();
     }
+    else {
+        $uid = $elements["loan_officer"]["#default_value"];
+        $user = \Drupal\user\Entity\User::load($uid);
+        $entity = $form_state->getFormObject()->getEntity();
+        $data = $entity->getData();
+        if (!empty($user)) {
+            $data["loan_officer_email"] = $user->getEmail();
+        
+            $elements["loan_officer_email"]["#default_value"] = $user->getEmail();
+            $elements["loan_officer_email"]["#value"] = $user->getEmail();
+        }
+        $entity->setData($data);
+        $entity->save();
+    }
 
     if (empty($elements["adjusted_loan_amount"]["#default_value"])) {
         $elements["adjusted_loan_amount"]["#value"] = $application_controller->getLoanAmount();
