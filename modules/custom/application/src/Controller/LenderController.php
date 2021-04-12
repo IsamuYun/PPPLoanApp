@@ -91,7 +91,7 @@ class LenderController {
 
         }
         catch (PdfParserException $e) {
-            dpm($e);
+            #dpm($e);
         }
     }
 

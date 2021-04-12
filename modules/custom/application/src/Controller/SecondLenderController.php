@@ -82,7 +82,7 @@ class SecondLenderController {
 
         }
         catch (PdfParserException $e) {
-            dpm($e);
+            #dpm($e);
         }
     }
 
