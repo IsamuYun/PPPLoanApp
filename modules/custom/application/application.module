@@ -179,6 +179,7 @@ function application_save_status(array &$form, FormStateInterface &$form_state) 
         
             $elements["loan_officer_email"]["#default_value"] = $user->getEmail();
             $elements["loan_officer_email"]["#value"] = $user->getEmail();
+            $elements["loan_officer"]["#default_value"] = $uid;
         }
         $data["loan_officer"] = $uid;
     }
@@ -224,6 +225,13 @@ function application_send_sba_note(array &$form, FormStateInterface $form_state)
     $application_controller = new ApplicationController($elements);
     $application_controller->login();
     $application_controller->sendSBANote($form, $form_state);
+    $entity = $form_state->getFormObject()->getEntity();
+    $data = $entity->getData();
+    $data["loan_status"] = "Approved";
+    $entity->setData($data);
+    $entity->save();
+    $elements["loan_status"]["#defalut_value"] = "Approved";
+    $elements["loan_status"]["#value"] = "Approved";
     return $form["elements"]["loan_officer_page"];
 }
 
