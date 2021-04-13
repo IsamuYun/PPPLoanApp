@@ -197,6 +197,7 @@ function application_save_status(array &$form, FormStateInterface &$form_state) 
             $elements["loan_officer_email"]["#value"] = $user->getEmail();
         }
     }
+    $data["loan_officer"] = $uid;
     
     $data["adjusted_loan_amount"] = $form["elements"]["loan_officer_page"]["adjusted_loan_amount"]["#default_value"];
     $entity->setData($data);
