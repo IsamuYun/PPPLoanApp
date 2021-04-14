@@ -164,9 +164,13 @@ function application_submit_borrower_form(array &$form, FormStateInterface &$for
     $elements = WebformFormHelper::flattenElements($form);
     if ($elements["round"]["#default_value"] == "Yes") {
         $data["draw_status"] = "Second Draw";
+        $elements["draw_status"]["#value"] = "Second Darw";
+        $elements["draw_status"]["#default_value"] = "Second Draw";
     }
     else {
         $data["draw_status"] = "First Draw";
+        $elements["draw_status"]["#value"] = "First Darw";
+        $elements["draw_status"]["#default_value"] = "First Draw";
     }
     $data["loan_status"] = "Received";
     $entity->setData($data);
@@ -219,9 +223,13 @@ function application_send_borrower_docusign_form(array &$form, FormStateInterfac
     
     if ($elements["round"]["#default_value"] == "Yes") {
         $data["draw_status"] = "Second Draw";
+        $elements["draw_status"]["#value"] = "Second Darw";
+        $elements["draw_status"]["#default_value"] = "Second Draw";
     }
     else {
         $data["draw_status"] = "First Draw";
+        $elements["draw_status"]["#value"] = "First Darw";
+        $elements["draw_status"]["#default_value"] = "First Draw";
     }
     $entity->setData($data);
     $entity->save();
