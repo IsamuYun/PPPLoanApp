@@ -225,12 +225,19 @@ class DSListenerController extends ControllerBase {
         $update_query = \Drupal::database()->update('webform_submission_data');
         $update_query->fields([
             //'value' => "Completed",
-            'value' => "Completed " . date("m-d-Y"),
+            'value' => "Completed",
         ]);
         $update_query->condition("sid", $sid);
         $update_query->condition("name", "sba_envelope_status");
         $update_query->execute();
-
+        
+        $update_query = \Drupal::database()->update('webform_submission_data');
+        $update_query->fields([
+            'value' => date("m-d-Y"),
+        ]);
+        $update_query->condition("sid", $sid);
+        $update_query->condition("name", "note_signed_date");
+        $update_query->execute();
         
         \Drupal::logger("ProcessPayload")->notice("Submission ID: " . $sid . " SBA Envelope status has been updated.");
         return true;
