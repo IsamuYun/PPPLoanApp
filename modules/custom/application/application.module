@@ -158,12 +158,20 @@ function application_form_webform_submission_apply_for_ppp_loan_add_form_alter(a
 }
 
 function application_submit_borrower_form(array &$form, FormStateInterface &$form_state) {
+    
     $entity = $form_state->getFormObject()->getEntity();
     $data = $entity->getData();
+    $elements = WebformFormHelper::flattenElements($form);
+    if ($elements["round"]["#default_value"] == "Yes") {
+        $data["draw_status"] = "Second Draw";
+    }
+    else {
+        $data["draw_status"] = "First Draw";
+    }
     $data["loan_status"] = "Received";
     $entity->setData($data);
     $entity->save();
-    #$elements = WebformFormHelper::flattenElements($form);
+    
     return $form["elements"]["loan_officer_page"];
 }
 
@@ -205,6 +213,18 @@ function application_send_borrower_docusign_form(array &$form, FormStateInterfac
     $application_controller = new ApplicationController($elements);
     $application_controller->login();
     $application_controller->sendBorrowerDocuSignForm($form, $form_state);
+    $entity = $form_state->getFormObject()->getEntity();
+    $data = $entity->getData();
+    $data["loan_status"] = "Pre-Approved";
+    
+    if ($elements["round"]["#default_value"] == "Yes") {
+        $data["draw_status"] = "Second Draw";
+    }
+    else {
+        $data["draw_status"] = "First Draw";
+    }
+    $entity->setData($data);
+    $entity->save();
     return $form["elements"]["loan_officer_page"];
 }
 
