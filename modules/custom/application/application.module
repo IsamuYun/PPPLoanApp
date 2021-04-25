@@ -94,7 +94,7 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
         ]
     ];
     
-    if (empty($elements["loan_officer"]["#default_value"])) {
+    if (empty($elements["loan_officer"]["#default_value"]) && (\Drupal::currentUser()->id() != 1)) {
         $officer_uid = \Drupal::currentUser()->id();
         $officer_email = \Drupal::currentUser()->getEmail();
         $elements["loan_officer"]["#value"] = $officer_uid;
@@ -193,6 +193,7 @@ function application_save_status(array &$form, FormStateInterface &$form_state) 
             $elements["loan_officer_email"]["#default_value"] = $user->getEmail();
             $elements["loan_officer_email"]["#value"] = $user->getEmail();
             $elements["loan_officer"]["#default_value"] = $uid;
+            $elements["loan_officer"]["#value"] = $uid;
         }
         $data["loan_officer"] = $uid;
     }
@@ -205,9 +206,6 @@ function application_save_status(array &$form, FormStateInterface &$form_state) 
         $data["loan_officer_email"] = "";
     }
     */
-    
-
-    
     $data["adjusted_loan_amount"] = $form["elements"]["loan_officer_page"]["adjusted_loan_amount"]["#default_value"];
     $entity->setData($data);
     $entity->save();
