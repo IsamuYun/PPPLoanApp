@@ -183,7 +183,8 @@ function application_save_status(array &$form, FormStateInterface &$form_state) 
     $entity = $form_state->getFormObject()->getEntity();
     $data = $entity->getData();
     $elements = WebformFormHelper::flattenElements($form);
-    $uid = $elements["loan_officer"]["#value"];
+    /*
+    $uid = $elements["loan_officer"]["#default_value"];
     if (!empty($uid)) {
         $user = \Drupal\user\Entity\User::load($uid);
         if (!empty($user)) {
@@ -203,6 +204,7 @@ function application_save_status(array &$form, FormStateInterface &$form_state) 
         $data["loan_officer"] = "";
         $data["loan_officer_email"] = "";
     }
+    */
     
 
     
