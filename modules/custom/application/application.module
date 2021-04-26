@@ -15,21 +15,25 @@ use Drupal\application\Controller\LenderController;
 use Drupal\application\Controller\SBALoanController;
 
 function application_form_webform_submission_apply_for_ppp_loan_edit_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
-
-}
-
-
-function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
-    /*
     $entity = $form_state->getFormObject()->getEntity();
     if ($entity->isLocked()) {
         return $form["elements"]["loan_officer_page"];
     }
+}
+
+
+function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
+    
+    $entity = $form_state->getFormObject()->getEntity();
+    if ($entity->isLocked()) {
+        return $form["elements"]["loan_officer_page"];
+    }
+    /*
     else {
         $entity->setLocked(true);
     }
     */
-    
+
     $elements = WebformFormHelper::flattenElements($form);
     $application_controller = new ApplicationController($elements);
     $application_controller->login();
