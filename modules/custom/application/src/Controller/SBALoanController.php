@@ -120,7 +120,7 @@ class SBALoanController {
             }
             if (!empty($sba_decision_date) || $sba_decision_date != null) {
                 $date = strtotime($sba_decision_date);
-                $sba_decision_date = date('m-d-Y', $date);
+                $sba_decision_date = date('m/d/Y', $date);
             }
             
             

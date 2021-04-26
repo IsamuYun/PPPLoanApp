@@ -225,7 +225,7 @@ class DSListenerController extends ControllerBase {
         $update_query = \Drupal::database()->update('webform_submission_data');
         $update_query->fields([
             //'value' => "Completed",
-            'value' => "Completed " . date("m-d-Y"),
+            'value' => "Completed " . date("m/d/Y"),
         ]);
         $update_query->condition("sid", $sid);
         $update_query->condition("name", "sba_envelope_status");
@@ -233,7 +233,7 @@ class DSListenerController extends ControllerBase {
         
         $update_query2 = \Drupal::database()->update('webform_submission_data');
         $update_query2->fields([
-            'value' => date("m-d-Y"),
+            'value' => date("m/d/Y"),
         ]);
         $update_query2->condition("sid", $sid);
         $update_query2->condition("name", "note_signed_date");
