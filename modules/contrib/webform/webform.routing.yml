@@ -571,19 +571,19 @@ entity.webform_submission.edit_form.all:
     _custom_access: '\Drupal\webform\Access\WebformSubmissionAccess::checkWizardPagesAccess'
 
 entity.webform_submission.notes_form:
-  path: '/admin/structure/webform/manage/{webform}/submission/{webform_submission}/edit/all'
-  defaults:
-    _entity_form: 'webform_submission.edit_all'
-    _title_callback: '\Drupal\webform\Controller\WebformSubmissionViewController::title'
-  requirements:
-    _entity_access: 'webform_submission.update'
-    _custom_access: '\Drupal\webform\Access\WebformSubmissionAccess::checkWizardPagesAccess'
-  #path: '/admin/structure/webform/manage/{webform}/submission/{webform_submission}/notes'
+  #path: '/admin/structure/webform/manage/{webform}/submission/{webform_submission}/edit/all'
   #defaults:
-  #  _entity_form: 'webform_submission.notes'
+  #  _entity_form: 'webform_submission.edit_all'
   #  _title_callback: '\Drupal\webform\Controller\WebformSubmissionViewController::title'
   #requirements:
-  #  _entity_access: 'webform_submission.notes'
+  #  _entity_access: 'webform_submission.update'
+  #  _custom_access: '\Drupal\webform\Access\WebformSubmissionAccess::checkWizardPagesAccess'
+  path: '/admin/structure/webform/manage/{webform}/submission/{webform_submission}/notes'
+  defaults:
+    _entity_form: 'webform_submission.notes'
+    _title_callback: '\Drupal\webform\Controller\WebformSubmissionViewController::title'
+  requirements:
+    _entity_access: 'webform_submission.notes'
 
 entity.webform_submission.resend_form:
   path: '/admin/structure/webform/manage/{webform}/submission/{webform_submission}/resend'
