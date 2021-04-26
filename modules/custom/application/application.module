@@ -14,13 +14,26 @@ use Drupal\application\Controller\SBALFAController;
 use Drupal\application\Controller\LenderController;
 use Drupal\application\Controller\SBALoanController;
 
+/** Notes form **/
+function application_form_webform_submission_apply_for_ppp_loan_notes_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
+    $entity = $form_state->getFormObject()->getEntity();
+    if ($entity->isLocked()) {
+        return;
+    }
+    /*
+    else {
+        $elements = WebformFormHelper::flattenElements($form);
+    }
+    */
+}
+
+
 function application_form_webform_submission_apply_for_ppp_loan_edit_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
     $entity = $form_state->getFormObject()->getEntity();
     if ($entity->isLocked()) {
-        return $form["elements"]["loan_officer_page"];
+        return;
     }
 }
-
 
 function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
     
