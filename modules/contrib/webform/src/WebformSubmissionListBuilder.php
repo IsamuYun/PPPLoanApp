@@ -1021,6 +1021,7 @@ class WebformSubmissionListBuilder extends EntityListBuilder {
     $operations = [];
 
     if ($this->account) {
+      
       if ($entity->access('update')) {
         $operations['edit'] = [
           'title' => $this->t('Edit'),
@@ -1036,7 +1037,7 @@ class WebformSubmissionListBuilder extends EntityListBuilder {
           'url' => $this->requestHandler->getUrl($entity, $this->sourceEntity, 'webform.user.submission'),
         ];
       }
-
+      
       if ($entity->access('duplicate') && $webform->getSetting('submission_user_duplicate')) {
         $operations['duplicate'] = [
           'title' => $this->t('Duplicate'),
@@ -1044,7 +1045,7 @@ class WebformSubmissionListBuilder extends EntityListBuilder {
           'url' => $this->requestHandler->getUrl($entity, $this->sourceEntity, 'webform.user.submission.duplicate'),
         ];
       }
-
+      
       if ($entity->access('delete')) {
         $operations['delete'] = [
           'title' => $this->t('Delete'),
@@ -1053,8 +1054,10 @@ class WebformSubmissionListBuilder extends EntityListBuilder {
           'attributes' => WebformDialogHelper::getModalDialogAttributes(WebformDialogHelper::DIALOG_NARROW),
         ];
       }
+      
     }
     else {
+      
       if ($entity->access('update')) {
         $operations['edit'] = [
           'title' => $this->t('Edit'),
@@ -1070,7 +1073,7 @@ class WebformSubmissionListBuilder extends EntityListBuilder {
           'url' => $this->requestHandler->getUrl($entity, $this->sourceEntity, 'webform_submission.canonical'),
         ];
       }
-
+      
       if ($entity->access('notes')) {
         $operations['notes'] = [
           'title' => $this->t('Notes'),
@@ -1086,6 +1089,7 @@ class WebformSubmissionListBuilder extends EntityListBuilder {
           'url' => $this->requestHandler->getUrl($entity, $this->sourceEntity, 'webform_submission.resend_form'),
         ];
       }
+      
       if ($entity->access('duplicate')) {
         $operations['duplicate'] = [
           'title' => $this->t('Duplicate'),
@@ -1093,7 +1097,7 @@ class WebformSubmissionListBuilder extends EntityListBuilder {
           'url' => $this->requestHandler->getUrl($entity, $this->sourceEntity, 'webform_submission.duplicate_form'),
         ];
       }
-
+      
       if ($entity->access('delete')) {
         $operations['delete'] = [
           'title' => $this->t('Delete'),
@@ -1102,6 +1106,7 @@ class WebformSubmissionListBuilder extends EntityListBuilder {
           'attributes' => WebformDialogHelper::getModalDialogAttributes(WebformDialogHelper::DIALOG_NARROW),
         ];
       }
+      
 
       if ($entity->access('view_any')
         && $this->currentUser->hasPermission('access webform submission log')

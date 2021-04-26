@@ -196,6 +196,7 @@ class WebformAccessGroupListBuilder extends ConfigEntityListBuilder {
    */
   public function getDefaultOperations(EntityInterface $entity, $type = 'edit') {
     $operations = parent::getDefaultOperations($entity);
+    
     if ($entity->access('duplicate')) {
       $operations['duplicate'] = [
         'title' => $this->t('Duplicate'),

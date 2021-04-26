@@ -157,6 +157,7 @@ class WebformOptionsListBuilder extends ConfigEntityListBuilder {
    */
   public function getDefaultOperations(EntityInterface $entity, $type = 'edit') {
     $operations = parent::getDefaultOperations($entity);
+    
     if ($entity->access('duplicate')) {
       $operations['duplicate'] = [
         'title' => $this->t('Duplicate'),
@@ -164,6 +165,7 @@ class WebformOptionsListBuilder extends ConfigEntityListBuilder {
         'url' => Url::fromRoute('entity.webform_options.duplicate_form', ['webform_options' => $entity->id()]),
       ];
     }
+    
     if (isset($operations['delete'])) {
       $operations['delete']['attributes'] = WebformDialogHelper::getModalDialogAttributes(WebformDialogHelper::DIALOG_NARROW);
     }
