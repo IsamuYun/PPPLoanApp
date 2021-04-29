@@ -13,6 +13,7 @@ use Drupal\application\Controller\SBAForgivenessRequestController;
 use Drupal\application\Controller\SBALFAController;
 use Drupal\application\Controller\LenderController;
 use Drupal\application\Controller\SBALoanController;
+use Drupal\application\Controller\VerifyController;
 
 /** Notes form **/
 function application_form_webform_submission_apply_for_ppp_loan_notes_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
@@ -55,7 +56,24 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
     
     $form["elements"]["loan_officer_page"]["#prefix"] = '<div id="loan-officer-ajax-wrapper">';
     $form["elements"]["loan_officer_page"]["#suffix"] = "</div>";
+    /*
+    $form["elements"]["verify_id_page"]["#prefix"] = '<div id="verify-id-ajax-wrapper">';
+    $form["elements"]["verify_id_page"]["#suffix"] = '</div>';
 
+    $form["elements"]["verify_id_page"]["btn_verify_id"] = [
+        "#type" => "button",
+        "#value" => "Verify ID Photos",
+        "#ajax" => [
+            "callback" => "application_verify_id",
+            "event" => "click",
+            "wrapper" => "verify-id-ajax-wrapper",
+            "progress" => [
+                "type" => "throbber",
+                "message" => "Verifing...",
+            ],
+        ]
+    ];
+    */
     $form["elements"]["loan_officer_page"]["btn_save_status"] = [
         "#type" => "button",
         "#value" => "Save Status",
@@ -125,7 +143,7 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
             ],
         ]
     ];
-    
+    /*
     if (empty($elements["loan_officer"]["#default_value"]) && (\Drupal::currentUser()->id() != 1)) {
         $officer_uid = \Drupal::currentUser()->id();
         $officer_email = \Drupal::currentUser()->getEmail();
@@ -144,6 +162,7 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
         $entity->setData($data);
         $entity->save();
     }
+    */
 
     if (empty($elements["adjusted_loan_amount"]["#default_value"])) {
         $elements["adjusted_loan_amount"]["#value"] = $application_controller->getLoanAmount();
@@ -189,11 +208,47 @@ function application_form_webform_submission_apply_for_ppp_loan_add_form_alter(a
     $form['actions']['submit']['#submit'][]  = 'application_submit_borrower_form';
 }
 
+function application_verify_id(array &$form, FormStateInterface &$form_state) {
+    $controller = new VerifyController();
+    #$controller->createApplicant($form, $form_state);
+    
+    #$controller->uploadPhoto($form, $form_state);
+    
+    #$controller->uploadLivePhoto($form, $form_state);
+
+    return $form["elements"]["verify_id_page"];
+}
+
 function application_submit_borrower_form(array &$form, FormStateInterface &$form_state) {
     
     $entity = $form_state->getFormObject()->getEntity();
     $data = $entity->getData();
     $elements = WebformFormHelper::flattenElements($form);
+    
+    $submission_id = intval($elements["round"]["#webform_submission"]);
+    $officer_id_list = [1301, 9803, 1283, 85, 90, 1012, 88, 89, 82, 73,
+                        9804, 12444, 75, 68, 6786, 79, 9392, 78, 6105, 8741, 86, 87, 76];
+
+    $office_num = count($officer_id_list);
+
+    $offset = $submission_id % $office_num;
+    $uid = $officer_id_list[$offset];
+    $user = \Drupal\user\Entity\User::load($uid);
+
+    if (!empty($user)) {
+        \Drupal::logger('Assign Loan')->notice("Assign Officer: " . $uid . " " .$user->getDisplayName());
+        $data["loan_officer"] = $uid;
+        $data["first_officer"] = $uid;
+        $data["loan_officer_email"] = $user->getEmail();
+    }
+    else {
+        \Drupal::logger('Assign Loan')->notice("Can not found lender officer.");
+        $admin = \Drupal\user\Entity\User::load(1);
+        $data["loan_officer"] = 1;
+        $data["first_officer"] = 1;
+        $data["loan_officer_email"] = $admin->getEmail();
+    }
+
     if ($elements["round"]["#default_value"] == "Yes") {
         $data["draw_status"] = "Second Draw";
         $elements["draw_status"]["#value"] = "Second Darw";
@@ -217,7 +272,7 @@ function application_save_status(array &$form, FormStateInterface &$form_state) 
     $elements = WebformFormHelper::flattenElements($form);
     
     $uid = $elements["loan_officer"]["#default_value"];
-    if (!empty($uid)) {
+    if (!empty($uid) && !empty($elements["loan_officer_email"])) {
         $user = \Drupal\user\Entity\User::load($uid);
         if (!empty($user)) {
             $data["loan_officer_email"] = $user->getEmail();
@@ -227,18 +282,9 @@ function application_save_status(array &$form, FormStateInterface &$form_state) 
             $elements["loan_officer"]["#default_value"] = $uid;
             $elements["loan_officer"]["#value"] = $uid;
         }
-        //$data["loan_officer"] = $uid;
+        
     }
-    /*
-    else {
-        $elements["loan_officer_email"]["#default_value"] = "";
-        $elements["loan_officer_email"]["#value"] = "";
-        $elements["loan_officer"]["#default_value"] = "";
-        $elements["loan_officer"]["#value"] = "";
-        $data["loan_officer"] = "";
-        $data["loan_officer_email"] = "";
-    }
-    */
+    
     $data["adjusted_loan_amount"] = $form["elements"]["loan_officer_page"]["adjusted_loan_amount"]["#default_value"];
     $entity->setData($data);
     $entity->save();
