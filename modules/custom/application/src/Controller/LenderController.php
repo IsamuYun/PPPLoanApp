@@ -268,7 +268,10 @@ class LenderController {
         $dba_name = $elements["another_business_name"]["#default_value"];
         $naics_code = $elements["naics_code"]["#default_value"];
         $tax_id = $elements["tax_id_number"]["#default_value"];
-        $year_of_establishment = $elements["date_established"]["#value"]["year"];
+        $year_of_establishment = "";
+        if (!$elements["date_established"]["#value"]) {
+            $year_of_establishment = $elements["date_established"]["#value"]["year"];
+        }
         $number_of_employees = $elements["number_of_employees"]["#default_value"];
         $address = $this->getBusinessAddress($elements);
         $city_state_zip = $this->getCityStateZip($elements);
@@ -432,7 +435,12 @@ class LenderController {
     }
 
     private function getPrimaryName($elements) {
-        return $elements["first_name"][0]["#default_value"] . " " . $elements["last_name"][0]["#default_value"];
+        if (!empty($elements["first_name"][0]) && !empty($elements["last_name"][0])) {
+            return $elements["first_name"][0]["#default_value"] . " " . $elements["last_name"][0]["#default_value"];
+        }
+        else {
+            return "";
+        }
     }
 
     

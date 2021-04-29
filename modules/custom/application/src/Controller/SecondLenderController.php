@@ -416,6 +416,11 @@ class SecondLenderController {
     }
 
     private function getPrimaryName($elements) {
-        return $elements["first_name"][0]["#default_value"] . " " . $elements["last_name"][0]["#default_value"];
+        if (!empty($elements["first_name"][0]) && !empty($elements["last_name"][0])) {
+            return $elements["first_name"][0]["#default_value"] . " " . $elements["last_name"][0]["#default_value"];
+        }
+        else {
+            return "";
+        }
     }
 }
