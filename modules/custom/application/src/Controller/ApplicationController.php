@@ -377,6 +377,9 @@ class ApplicationController {
         if (empty($this->elements[$field])) {
             return "";
         }
+        if (empty($this->elements[$field][$num])) {
+            return "";
+        }
         if (count($this->elements[$field]) <= $num) {
             return "";
         }
