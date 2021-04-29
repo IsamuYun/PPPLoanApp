@@ -269,7 +269,7 @@ class LenderController {
         $naics_code = $elements["naics_code"]["#default_value"];
         $tax_id = $elements["tax_id_number"]["#default_value"];
         $year_of_establishment = "";
-        if (!$elements["date_established"]["#value"]) {
+        if (!empty($elements["date_established"]["#value"])) {
             $year_of_establishment = $elements["date_established"]["#value"]["year"];
         }
         $number_of_employees = $elements["number_of_employees"]["#default_value"];
