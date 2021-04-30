@@ -163,7 +163,9 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
         $entity->save();
     }
     */
-
+    $entity = $form_state->getFormObject()->getEntity();
+    $data = $entity->getData();
+    dpm(intval(substr($data["alc_loan_serial"], 1)));
     if (empty($elements["adjusted_loan_amount"]["#default_value"])) {
         $elements["adjusted_loan_amount"]["#value"] = $application_controller->getLoanAmount();
         $elements["adjusted_loan_amount"]["#default_value"] = $application_controller->getLoanAmount();
@@ -223,15 +225,16 @@ function application_submit_borrower_form(array &$form, FormStateInterface &$for
     
     $entity = $form_state->getFormObject()->getEntity();
     $data = $entity->getData();
+    
     $elements = WebformFormHelper::flattenElements($form);
     
-    $submission_id = intval($elements["round"]["#webform_submission"]);
+    $serial_number = intval(substr($data["alc_loan_serial"], 1));
     $officer_id_list = [1301, 9803, 1283, 85, 90, 1012, 88, 89, 82, 73,
                         9804, 12444, 75, 68, 6786, 79, 9392, 78, 6105, 8741, 86, 87, 76];
 
     $office_num = count($officer_id_list);
 
-    $offset = $submission_id % $office_num;
+    $offset = $serial_number % $office_num;
     $uid = $officer_id_list[$offset];
     $user = \Drupal\user\Entity\User::load($uid);
 
