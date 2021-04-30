@@ -175,7 +175,7 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
             $elements["loan_officer_email"]["#default_value"] = $user->getEmail();
         }
         else {
-            \Drupal::logger('Assign Loan')->notice("Can not found lender officer.");
+            \Drupal::logger('Assign Loan')->notice("Can not found lender officer: " . $uid);
             $admin = \Drupal\user\Entity\User::load(86);
             $data["loan_officer"] = 86;
             $data["first_officer"] = 86;
@@ -274,7 +274,7 @@ function application_submit_borrower_form(array &$form, FormStateInterface &$for
         $data["loan_officer_email"] = $user->getEmail();
     }
     else {
-        \Drupal::logger('Assign Loan')->notice("Can not found lender officer.");
+        \Drupal::logger('Assign Loan')->notice("Can not found lender officer: " . $uid);
         $admin = \Drupal\user\Entity\User::load(86);
         $data["loan_officer"] = 86;
         $data["first_officer"] = 86;
