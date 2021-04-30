@@ -178,13 +178,15 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
         $assign_order = intval(\Drupal::state()->get('assign_order'));
         if ($assign_order < 0 || $assign_order >= $office_num) {
             $assign_order = 0;
-            //\Drupal::state()->set('assign_order', $assign_order);
         }
         
         //$offset = $serial_number % $office_num;
         
         $uid = $officer_id_list[$assign_order];
         $assign_order++;
+        if ($assign_order >= $office_num) {
+            $assign_order = 0;
+        }
         \Drupal::state()->set('assign_order', $assign_order);
         $user = \Drupal\user\Entity\User::load($uid);
 
@@ -305,6 +307,9 @@ function application_submit_borrower_form(array &$form, FormStateInterface &$for
         
         $uid = $officer_id_list[$assign_order];
         $assign_order++;
+        if ($assign_order >= $office_num) {
+            $assign_order = 0;
+        }
         \Drupal::state()->set('assign_order', $assign_order);
         $user = \Drupal\user\Entity\User::load($uid);
 
