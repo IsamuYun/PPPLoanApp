@@ -185,8 +185,8 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
             $elements["loan_officer"]["#default_value"] = 86;
             $elements["first_officer"]["#value"] = 86;
             $elements["first_officer"]["#default_value"] = 86;
-            $elements["loan_officer_email"]["#value"] = $user->getEmail();
-            $elements["loan_officer_email"]["#default_value"] = $user->getEmail();
+            $elements["loan_officer_email"]["#value"] = $admin->getEmail();
+            $elements["loan_officer_email"]["#default_value"] = $admin->getEmail();
         }
 
         $entity->setData($data);
