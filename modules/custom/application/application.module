@@ -157,7 +157,7 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
 
         $office_num = count($officer_id_list);
 
-        $offset = $serial_number % $office_num;
+        $offset = rand(0, $office_num - 1);
         $uid = $officer_id_list[$offset];
         $user = \Drupal\user\Entity\User::load($uid);
 
@@ -263,7 +263,7 @@ function application_submit_borrower_form(array &$form, FormStateInterface &$for
 
         $office_num = count($officer_id_list);
 
-        $offset = $serial_number % $office_num;
+        $offset = rand(0, $office_num - 1);
         $uid = $officer_id_list[$offset];
         $user = \Drupal\user\Entity\User::load($uid);
 
