@@ -153,18 +153,13 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
         $serial_number = intval(substr($data["alc_loan_serial"], 1));
         $officer_id_list = [1301, 9803, 1283, 85, 90, 1012, 88, 89, 73, 9804, 
                             12444, 75, 68, 6786, 79, 9392, 78, 6105, 8741, 86,
-                            87, 76];
+                            87, 76,
+                            76, 87, 86, 8741, 6105, 78, 9392, 79, 6786, 68, 75, 12444,
+                            9804, 73, 89, 88, 1012, 90, 85, 1283, 9803, 1301];
 
         $office_num = count($officer_id_list);
 
-        $offset_1 = rand(0, $office_num - 1);
-        $offset_2 = rand(0, $office_num - 1);
-        if ($offset_1 == $offset_2) {
-            $offset = rand(0, $office_num - 1);
-        }
-        else {
-            $offset = $offset_2;
-        }
+        $offset = rand(0, $office_num - 1);
         $uid = $officer_id_list[$offset];
         $user = \Drupal\user\Entity\User::load($uid);
 
@@ -266,18 +261,11 @@ function application_submit_borrower_form(array &$form, FormStateInterface &$for
         $serial_number = intval(substr($data["alc_loan_serial"], 1));
         $officer_id_list = [1301, 9803, 1283, 85, 90, 1012, 88, 89, 73, 9804, 
                             12444, 75, 68, 6786, 79, 9392, 78, 6105, 8741, 86,
-                            87, 76];
+                            87, 76,
+                            76, 87, 86, 8741, 6105, 78, 9392, 79, 6786, 68, 75, 12444,
+                            9804, 73, 89, 88, 1012, 90, 85, 1283, 9803, 1301];
 
         $office_num = count($officer_id_list);
-
-        $offset_1 = rand(0, $office_num - 1);
-        $offset_2 = rand(0, $office_num - 1);
-        if ($offset_1 == $offset_2) {
-            $offset = rand(0, $office_num - 1);
-        }
-        else {
-            $offset = $offset_2;
-        }
 
         $offset = rand(0, $office_num - 1);
         $uid = $officer_id_list[$offset];
