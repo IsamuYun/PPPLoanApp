@@ -263,15 +263,13 @@ function application_submit_borrower_form(array &$form, FormStateInterface &$for
                             87, 76];
 
         $office_num = count($officer_id_list);
-        $random_result = rand(0, 1);
-        if ($random_result) {
-            $offset = $serial_number % $office_num;
+        //$random_result = rand(0, 4);
+        $offset = $serial_number % $office_num;
+        /*
+        if ($random_result == 0) {
+            $offset = rand(0, $offset);
         }
-        else {
-            //$offset = $serial_number % $office_num;
-            $offset = rand(0, $office_num - 1);
-        }
-       
+        */
         $uid = $officer_id_list[$offset];
         $user = \Drupal\user\Entity\User::load($uid);
 
