@@ -268,8 +268,8 @@ function application_submit_borrower_form(array &$form, FormStateInterface &$for
             $offset = $serial_number % $office_num;
         }
         else {
-            $offset = $serial_number % $office_num;
-            $offset = rand(0, $offset);
+            //$offset = $serial_number % $office_num;
+            $offset = rand(0, $office_num - 1);
         }
        
         $uid = $officer_id_list[$offset];
