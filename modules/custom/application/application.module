@@ -28,14 +28,6 @@ function application_form_webform_submission_apply_for_ppp_loan_notes_form_alter
     */
 }
 
-
-function application_form_webform_submission_apply_for_ppp_loan_edit_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
-    $entity = $form_state->getFormObject()->getEntity();
-    if ($entity->isLocked()) {
-        return;
-    }
-}
-
 function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
     
     $entity = $form_state->getFormObject()->getEntity();
@@ -143,6 +135,30 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
             ],
         ]
     ];
+
+    if (!empty($elements["referer_name"]["#default_value"])) {
+        $priority_code = $elements["referer_name"]["#default_value"];
+
+        $uids = \Drupal::entityQuery('user')
+                 ->condition('field_priority_code', $priority_code)
+                 ->execute();
+        $uid = 0;
+        foreach ($uids as $user_id) {
+            $uid = intval($user_id);
+        }
+
+        if ($uid > 0) {
+            $user = \Drupal\user\Entity\User::load($uid);
+            if (!empty($user) && !$user->isBlocked()) {
+                
+            }
+            else {
+
+            }
+        }   
+
+    }
+    
     
     if (empty($elements["loan_officer"]["#default_value"]) && empty($elements["referer_name"]["#default_value"])) {
         $entity = $form_state->getFormObject()->getEntity();
@@ -239,6 +255,10 @@ function application_form_webform_submission_apply_for_ppp_loan_add_form_alter(a
     $form['actions']['submit']['#submit'][]  = 'application_submit_borrower_form';
 }
 
+function application_form_webform_submission_apply_for_ppp_loan_edit_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
+    $form['actions']['submit']['#submit'][]  = 'application_submit_borrower_form';
+}
+
 function application_verify_id(array &$form, FormStateInterface &$form_state) {
     $controller = new VerifyController();
     #$controller->createApplicant($form, $form_state);
@@ -287,15 +307,6 @@ function application_submit_borrower_form(array &$form, FormStateInterface &$for
             $data["loan_officer_email"] = $admin->getEmail();
         }
     }
-    /*
-    else {
-        $priority_code = $elements["referer_name"]["#default_value"];
-
-        $query = \Drupal::entityQuery('user');
-
-
-    }
-    */
     
 
     if ($elements["round"]["#default_value"] == "Yes") {
