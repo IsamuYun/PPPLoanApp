@@ -135,7 +135,7 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
             ],
         ]
     ];
-
+    /*
     if (!empty($elements["referer_name"]["#default_value"])) {
         $priority_code = $elements["referer_name"]["#default_value"];
 
@@ -158,6 +158,7 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
         }   
 
     }
+    */
     
     
     if (empty($elements["loan_officer"]["#default_value"]) && empty($elements["referer_name"]["#default_value"])) {
