@@ -151,9 +151,9 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
         $elements = WebformFormHelper::flattenElements($form);
     
         $serial_number = intval(substr($data["alc_loan_serial"], 1));
-        $officer_id_list = [1301, 9803, 1283, 85, 90, 1012, 88, 89, 82, 73,
-                            9804, 12444, 75, 68, 6786, 79, 9392, 78, 6105, 8741,
-                            86, 87, 76];
+        $officer_id_list = [1301, 9803, 1283, 85, 90, 1012, 88, 89, 73, 9804, 
+                            12444, 75, 68, 6786, 79, 9392, 78, 6105, 8741, 86,
+                            87, 76];
 
         $office_num = count($officer_id_list);
 
@@ -257,9 +257,9 @@ function application_submit_borrower_form(array &$form, FormStateInterface &$for
     $elements = WebformFormHelper::flattenElements($form);
     
     $serial_number = intval(substr($data["alc_loan_serial"], 1));
-    $officer_id_list = [1301, 9803, 1283, 85, 90, 1012, 88, 89, 82, 73,
-                        9804, 12444, 75, 68, 6786, 79, 9392, 78, 6105, 8741,
-                        86, 87, 76];
+    $officer_id_list = [1301, 9803, 1283, 85, 90, 1012, 88, 89, 73, 9804, 
+                        12444, 75, 68, 6786, 79, 9392, 78, 6105, 8741, 86,
+                        87, 76];
 
     $office_num = count($officer_id_list);
 
