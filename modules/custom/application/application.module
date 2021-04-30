@@ -339,7 +339,6 @@ function application_submit_borrower_form(array &$form, FormStateInterface &$for
         $elements["draw_status"]["#value"] = "First Darw";
         $elements["draw_status"]["#default_value"] = "First Draw";
     }
-    $data["loan_status"] = "Received";
     $entity->setData($data);
     $entity->save();
     
