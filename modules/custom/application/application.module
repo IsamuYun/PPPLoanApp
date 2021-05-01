@@ -235,7 +235,7 @@ function application_assign_loan_officer(array &$form, FormStateInterface &$form
         $user = \Drupal\user\Entity\User::load($uid);
 
         if (!empty($user) && !$user->isBlocked()) {
-            \Drupal::logger('Assign Loan')->notice("Assign Loan Officer: " . $uid . " " .$user->getDisplayName());
+            \Drupal::logger('Assign Loan')->notice($data['loan_serial'] . " Assign Loan Officer: " . $uid . " " .$user->getDisplayName());
             $data["loan_officer"] = $uid;
             $data["first_officer"] = $uid;
             $data["loan_officer_email"] = $user->getEmail();
@@ -248,7 +248,7 @@ function application_assign_loan_officer(array &$form, FormStateInterface &$form
             $elements["loan_officer_email"]["#default_value"] = $user->getEmail();
         }
         else {
-            \Drupal::logger('Assign Loan')->notice("Can not found Loan Officer: " . $uid);
+            \Drupal::logger('Assign Loan')->notice($data['loan_serial'] . " Can not found Loan Officer: " . $uid);
             $admin = \Drupal\user\Entity\User::load(86);
             $data["loan_officer"] = 86;
             $data["first_officer"] = 86;
