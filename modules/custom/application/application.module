@@ -211,7 +211,7 @@ function application_assign_loan_officer(array &$form, FormStateInterface &$form
     }
     else {
         // If loan officer is existed
-        if (empty($elements["loan_officer"]["#default_value"])) {
+        if (!empty($elements["loan_officer"]["#default_value"])) {
             return;
         }
 
