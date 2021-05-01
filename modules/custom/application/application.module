@@ -153,7 +153,7 @@ function application_assign_loan_officer(array &$form, FormStateInterface &$form
         if (!empty($elements["loan_officer"]["#default_value"])) {
             return;
         }
-        $priority_code = $elements["referer_name"]["#default_value"];
+        $priority_code = intval($elements["referer_name"]["#default_value"]);
 
         $uids = \Drupal::entityQuery('user')
                  ->condition('field_priority_code', $priority_code)
