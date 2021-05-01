@@ -314,9 +314,9 @@ function application_new_loan_officer(array &$form, FormStateInterface &$form_st
     }
     else {
         
-        $officer_id_list = [1301, 9803, 1283, 85, 90, 1012, 88, 89, 73, 9804, 
+        $officer_id_list = [1301, 9803, 1283, 85, 1012, 90, 88, 89, 73, 9804, 
                             12444, 75, 68, 6786, 79, 9392, 78, 6105, 8741, 86,
-                            87, 76];
+                            87, 76, 1112];
 
         $office_num = count($officer_id_list);
 
@@ -437,9 +437,9 @@ function application_submit_borrower_form(array &$form, FormStateInterface &$for
     }
     else {
         
-        $officer_id_list = [1301, 9803, 1283, 85, 90, 1012, 88, 89, 73, 9804, 
+        $officer_id_list = [1301, 9803, 1283, 85, 1012, 90, 88, 89, 73, 9804, 
                             12444, 75, 68, 6786, 79, 9392, 78, 6105, 8741, 86,
-                            87, 76];
+                            87, 76, 1112];
 
         $office_num = count($officer_id_list);
 
