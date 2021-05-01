@@ -166,7 +166,7 @@ function application_assign_loan_officer(array &$form, FormStateInterface &$form
 
         if ($uid > 0) {
             $user = \Drupal\user\Entity\User::load($uid);
-            if (!empty($user) && !$user->isBlocked() && ) {
+            if (!empty($user) && !$user->isBlocked() && ( in_array('lender', $user->getRoles()) || in_array('administrator', $user->getRoles()) )) {
                 \Drupal::logger('Assign Loan')->notice("Assign Loan Officer: " . $uid . " " .$user->getDisplayName() . " By Priority Code: " . $priority_code);
                 $data["loan_officer"] = $uid;
                 $data["first_officer"] = $uid;
@@ -211,7 +211,7 @@ function application_assign_loan_officer(array &$form, FormStateInterface &$form
     }
     else {
         // If loan officer is existed
-        if (!empty($elements["loan_officer"]["#default_value"]) || !empty($data["loan_officer"])) {
+        if (!empty($elements["loan_officer"]["#default_value"]) || !empty($data["loan_officer"]) ) {
             return;
         }
 
