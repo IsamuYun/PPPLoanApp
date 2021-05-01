@@ -21,25 +21,14 @@ function application_form_webform_submission_apply_for_ppp_loan_notes_form_alter
     if ($entity->isLocked()) {
         return;
     }
-    /*
-    else {
-        $elements = WebformFormHelper::flattenElements($form);
-    }
-    */
 }
 
 function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
-    
     $entity = $form_state->getFormObject()->getEntity();
     if ($entity->isLocked()) {
         return $form["elements"]["loan_officer_page"];
     }
-    /*
-    else {
-        $entity->setLocked(true);
-    }
-    */
-
+    
     $elements = WebformFormHelper::flattenElements($form);
     $application_controller = new ApplicationController($elements);
     $application_controller->login();
@@ -135,93 +124,8 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
             ],
         ]
     ];
-    /*
-    if (!empty($elements["referer_name"]["#default_value"])) {
-        $priority_code = $elements["referer_name"]["#default_value"];
-
-        $uids = \Drupal::entityQuery('user')
-                 ->condition('field_priority_code', $priority_code)
-                 ->execute();
-        $uid = 0;
-        foreach ($uids as $user_id) {
-            $uid = intval($user_id);
-        }
-
-        if ($uid > 0) {
-            $user = \Drupal\user\Entity\User::load($uid);
-            if (!empty($user) && !$user->isBlocked()) {
-                
-            }
-            else {
-
-            }
-        }   
-
-    }
-    */
     
-    
-
-    if (empty($elements["loan_officer"]["#default_value"]) && empty($elements["referer_name"]["#default_value"])) {
-        $entity = $form_state->getFormObject()->getEntity();
-        $data = $entity->getData();
-        
-        $elements = WebformFormHelper::flattenElements($form);
-    
-        //$serial_number = intval(substr($data["alc_loan_serial"], 1));
-        $officer_id_list = [1301, 9803, 1283, 85, 90, 1012, 88, 89, 73, 9804, 
-                            12444, 75, 68, 6786, 79, 9392, 78, 6105, 8741, 86,
-                            87, 76];
-
-        $office_num = count($officer_id_list);
-
-        $assign_order = intval(\Drupal::state()->get('assign_order'));
-        if ($assign_order < 0 || $assign_order >= $office_num) {
-            $assign_order = 0;
-        }
-        
-        //$offset = $serial_number % $office_num;
-        
-        $uid = $officer_id_list[$assign_order];
-        $assign_order++;
-        if ($assign_order >= $office_num) {
-            $assign_order = 0;
-        }
-        \Drupal::state()->set('assign_order', $assign_order);
-        $user = \Drupal\user\Entity\User::load($uid);
-
-        if (!empty($user) && !$user->isBlocked()) {
-            \Drupal::logger('Assign Loan')->notice("Assign Officer: " . $uid . " " .$user->getDisplayName());
-            $data["loan_officer"] = $uid;
-            $data["first_officer"] = $uid;
-            $data["loan_officer_email"] = $user->getEmail();
-
-            $elements["loan_officer"]["#value"] = $uid;
-            $elements["loan_officer"]["#default_value"] = $uid;
-            $elements["first_officer"]["#value"] = $uid;
-            $elements["first_officer"]["#default_value"] = $uid;
-            $elements["loan_officer_email"]["#value"] = $user->getEmail();
-            $elements["loan_officer_email"]["#default_value"] = $user->getEmail();
-        }
-        else {
-            \Drupal::logger('Assign Loan')->notice("Can not found lender officer: " . $uid);
-            $admin = \Drupal\user\Entity\User::load(86);
-            $data["loan_officer"] = 86;
-            $data["first_officer"] = 86;
-            $data["loan_officer_email"] = $admin->getEmail();
-
-            $elements["loan_officer"]["#value"] = 86;
-            $elements["loan_officer"]["#default_value"] = 86;
-            $elements["first_officer"]["#value"] = 86;
-            $elements["first_officer"]["#default_value"] = 86;
-            $elements["loan_officer_email"]["#value"] = $admin->getEmail();
-            $elements["loan_officer_email"]["#default_value"] = $admin->getEmail();
-        }
-
-        $entity->setData($data);
-        $entity->save();
-    }
-
+    application_assign_loan_officer($form, $form_state);
     
     if (empty($elements["adjusted_loan_amount"]["#default_value"])) {
         $elements["adjusted_loan_amount"]["#value"] = $application_controller->getLoanAmount();
@@ -241,6 +145,129 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
     return $form["elements"]["loan_officer_page"];
 }
 
+function application_assign_loan_officer(array &$form, FormStateInterface &$form_state) {
+    $elements = WebformFormHelper::flattenElements($form);
+    $entity = $form_state->getFormObject()->getEntity();
+    $data = $entity->getData();
+    if (!empty($elements["referer_name"]["#default_value"])) {
+        if (!empty($elements["loan_officer"]["#default_value"])) {
+            return;
+        }
+        $priority_code = $elements["referer_name"]["#default_value"];
+
+        $uids = \Drupal::entityQuery('user')
+                 ->condition('field_priority_code', $priority_code)
+                 ->range(0, 1)
+                 ->execute();
+        $uid = 0;
+        foreach ($uids as $user_id) {
+            $uid = intval($user_id);
+        }
+
+        if ($uid > 0) {
+            $user = \Drupal\user\Entity\User::load($uid);
+            if (!empty($user) && !$user->isBlocked()) {
+                \Drupal::logger('Assign Loan')->notice("Assign Loan Officer: " . $uid . " " .$user->getDisplayName() . " By Priority Code: " . $priority_code);
+                $data["loan_officer"] = $uid;
+                $data["first_officer"] = $uid;
+                $data["loan_officer_email"] = $user->getEmail();
+
+                $elements["loan_officer"]["#value"] = $uid;
+                $elements["loan_officer"]["#default_value"] = $uid;
+                $elements["first_officer"]["#value"] = $uid;
+                $elements["first_officer"]["#default_value"] = $uid;
+                $elements["loan_officer_email"]["#value"] = $user->getEmail();
+                $elements["loan_officer_email"]["#default_value"] = $user->getEmail();
+            }
+            else {
+                \Drupal::logger('Assign Loan')->notice("Can not found Loan Officer: " . $uid);
+                $admin = \Drupal\user\Entity\User::load(1);
+                $data["loan_officer"] = 1;
+                $data["first_officer"] = 1;
+                $data["loan_officer_email"] = $admin->getEmail();
+
+                $elements["loan_officer"]["#value"] = 1;
+                $elements["loan_officer"]["#default_value"] = 1;
+                $elements["first_officer"]["#value"] = 1;
+                $elements["first_officer"]["#default_value"] = 1;
+                $elements["loan_officer_email"]["#value"] = $admin->getEmail();
+                $elements["loan_officer_email"]["#default_value"] = $admin->getEmail();
+            }
+        }
+        else {
+            \Drupal::logger('Assign Loan')->notice("Can not found Loan Officer by Priority Code: " . $priority_code);
+            $admin = \Drupal\user\Entity\User::load(1);
+            $data["loan_officer"] = 1;
+            $data["first_officer"] = 1;
+            $data["loan_officer_email"] = $admin->getEmail();
+
+            $elements["loan_officer"]["#value"] = 1;
+            $elements["loan_officer"]["#default_value"] = 1;
+            $elements["first_officer"]["#value"] = 1;
+            $elements["first_officer"]["#default_value"] = 1;
+            $elements["loan_officer_email"]["#value"] = $admin->getEmail();
+            $elements["loan_officer_email"]["#default_value"] = $admin->getEmail();
+        }
+    }
+    else {
+        // If loan officer is existed
+        if (empty($elements["loan_officer"]["#default_value"])) {
+            return;
+        }
+
+        $officer_id_list = [1301, 9803, 1283, 85, 90, 1012, 88, 89, 73, 9804, 
+                            12444, 75, 68, 6786, 79, 9392, 78, 6105, 8741, 86,
+                            87, 76];
+
+        $office_num = count($officer_id_list);
+
+        $assign_order = intval(\Drupal::state()->get('assign_order'));
+        if ($assign_order < 0 || $assign_order >= $office_num) {
+            $assign_order = 0;
+        }
+        
+        $uid = $officer_id_list[$assign_order];
+        $assign_order++;
+        if ($assign_order >= $office_num) {
+            $assign_order = 0;
+        }
+        \Drupal::state()->set('assign_order', $assign_order);
+        $user = \Drupal\user\Entity\User::load($uid);
+
+        if (!empty($user) && !$user->isBlocked()) {
+            \Drupal::logger('Assign Loan')->notice("Assign Loan Officer: " . $uid . " " .$user->getDisplayName());
+            $data["loan_officer"] = $uid;
+            $data["first_officer"] = $uid;
+            $data["loan_officer_email"] = $user->getEmail();
+
+            $elements["loan_officer"]["#value"] = $uid;
+            $elements["loan_officer"]["#default_value"] = $uid;
+            $elements["first_officer"]["#value"] = $uid;
+            $elements["first_officer"]["#default_value"] = $uid;
+            $elements["loan_officer_email"]["#value"] = $user->getEmail();
+            $elements["loan_officer_email"]["#default_value"] = $user->getEmail();
+        }
+        else {
+            \Drupal::logger('Assign Loan')->notice("Can not found Loan Officer: " . $uid);
+            $admin = \Drupal\user\Entity\User::load(86);
+            $data["loan_officer"] = 86;
+            $data["first_officer"] = 86;
+            $data["loan_officer_email"] = $admin->getEmail();
+
+            $elements["loan_officer"]["#value"] = 86;
+            $elements["loan_officer"]["#default_value"] = 86;
+            $elements["first_officer"]["#value"] = 86;
+            $elements["first_officer"]["#default_value"] = 86;
+            $elements["loan_officer_email"]["#value"] = $admin->getEmail();
+            $elements["loan_officer_email"]["#default_value"] = $admin->getEmail();
+        }
+
+        
+    }
+    $entity->setData($data);
+    $entity->save();
+}
+
 function application_form_webform_submission_apply_for_flp_loan_add_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
     $elements = WebformFormHelper::flattenElements($form);
     // calculate forgive amount
@@ -258,12 +285,6 @@ function application_form_webform_submission_apply_for_flp_loan_add_form_alter(a
 }
 
 function application_form_webform_submission_apply_for_ppp_loan_add_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
-    #$elements = WebformFormHelper::flattenElements($form);
-    #$office_list = $elements["loan_officer"]["#options"];
-    #$office_id_list = array_keys($office_list);
-    #dpm($office_id_list);
-    #dpm($office_id_list[0]);
-    #$elements["loan_status"]["#default_value"] = "Received";
     $form['actions']['submit']['#submit'][]  = 'application_submit_borrower_form';
 }
 
@@ -288,47 +309,9 @@ function application_submit_borrower_form(array &$form, FormStateInterface &$for
     $data = $entity->getData();
     
     $elements = WebformFormHelper::flattenElements($form);
-    if (empty($elements["referer_name"]["#default_value"])) {
-        //$serial_number = intval(substr($data["alc_loan_serial"], 1));
-        $officer_id_list = [1301, 9803, 1283, 85, 90, 1012, 88, 89, 73, 9804, 
-                            12444, 75, 68, 6786, 79, 9392, 78, 6105, 8741, 86,
-                            87, 76];
 
-        $office_num = count($officer_id_list);
-
-        $assign_order = intval(\Drupal::state()->get('assign_order'));
-        if ($assign_order < 0 || $assign_order >= $office_num) {
-            $assign_order = 0;
-            //\Drupal::state()->set('assign_order', $assign_order);
-        }
-        
-
-        //$offset = $serial_number % $office_num;
-        
-        $uid = $officer_id_list[$assign_order];
-        $assign_order++;
-        if ($assign_order >= $office_num) {
-            $assign_order = 0;
-        }
-        \Drupal::state()->set('assign_order', $assign_order);
-        $user = \Drupal\user\Entity\User::load($uid);
-
-        if (!empty($user) && !$user->isBlocked()) {
-            \Drupal::logger('Assign Loan')->notice("Assign Officer: " . $uid . " " .$user->getDisplayName());
-            $data["loan_officer"] = $uid;
-            $data["first_officer"] = $uid;
-            $data["loan_officer_email"] = $user->getEmail();
-        }
-        else {
-            \Drupal::logger('Assign Loan')->notice("Can not found lender officer: " . $uid);
-            $admin = \Drupal\user\Entity\User::load(86);
-            $data["loan_officer"] = 86;
-            $data["first_officer"] = 86;
-            $data["loan_officer_email"] = $admin->getEmail();
-        }
-    }
+    application_assign_loan_officer($form, $form_state);
     
-
     if ($elements["round"]["#default_value"] == "Yes") {
         $data["draw_status"] = "Second Draw";
         $elements["draw_status"]["#value"] = "Second Darw";
@@ -350,8 +333,8 @@ function application_save_status(array &$form, FormStateInterface &$form_state) 
     $data = $entity->getData();
     $elements = WebformFormHelper::flattenElements($form);
     
-    $uid = $elements["loan_officer"]["#default_value"];
-    if (!empty($uid) && !empty($elements["loan_officer_email"])) {
+    if (!empty($elements["loan_officer"]["#value"]) && !empty($elements["loan_officer_email"])) {
+        $uid = $elements["loan_officer"]["#value"];
         $user = \Drupal\user\Entity\User::load($uid);
         if (!empty($user)) {
             $data["loan_officer_email"] = $user->getEmail();
