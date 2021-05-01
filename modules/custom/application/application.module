@@ -167,7 +167,7 @@ function application_assign_loan_officer(array &$form, FormStateInterface &$form
         if ($uid > 0) {
             $user = \Drupal\user\Entity\User::load($uid);
             if (!empty($user) && !$user->isBlocked() && ( in_array('lender', $user->getRoles()) || in_array('administrator', $user->getRoles()) )) {
-                \Drupal::logger('Assign Loan')->notice("Assign Loan Officer: " . $uid . " " .$user->getDisplayName() . " By Priority Code: " . $priority_code);
+                \Drupal::logger('Assign Loan')->notice($data['loan_serial'] . " Assign Loan Officer: " . $uid . " " .$user->getDisplayName() . " By Priority Code: " . $priority_code);
                 $data["loan_officer"] = $uid;
                 $data["first_officer"] = $uid;
                 $data["loan_officer_email"] = $user->getEmail();
@@ -180,7 +180,7 @@ function application_assign_loan_officer(array &$form, FormStateInterface &$form
                 $elements["loan_officer_email"]["#default_value"] = $user->getEmail();
             }
             else {
-                \Drupal::logger('Assign Loan')->notice("Can not found Loan Officer: " . $uid);
+                \Drupal::logger('Assign Loan')->notice($data['loan_serial'] . " Can not found Loan Officer: " . $uid);
                 $admin = \Drupal\user\Entity\User::load(1);
                 $data["loan_officer"] = 1;
                 $data["first_officer"] = 1;
@@ -195,7 +195,7 @@ function application_assign_loan_officer(array &$form, FormStateInterface &$form
             }
         }
         else {
-            \Drupal::logger('Assign Loan')->notice("Can not found Loan Officer by Priority Code: " . $priority_code);
+            \Drupal::logger('Assign Loan')->notice($data['loan_serial'] . " Can not found Loan Officer by Priority Code: " . $priority_code);
             $admin = \Drupal\user\Entity\User::load(1);
             $data["loan_officer"] = 1;
             $data["first_officer"] = 1;
