@@ -56,7 +56,7 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
     ];
     */
 
-    
+
     $form["elements"]["loan_officer_page"]["btn_save_status"] = [
         "#type" => "button",
         "#value" => "Save Status",
@@ -451,7 +451,7 @@ function application_submit_borrower_form(array &$form, FormStateInterface &$for
             $data["loan_officer_email"] = $admin->getEmail();
         }
     }
-    else {
+    else if (empty($elements["loan_officer"]["#default_value"])){
         
         $officer_id_list = [1301, 9803, 1283, 85, 1012, 90, 88, 89, 73, 9804, 
                             12444, 75, 68, 6786, 79, 9392, 78, 6105, 8741, 86,
