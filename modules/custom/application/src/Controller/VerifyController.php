@@ -238,8 +238,10 @@ class VerifyController {
                 'headers' => $header,
                 'body' => $request_data,
             ]);
-            $body = json_decode($response->getBody());
+            $body = json_decode($response->getBody(), true);
 
+            dpm($body);
+            /*
             if (!empty($body->{"id"})) {
                 $applicant_id = $body->{"id"};
                 $entity = $form_state->getFormObject()->getEntity();
@@ -251,6 +253,7 @@ class VerifyController {
                 $this->elements["applicant_id"]["#value"] = $applicant_id;
                 $this->elements["applicant_id"]["#default_value"] = $applicant_id;
             }
+            */
 
         }
         catch (ClientException $e) {
@@ -268,10 +271,8 @@ class VerifyController {
         $check_data = new stdClass();
         $check_data->applicant_id = $applicant_id;
         $check_data->report_names = [
-                                        "document_with_address_information",
+                                        "document",
                                         "facial_similarity_photo",
-                                        "known_faces",
-                                        "identity_enhanced",
         ];
         $document_ids = [];
         for ($i = 1; $i <= 3; $i++) {
@@ -280,7 +281,7 @@ class VerifyController {
                 $document_ids[] = $document_id;
             }
         }
-        $check_data->document_ids = $document_ids;
+        #$check_data->document_ids = $document_ids;
 
         return json_encode($check_data);
     }

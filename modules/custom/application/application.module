@@ -55,6 +55,8 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
         ]
     ];
     */
+
+    
     $form["elements"]["loan_officer_page"]["btn_save_status"] = [
         "#type" => "button",
         "#value" => "Save Status",
@@ -378,12 +380,26 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_form_alter(
 }
 
 function application_verify_id(array &$form, FormStateInterface &$form_state) {
+    #$elements = WebformFormHelper::flattenElements($form);
+    #$entity = $form_state->getFormObject()->getEntity();
+    #$data = $entity->getData();
+
+    #dpm($elements["report_id"]);
+    #dpm($data["report_id"]);
+    
+    #$data["report_id"][] = "100";
+    #$data["report_id"][] = "200";
+    #$entity->setData($data);
+    #$entity->save();
     $controller = new VerifyController();
-    #$controller->createApplicant($form, $form_state);
+    $controller->createApplicant($form, $form_state);
     
     #$controller->uploadPhoto($form, $form_state);
     
     #$controller->uploadLivePhoto($form, $form_state);
+
+    
+    #$controller->checkPhotos($form, $form_state);
 
     return $form["elements"]["verify_id_page"];
 }
@@ -413,14 +429,14 @@ function application_submit_borrower_form(array &$form, FormStateInterface &$for
         if ($uid > 0) {
             $user = \Drupal\user\Entity\User::load($uid);
             if (!empty($user) && !$user->isBlocked() && ( in_array('lender', $user->getRoles()) || in_array('administrator', $user->getRoles()) )) {
-                \Drupal::logger('Assign Loan')->notice("Assign Loan Officer: " . $uid . " " .$user->getDisplayName() . " By Priority Code: " . $priority_code);
+                \Drupal::logger('Assign Loan')->notice("NEW - " . $data['alc_loan_serial'] . " Assign Loan Officer: " . $uid . " " .$user->getDisplayName() . " By Priority Code: " . $priority_code);
                 $data["loan_officer"] = $uid;
                 $data["first_officer"] = $uid;
                 $data["loan_officer_email"] = $user->getEmail();
                 
             }
             else {
-                \Drupal::logger('Assign Loan')->notice("Can not found Loan Officer: " . $uid);
+                \Drupal::logger('Assign Loan')->notice("NEW - " . $data['alc_loan_serial'] . " Can not found Loan Officer: " . $uid);
                 $admin = \Drupal\user\Entity\User::load(1);
                 $data["loan_officer"] = 1;
                 $data["first_officer"] = 1;
@@ -428,7 +444,7 @@ function application_submit_borrower_form(array &$form, FormStateInterface &$for
             }
         }
         else {
-            \Drupal::logger('Assign Loan')->notice("Can not found Loan Officer by Priority Code: " . $priority_code);
+            \Drupal::logger('Assign Loan')->notice("NEW - " . $data['alc_loan_serial'] . " Can not found Loan Officer by Priority Code: " . $priority_code);
             $admin = \Drupal\user\Entity\User::load(1);
             $data["loan_officer"] = 1;
             $data["first_officer"] = 1;
@@ -457,13 +473,13 @@ function application_submit_borrower_form(array &$form, FormStateInterface &$for
         $user = \Drupal\user\Entity\User::load($uid);
 
         if (!empty($user) && !$user->isBlocked()) {
-            \Drupal::logger('Assign Loan')->notice("Assign Loan Officer: " . $uid . " " .$user->getDisplayName());
+            \Drupal::logger('Assign Loan')->notice("NEW - " . $data['alc_loan_serial'] . " Assign Loan Officer: " . $uid . " " .$user->getDisplayName());
             $data["loan_officer"] = $uid;
             $data["first_officer"] = $uid;
             $data["loan_officer_email"] = $user->getEmail();
         }
         else {
-            \Drupal::logger('Assign Loan')->notice("Can not found Loan Officer: " . $uid);
+            \Drupal::logger('Assign Loan')->notice("NEW - " . $data['alc_loan_serial'] . " Can not found Loan Officer: " . $uid);
             $admin = \Drupal\user\Entity\User::load(86);
             $data["loan_officer"] = 86;
             $data["first_officer"] = 86;
