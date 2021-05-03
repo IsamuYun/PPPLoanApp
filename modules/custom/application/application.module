@@ -37,7 +37,6 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
     
     $form["elements"]["loan_officer_page"]["#prefix"] = '<div id="loan-officer-ajax-wrapper">';
     $form["elements"]["loan_officer_page"]["#suffix"] = "</div>";
-    
     /*
     $form["elements"]["verify_id_page"]["#prefix"] = '<div id="verify-id-ajax-wrapper">';
     $form["elements"]["verify_id_page"]["#suffix"] = '</div>';
@@ -56,7 +55,6 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
         ]
     ];
     */
-
     $form["elements"]["loan_officer_page"]["btn_save_status"] = [
         "#type" => "button",
         "#value" => "Save Status",
@@ -299,11 +297,6 @@ function application_verify_id(array &$form, FormStateInterface &$form_state) {
     #$entity = $form_state->getFormObject()->getEntity();
     #$data = $entity->getData();
 
-    dpm($elements["report_id"]);
-    #dpm($data["report_id"]);
-    
-    #$data["report_id"][] = "100";
-    #$data["report_id"][] = "200";
     #$entity->setData($data);
     #$entity->save();
     $controller = new VerifyController();
@@ -405,12 +398,12 @@ function application_submit_borrower_form(array &$form, FormStateInterface &$for
     
     if ($elements["round"]["#default_value"] == "Yes") {
         $data["draw_status"] = "Second Draw";
-        $elements["draw_status"]["#value"] = "Second Darw";
+        $elements["draw_status"]["#value"] = "Second Draw";
         $elements["draw_status"]["#default_value"] = "Second Draw";
     }
     else {
         $data["draw_status"] = "First Draw";
-        $elements["draw_status"]["#value"] = "First Darw";
+        $elements["draw_status"]["#value"] = "First Draw";
         $elements["draw_status"]["#default_value"] = "First Draw";
     }
     $entity->setData($data);
