@@ -34,8 +34,16 @@ class VerifyController {
         $this->elements = [];
     }
 
-    public function createApplicant(array &$form, FormStateInterface $form_state) {
+    public function setElements(array &$form) {
         $this->elements = WebformFormHelper::flattenElements($form);
+    }
+
+    public function createApplicant(FormStateInterface $form_state) {
+        
+        // If applicant has created
+        if (!empty($this->elements["onfido_applicant_id"]["#default_value"])) {
+            return;
+        }
         try {
             $client = \Drupal::httpClient();
             $headers = self::VERIFY_HEADER;
@@ -65,8 +73,8 @@ class VerifyController {
         catch (ClientException $e) {
             if ($e->hasResponse()) {
                 $response = $e->getResponse()->getBody()->getContents();
-                $form["elements"]["verify_id_page"]["verify_result"]["#value"] = $response;
-                $form["elements"]["verify_id_page"]["verify_result"]["#default_value"] = $response;
+                $this->elements["verify_result"]["#value"] = $response;
+                $this->elements["verify_result"]["#default_value"] = $response;
             }
         }
     }
