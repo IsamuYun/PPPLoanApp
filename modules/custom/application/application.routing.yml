@@ -21,3 +21,11 @@ application.dslistener:
         _title: 'DocuSign Webhook Listener'
     requirements:
         _access: 'TRUE'
+
+application.onfidolistener:
+    path: '/onfidolistener'    # {sid}
+    defaults:
+        _controller: '\Drupal\application\Controller\OnfidoListener::capture'
+        _title: 'Onfido Webhook Listener'
+    requirements:
+        _access: 'TRUE'

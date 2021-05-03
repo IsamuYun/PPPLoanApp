@@ -54,11 +54,11 @@ class VerifyController {
                 $entity = $form_state->getFormObject()->getEntity();
                 $data = $entity->getData();
 
-                $data["applicant_id"] = $applicant_id;
+                $data["onfido_applicant_id"] = $applicant_id;
                 $entity->setData($data);
                 $entity->save();
-                $this->elements["applicant_id"]["#value"] = $applicant_id;
-                $this->elements["applicant_id"]["#default_value"] = $applicant_id;
+                $this->elements["onfido_applicant_id"]["#value"] = $applicant_id;
+                $this->elements["onfido_applicant_id"]["#default_value"] = $applicant_id;
             }
 
         }
@@ -99,7 +99,7 @@ class VerifyController {
     public function uploadPhoto(array &$form, FormStateInterface $form_state) {
         $this->elements = WebformFormHelper::flattenElements($form);
 
-        $applicant_id = $this->elements["applicant_id"]["#default_value"];
+        $applicant_id = $this->elements["onfido_applicant_id"]["#default_value"];
         if (empty($applicant_id)) {
             return;
         }
@@ -116,6 +116,9 @@ class VerifyController {
             $data = $entity->getData();
             foreach ($file_list as $file) {
                 $file_id = $file["government_issued_id_file"];
+                if (empty($file_id)) {
+                    break;
+                }
                 $file_handle = \Drupal\file\Entity\File::load($file_id);
                 $file_uri = $file_handle->getFileUri();
                 $file_name = $file_handle->getFilename();
@@ -126,7 +129,7 @@ class VerifyController {
                     'multipart' => [
                         [
                             "name" => "type",
-                            "contents" => $document_type,
+                            "contents" => 'unknown',
                         ],
                         [
                             "name" => "applicant_id",
@@ -141,10 +144,10 @@ class VerifyController {
                 $body = json_decode($response->getBody());
                 if (!empty($body->{"id"})) {
                     $document_id = $body->{"id"};
-                    $data["document_id_" . $index] = $document_id;
+                    $data["onfido_document_id_" . $index] = $document_id;
                     
-                    $this->elements["document_id_" . $index]["#value"] = $document_id;
-                    $this->elements["document_id_" . $index]["#default_value"] = $document_id;
+                    $this->elements["onfido_document_id_" . $index]["#value"] = $document_id;
+                    $this->elements["onfido_document_id_" . $index]["#default_value"] = $document_id;
                 }
                 
                 $index++;
@@ -164,7 +167,7 @@ class VerifyController {
     public function uploadLivePhoto(array &$form, FormStateInterface $form_state) {
         $this->elements = WebformFormHelper::flattenElements($form);
 
-        $applicant_id = $this->elements["applicant_id"]["#default_value"];
+        $applicant_id = $this->elements["onfido_applicant_id"]["#default_value"];
         if (empty($applicant_id)) {
             return;
         }
@@ -206,10 +209,10 @@ class VerifyController {
             $body = json_decode($response->getBody());
             if (!empty($body->{"id"})) {
                 $document_id = $body->{"id"};
-                $data["document_id_3"] = $document_id;
+                $data["onfido_livephoto_id"] = $document_id;
                 
-                $this->elements["document_id_3"]["#value"] = $document_id;
-                $this->elements["document_id_3"]["#default_value"] = $document_id;
+                $this->elements["onfido_livephoto_id"]["#value"] = $document_id;
+                $this->elements["onfido_livephoto_id"]["#default_value"] = $document_id;
             }
             
             $entity->setData($data);
@@ -238,22 +241,26 @@ class VerifyController {
                 'headers' => $header,
                 'body' => $request_data,
             ]);
-            $body = json_decode($response->getBody(), true);
-
-            dpm($body);
-            /*
+            $body = json_decode($response->getBody());
+            
+            
             if (!empty($body->{"id"})) {
                 $applicant_id = $body->{"id"};
+                $report_ids = $body->{"report_ids"};
                 $entity = $form_state->getFormObject()->getEntity();
                 $data = $entity->getData();
 
-                $data["applicant_id"] = $applicant_id;
+                $data["onfido_check_id"] = $applicant_id;
+                foreach ($report_ids as $report_id) {
+                    $data["report_id"][] = $report_id;
+                    $this->elements["report_id"]["#value"][] = $report_id;
+                    $this->elements["report_id"]["#default_value"][] = $report_id;
+                }
                 $entity->setData($data);
                 $entity->save();
-                $this->elements["applicant_id"]["#value"] = $applicant_id;
-                $this->elements["applicant_id"]["#default_value"] = $applicant_id;
+                $this->elements["onfido_check_id"]["#value"] = $applicant_id;
+                $this->elements["onfido_check_id"]["#default_value"] = $applicant_id;
             }
-            */
 
         }
         catch (ClientException $e) {
@@ -266,7 +273,7 @@ class VerifyController {
     }
 
     public function getCheckData() {
-        $applicant_id = $this->elements["applicant_id"]["#default_value"];
+        $applicant_id = $this->elements["onfido_applicant_id"]["#default_value"];
         
         $check_data = new stdClass();
         $check_data->applicant_id = $applicant_id;
@@ -276,12 +283,16 @@ class VerifyController {
         ];
         $document_ids = [];
         for ($i = 1; $i <= 3; $i++) {
-            $document_id = $this->elements["document_id_" . $i]["#default_value"];
+            $document_id = $this->elements["onfido_document_id_" . $i]["#default_value"];
             if (!empty($document_id)) {
                 $document_ids[] = $document_id;
             }
         }
         #$check_data->document_ids = $document_ids;
+
+        $webhook_ids = [];
+        $webhook_ids[] = "19dc8881-9754-4db5-b681-4ef70bf74fc0";
+        $check_data->webhook_ids = $webhook_ids;
 
         return json_encode($check_data);
     }

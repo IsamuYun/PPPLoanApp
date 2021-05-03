@@ -37,6 +37,7 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
     
     $form["elements"]["loan_officer_page"]["#prefix"] = '<div id="loan-officer-ajax-wrapper">';
     $form["elements"]["loan_officer_page"]["#suffix"] = "</div>";
+    
     /*
     $form["elements"]["verify_id_page"]["#prefix"] = '<div id="verify-id-ajax-wrapper">';
     $form["elements"]["verify_id_page"]["#suffix"] = '</div>';
@@ -55,7 +56,6 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
         ]
     ];
     */
-
 
     $form["elements"]["loan_officer_page"]["btn_save_status"] = [
         "#type" => "button",
@@ -217,9 +217,9 @@ function application_assign_loan_officer(array &$form, FormStateInterface &$form
             return;
         }
 
-        $officer_id_list = [1301, 9803, 1283, 85, 90, 1012, 88, 89, 73, 9804, 
-                            12444, 75, 68, 6786, 79, 9392, 78, 6105, 8741, 86,
-                            87, 76];
+        $officer_id_list = [1301, 9803, 1283, 85, 90, 88, 89, 9804, 12444, 75, 
+                            68, 6786, 79, 9392, 78, 6105, 8741, 86, 87, 76, 
+                            1112];
 
         $office_num = count($officer_id_list);
 
@@ -270,91 +270,6 @@ function application_assign_loan_officer(array &$form, FormStateInterface &$form
     $entity->save();
 }
 
-function application_new_loan_officer(array &$form, FormStateInterface &$form_state) {
-    $elements = WebformFormHelper::flattenElements($form);
-    $entity = $form_state->getFormObject()->getEntity();
-    $data = $entity->getData();
-    if (!empty($elements["referer_name"]["#default_value"])) {
-        if (!empty($elements["loan_officer"]["#default_value"])) {
-            return;
-        }
-        $priority_code = intval($elements["referer_name"]["#default_value"]);
-
-        $uids = \Drupal::entityQuery('user')
-                 ->condition('field_priority_code', $priority_code)
-                 ->range(0, 1)
-                 ->execute();
-        $uid = 0;
-        foreach ($uids as $user_id) {
-            $uid = intval($user_id);
-        }
-
-        if ($uid > 0) {
-            $user = \Drupal\user\Entity\User::load($uid);
-            if (!empty($user) && !$user->isBlocked() && ( in_array('lender', $user->getRoles()) || in_array('administrator', $user->getRoles()) )) {
-                \Drupal::logger('Assign Loan')->notice("Assign Loan Officer: " . $uid . " " .$user->getDisplayName() . " By Priority Code: " . $priority_code);
-                $data["loan_officer"] = $uid;
-                $data["first_officer"] = $uid;
-                $data["loan_officer_email"] = $user->getEmail();
-                
-            }
-            else {
-                \Drupal::logger('Assign Loan')->notice("Can not found Loan Officer: " . $uid);
-                $admin = \Drupal\user\Entity\User::load(1);
-                $data["loan_officer"] = 1;
-                $data["first_officer"] = 1;
-                $data["loan_officer_email"] = $admin->getEmail();
-            }
-        }
-        else {
-            \Drupal::logger('Assign Loan')->notice("Can not found Loan Officer by Priority Code: " . $priority_code);
-            $admin = \Drupal\user\Entity\User::load(1);
-            $data["loan_officer"] = 1;
-            $data["first_officer"] = 1;
-            $data["loan_officer_email"] = $admin->getEmail();
-        }
-    }
-    else {
-        
-        $officer_id_list = [1301, 9803, 1283, 85, 1012, 90, 88, 89, 73, 9804, 
-                            12444, 75, 68, 6786, 79, 9392, 78, 6105, 8741, 86,
-                            87, 76, 1112];
-
-        $office_num = count($officer_id_list);
-
-        $assign_order = intval(\Drupal::state()->get('assign_order'));
-        if ($assign_order < 0 || $assign_order >= $office_num) {
-            $assign_order = 0;
-        }
-        
-        $uid = $officer_id_list[$assign_order];
-        $assign_order++;
-        if ($assign_order >= $office_num) {
-            $assign_order = 0;
-        }
-        \Drupal::state()->set('assign_order', $assign_order);
-        $user = \Drupal\user\Entity\User::load($uid);
-
-        if (!empty($user) && !$user->isBlocked()) {
-            \Drupal::logger('Assign Loan')->notice("Assign Loan Officer: " . $uid . " " .$user->getDisplayName());
-            $data["loan_officer"] = $uid;
-            $data["first_officer"] = $uid;
-            $data["loan_officer_email"] = $user->getEmail();
-        }
-        else {
-            \Drupal::logger('Assign Loan')->notice("Can not found Loan Officer: " . $uid);
-            $admin = \Drupal\user\Entity\User::load(86);
-            $data["loan_officer"] = 86;
-            $data["first_officer"] = 86;
-            $data["loan_officer_email"] = $admin->getEmail();
-        }
-
-        
-    }
-    $entity->setData($data);
-    $entity->save();
-}
-
 function application_form_webform_submission_apply_for_flp_loan_add_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
     $elements = WebformFormHelper::flattenElements($form);
     // calculate forgive amount
@@ -380,11 +295,11 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_form_alter(
 }
 
 function application_verify_id(array &$form, FormStateInterface &$form_state) {
-    #$elements = WebformFormHelper::flattenElements($form);
+    $elements = WebformFormHelper::flattenElements($form);
     #$entity = $form_state->getFormObject()->getEntity();
     #$data = $entity->getData();
 
-    #dpm($elements["report_id"]);
+    dpm($elements["report_id"]);
     #dpm($data["report_id"]);
     
     #$data["report_id"][] = "100";
@@ -392,12 +307,11 @@ function application_verify_id(array &$form, FormStateInterface &$form_state) {
     #$entity->setData($data);
     #$entity->save();
     $controller = new VerifyController();
-    $controller->createApplicant($form, $form_state);
+    #$controller->createApplicant($form, $form_state);
     
     #$controller->uploadPhoto($form, $form_state);
     
     #$controller->uploadLivePhoto($form, $form_state);
-
     
     #$controller->checkPhotos($form, $form_state);
 
@@ -453,9 +367,9 @@ function application_submit_borrower_form(array &$form, FormStateInterface &$for
     }
     else if (empty($elements["loan_officer"]["#default_value"])){
         
-        $officer_id_list = [1301, 9803, 1283, 85, 1012, 90, 88, 89, 73, 9804, 
-                            12444, 75, 68, 6786, 79, 9392, 78, 6105, 8741, 86,
-                            87, 76, 1112];
+        $officer_id_list = [1301, 9803, 1283, 85, 90, 88, 89, 9804, 12444, 75,
+                            68, 6786, 79, 9392, 78, 6105, 8741, 86, 87, 76, 
+                            1112];
 
         $office_num = count($officer_id_list);
 
