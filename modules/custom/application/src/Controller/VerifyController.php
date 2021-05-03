@@ -38,12 +38,23 @@ class VerifyController {
         $this->elements = WebformFormHelper::flattenElements($form);
     }
 
-    public function createApplicant(FormStateInterface $form_state) {
-        
-        // If applicant has created
-        if (!empty($this->elements["onfido_applicant_id"]["#default_value"])) {
-            return;
+    public function verifyApplicant(array &$form, FormStateInterface $form_state) {
+        $this->setElements($form);
+
+        // If applicant has not existed
+        if (empty($this->elements["onfido_applicant_id"]["#default_value"])) {
+            $this->createApplicant($form, $form_state);
+
+            $this->uploadPhoto($form, $form_state);
+
+            $this->uploadLivePhoto($form, $form_state);
         }
+        $this->checkPhotos($form, $form_state);
+    }
+
+    public function createApplicant(array &$form, FormStateInterface $form_state) {
+        
+        
         try {
             $client = \Drupal::httpClient();
             $headers = self::VERIFY_HEADER;
@@ -119,7 +130,7 @@ class VerifyController {
         try {
             $file_list = $this->elements["government_issued_id"]["#default_value"];
             $index = 1;
-            $document_type = $this->elements["document_type"]["#default_value"];
+            //$document_type = $this->elements["document_type"]["#default_value"];
             $entity = $form_state->getFormObject()->getEntity();
             $data = $entity->getData();
             foreach ($file_list as $file) {
@@ -129,7 +140,7 @@ class VerifyController {
                 }
                 $file_handle = \Drupal\file\Entity\File::load($file_id);
                 $file_uri = $file_handle->getFileUri();
-                $file_name = $file_handle->getFilename();
+                #$file_name = $file_handle->getFilename();
                 $real_path = \Drupal::service('file_system')->realpath($file_uri);
 
                 $response = $client->request('POST', $url, [
@@ -173,7 +184,7 @@ class VerifyController {
     }
 
     public function uploadLivePhoto(array &$form, FormStateInterface $form_state) {
-        $this->elements = WebformFormHelper::flattenElements($form);
+        #$this->elements = WebformFormHelper::flattenElements($form);
 
         $applicant_id = $this->elements["onfido_applicant_id"]["#default_value"];
         if (empty($applicant_id)) {
@@ -236,7 +247,7 @@ class VerifyController {
     }
 
     public function checkPhotos(array &$form, FormStateInterface $form_state) {
-        $this->elements = WebformFormHelper::flattenElements($form);
+        #$this->elements = WebformFormHelper::flattenElements($form);
         
         try {
             $client = \Drupal::httpClient();
@@ -259,10 +270,14 @@ class VerifyController {
                 $data = $entity->getData();
 
                 $data["onfido_check_id"] = $applicant_id;
+                $report_index = 1;
                 foreach ($report_ids as $report_id) {
-                    $data["report_id"][] = $report_id;
-                    $this->elements["report_id"]["#value"][] = $report_id;
-                    $this->elements["report_id"]["#default_value"][] = $report_id;
+                    if (!empty($this->elements["onfido_report_id_" . $report_index])) {
+                        $data["onfido_report_id_" . $report_index] = $report_id;
+                        $this->elements["onfido_report_id_" . $report_index]["#value"] = $report_id;
+                        $this->elements["onfido_report_id_" . $report_index]["#default_value"] = $report_id;
+                    }
+                    $report_index++;
                 }
                 $entity->setData($data);
                 $entity->save();
@@ -290,13 +305,12 @@ class VerifyController {
                                         "facial_similarity_photo",
         ];
         $document_ids = [];
-        for ($i = 1; $i <= 3; $i++) {
-            $document_id = $this->elements["onfido_document_id_" . $i]["#default_value"];
-            if (!empty($document_id)) {
-                $document_ids[] = $document_id;
+        for ($i = 1; $i <= 2; $i++) {
+            if (!empty($this->elements["onfido_document_id_" . $i]["#default_value"])) {
+                $document_ids[] = $this->elements["onfido_document_id_" . $i]["#default_value"];
             }
         }
-        #$check_data->document_ids = $document_ids;
+        $check_data->document_ids = $document_ids;
 
         $webhook_ids = [];
         $webhook_ids[] = "19dc8881-9754-4db5-b681-4ef70bf74fc0";

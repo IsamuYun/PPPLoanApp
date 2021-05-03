@@ -37,7 +37,7 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
     
     $form["elements"]["loan_officer_page"]["#prefix"] = '<div id="loan-officer-ajax-wrapper">';
     $form["elements"]["loan_officer_page"]["#suffix"] = "</div>";
-    /*
+    
     $form["elements"]["verify_id_page"]["#prefix"] = '<div id="verify-id-ajax-wrapper">';
     $form["elements"]["verify_id_page"]["#suffix"] = '</div>';
 
@@ -54,7 +54,7 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
             ],
         ]
     ];
-    */
+    
     $form["elements"]["loan_officer_page"]["btn_save_status"] = [
         "#type" => "button",
         "#value" => "Save Status",
@@ -300,7 +300,7 @@ function application_verify_id(array &$form, FormStateInterface &$form_state) {
     #$entity->setData($data);
     #$entity->save();
     $controller = new VerifyController();
-    #$controller->createApplicant($form, $form_state);
+    $controller->verifyApplicant($form, $form_state);
     
     #$controller->uploadPhoto($form, $form_state);
     
