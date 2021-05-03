@@ -449,13 +449,13 @@ function application_send_borrower_docusign_form(array &$form, FormStateInterfac
     $elements["loan_status"]["#default_value"] = "Pre-Approved";
     if ($elements["round"]["#default_value"] == "Yes") {
         $data["draw_status"] = "Second Draw";
-        $elements["draw_status"]["#value"] = "Second Darw";
+        $elements["draw_status"]["#value"] = "Second Draw";
         $elements["draw_status"]["#default_value"] = "Second Draw";
         
     }
     else {
         $data["draw_status"] = "First Draw";
-        $elements["draw_status"]["#value"] = "First Darw";
+        $elements["draw_status"]["#value"] = "First Draw";
         $elements["draw_status"]["#default_value"] = "First Draw";
     }
     $entity->setData($data);
