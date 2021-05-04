@@ -142,6 +142,10 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
 
     $sba_controller = new SBALoanController();
     $sba_controller->getLoanStatus($form, $form_state);
+
+    #$verify_controller = new VerifyController();
+    #$verify_controller->retrieveReports($form, $form_state);
+    
     return $form["elements"]["loan_officer_page"];
 }
 
@@ -300,7 +304,7 @@ function application_verify_id(array &$form, FormStateInterface &$form_state) {
     #$entity->setData($data);
     #$entity->save();
     $controller = new VerifyController();
-    #$controller->createApplicant($form, $form_state);
+    $controller->verifyApplicant($form, $form_state);
     
     #$controller->uploadPhoto($form, $form_state);
     
