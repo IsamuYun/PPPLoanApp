@@ -60,19 +60,16 @@ class OnfidoListener extends ControllerBase {
             $response->setContent($message);
             return $response;
         }
-        #\Drupal::logger("OnfidoWebhook")->notice("Payload: " . $payload);
         $event_result = json_decode($payload, true);
 
-        \Drupal::logger("OnfidoWebhook")->notice("Payload: " . print_r($event_result, true));
+        #\Drupal::logger("OnfidoWebhook")->notice("Payload: " . print_r($event_result, true));
         $report_id = "";
         $report_url = "";
-        if (!empty($event_result->{"object"})) {
-            $report_obj = $event_result->{"object"};
-            if (!empty($report_obj->{"id"})) {
-                $report_id = $report_obj->{"id"};
-                $report_url = $report_obj->{"href"};
-            }
+        if (!empty($event_result["payload"]["object"]["id"])) {
+            $report_id = $event_result["payload"]["object"]["id"];
+            $report_url = $event_result["payload"]["object"]["href"];
         }
+        
         \Drupal::logger("OnfidoWebhook")->notice("Report ID: " . $report_id);
         $this->updateReportResult($report_id, $report_url);
 
