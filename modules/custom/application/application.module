@@ -145,6 +145,7 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
 
     $verify_controller = new VerifyController();
     $verify_controller->retrieveReports($form, $form_state);
+    
     return $form["elements"]["loan_officer_page"];
 }
 

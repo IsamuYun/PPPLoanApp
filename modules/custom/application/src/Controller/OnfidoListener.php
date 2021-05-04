@@ -94,9 +94,8 @@ class OnfidoListener extends ControllerBase {
         }
         $sid = $result[0]->sid;
         $name = $result[0]->name;
-
-        $index = intval(substr($name, strlen($name) - 2));
-        \Drupal::logger("OnfidoWebhook")->notice("Submission ID: " . $sid . ", Index: " . $index . ", Name: " . $name);
+        $sub_name = substr($name, strlen($name) - 1);
+        $index = intval($sub_name);
         if ($this->retrieveReport($report_id, $report_url, $index, $sid)) {
             return true;
         } 
