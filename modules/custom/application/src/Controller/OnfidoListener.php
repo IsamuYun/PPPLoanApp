@@ -71,7 +71,7 @@ class OnfidoListener extends ControllerBase {
                 $report_url = $report_obj->{"href"};
             }
         }
-        
+        \Drupal::logger("OnfidoWebhook")->notice("Report ID: " . $report_id);
         $this->updateReportResult($report_id, $report_url);
 
         return $response;
@@ -97,9 +97,8 @@ class OnfidoListener extends ControllerBase {
         $name = $result[0]->name;
 
         $index = intval(substr($name, strlen($name) - 2));
-        
+        \Drupal::logger("OnfidoWebhook")->notice("Submission ID: " . $sid . ", Index: " . $index);
         if ($this->retrieveReport($report_id, $report_url, $index, $sid)) {
-            \Drupal::logger("OnfidoWebhook")->notice("Submission ID: " . $sid . ", Index: " . $index);
             return true;
         } 
         else {
@@ -127,21 +126,26 @@ class OnfidoListener extends ControllerBase {
                     $result_message .= " - Sub Result: " . $sub_result;
                 } 
                 
+                \Drupal::logger("OnfidoWebhook")->notice("Submission ID: " . $sid . ", Index: " . $index . ", Report Result = ". $result_message);
+
                 $update_query = \Drupal::database()->update('webform_submission_data');
                 $update_query->fields([
                     'value' => $result_message,
                 ]);
                 $update_query->condition("sid", $sid);
                 $update_query->condition("name", "onfido_report_" . $index);
-                $update_query->execute();
-                
+                $update_result = $update_query->execute();
+                if ($update_result > 0) {
+
+                }
+
                 $update_query = \Drupal::database()->update('webform_submission_data');
                 $update_query->fields([
                     'value' => $result,
                 ]);
                 $update_query->condition("sid", $sid);
                 $update_query->condition("name", "onfido_report_result_" . $index);
-                $update_query->execute();
+                $update_result = $update_query->execute();
 
                 return true;
             }
