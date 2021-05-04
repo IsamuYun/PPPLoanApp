@@ -319,6 +319,66 @@ class VerifyController {
         return json_encode($check_data);
     }
 
+    public function retrieveReports(array &$form, FormStateInterface $form_state) {
+        $this->elements = WebformFormHelper::flattenElements($form);
+        if (empty($this->elements["onfido_report_id_1"]["#default_value"])
+            && empty($this->elements["onfido_report_id_2"]["#default_value"]))
+        {
+            return;
+        }
+        $report_id_1 = $this->elements["onfido_report_id_1"]["#default_value"];
+        if (!empty($report_id_1) && empty($this->elements["onfido_report_1"]["#default_value"])) {
+            $this->retrieveReport(1, $report_id_1, $form_state);
+        } 
+
+        $report_id_2 = $this->elements["onfido_report_id_2"]["#default_value"];
+        if (!empty($report_id_2) && empty($this->elements["onfido_report_2"]["#default_value"])) {
+            $this->retrieveReport(2, $report_id_2, $form_state);
+        }
+    }
+
+    public function retrieveReport($index, $report_id, FormStateInterface $form_state) {
+        try {
+            $client = \Drupal::httpClient();
+            $header = self::VERIFY_HEADER;
+            $url = self::VERIFY_HOST . "reports/" . $report_id;
+            
+            $response = $client->request('GET', $url, [
+                'headers' => $header,
+            ]);
+            $body = json_decode($response->getBody());
+            
+            if (!empty($body->{"result"})) {
+                $name = $body->{"name"};
+                $result_message = "Report Name: " . $name;
+                $result = $body->{"result"};
+                $sub_result = $body->{"sub_result"};
+                $result_message .= " - Result: " . $result;
+                if (!empty($sub_result)) {
+                    $result_message .= " - Sub Result: " . $sub_result;
+                } 
+                $entity = $form_state->getFormObject()->getEntity();
+                $data = $entity->getData();
+                $data["onfido_report_result_" . $index] = $result;
+                $data["onfido_report_" . $index] = $result_message;
+                $entity->setData($data);
+                $entity->save();
+                $this->elements["onfido_report_result_" . $index]["#value"] = $result;
+                $this->elements["onfido_report_result_" . $index]["#default_value"] = $result;
+                $this->elements["onfido_report_" . $index]["#value"] = $result_message;
+                $this->elements["onfido_report_" . $index]["#default_value"] = $result_message;
+            }
+
+        }
+        catch (ClientException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse()->getBody()->getContents();
+                $this->elements["verify_result"]["#value"] = $response;
+                $this->elements["verify_result"]["#default_value"] = $response;
+            }
+        }
+    }
+
     
 
 }
