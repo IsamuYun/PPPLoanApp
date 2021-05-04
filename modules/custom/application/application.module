@@ -37,7 +37,7 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
     
     $form["elements"]["loan_officer_page"]["#prefix"] = '<div id="loan-officer-ajax-wrapper">';
     $form["elements"]["loan_officer_page"]["#suffix"] = "</div>";
-    
+    /*
     $form["elements"]["verify_id_page"]["#prefix"] = '<div id="verify-id-ajax-wrapper">';
     $form["elements"]["verify_id_page"]["#suffix"] = '</div>';
 
@@ -54,7 +54,7 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
             ],
         ]
     ];
-    
+    */
     $form["elements"]["loan_officer_page"]["btn_save_status"] = [
         "#type" => "button",
         "#value" => "Save Status",
@@ -143,8 +143,8 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
     $sba_controller = new SBALoanController();
     $sba_controller->getLoanStatus($form, $form_state);
 
-    $verify_controller = new VerifyController();
-    $verify_controller->retrieveReports($form, $form_state);
+    #$verify_controller = new VerifyController();
+    #$verify_controller->retrieveReports($form, $form_state);
     
     return $form["elements"]["loan_officer_page"];
 }
