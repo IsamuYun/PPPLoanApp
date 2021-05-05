@@ -90,6 +90,7 @@ class OnfidoListener extends ControllerBase {
 
         $result = $query->execute()->fetchAll();
         if (empty($result)) {
+            \Drupal::logger("OnfidoWebhook")->notice("Can not find submisson. Report ID: " . $report_id);
             return false;
         }
         $sid = $result[0]->sid;
