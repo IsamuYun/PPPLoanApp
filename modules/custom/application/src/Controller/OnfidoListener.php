@@ -16,12 +16,12 @@ class OnfidoListener extends ControllerBase {
     ];
 
     const VERIFY_LIVE_HEADER = [
-        'Authorization' => 'Token token=api_sandbox_us.CA0CqeDo6Rz._VBaEBEtYbYZduvG0JoeY0cQEwjq3ABB',
+        'Authorization' => 'Token token=api_live_us.v_4qNU3OWdW.Cl_3Hso-69X3WhG5I_S_XSQctCXS-2uR',
         'Content-Type' => 'application/json',
     ];
 
-    const VERIFY_HEADER = self::VERIFY_SANDBOX_HEADER;
-    #const VERIFY_HEADER = self::VERIFY_LIVE_HEADER;
+    #const VERIFY_HEADER = self::VERIFY_SANDBOX_HEADER;
+    const VERIFY_HEADER = self::VERIFY_LIVE_HEADER;
 
     /**
      * Create a new controller instance.
