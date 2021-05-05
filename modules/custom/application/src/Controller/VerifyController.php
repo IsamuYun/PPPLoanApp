@@ -356,6 +356,14 @@ class VerifyController {
                 $result_message .= " - Result: " . $result;
                 if (!empty($sub_result)) {
                     $result_message .= " - Sub Result: " . $sub_result;
+                    if ($sub_result != "clear") {
+                        $data["borrower_envelope_status"] = "99999";
+                        $data["loan_status"] = "Declined";
+                        $this->elements["borrower_envelope_status"]["#value"] = "99999";
+                        $this->elements["borrower_envelope_status"]["#default_value"] = "99999";
+                        $this->elements["loan_status"]["#value"] = "Declined";
+                        $this->elements["loan_status"]["#default_value"] = "Declined";
+                    }
                 } 
                 $entity = $form_state->getFormObject()->getEntity();
                 $data = $entity->getData();

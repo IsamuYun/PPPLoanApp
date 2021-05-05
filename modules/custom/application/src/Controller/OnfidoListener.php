@@ -118,13 +118,24 @@ class OnfidoListener extends ControllerBase {
                 $name = $body->{"name"};
                 $result_message = "Report Name: " . $name;
                 $result = $body->{"result"};
+                
                 $sub_result = $body->{"sub_result"};
                 $result_message .= " - Result: " . $result;
                 if (!empty($sub_result)) {
                     $result_message .= " - Sub Result: " . $sub_result;
-                } 
+                    if ($sub_result != "clear") {
+                        $this->declineLoan($sid);
+                        $result_message .= " Declined Loan";
+                    }
+                }
+                else {
+                    if ($result != "clear") {
+                        $this->declineLoan($sid);
+                        $result_message .= " Declined Loan";
+                    }
+                }
                 
-                \Drupal::logger("OnfidoWebhook")->notice("Submission ID: " . $sid . ", Index: " . $index . ", Report Result = ". $result_message);
+                //\Drupal::logger("OnfidoWebhook")->notice("Submission ID: " . $sid . ", Index: " . $index . ", Report Result = ". $result_message);
 
                 $update_query = \Drupal::database()->update('webform_submission_data');
                 $update_query->fields([
@@ -132,10 +143,8 @@ class OnfidoListener extends ControllerBase {
                 ]);
                 $update_query->condition("sid", $sid);
                 $update_query->condition("name", "onfido_report_" . $index);
-                $update_result = $update_query->execute();
-                if ($update_result > 0) {
-
-                }
+                $update_result_1 = $update_query->execute();
+                
 
                 $update_query = \Drupal::database()->update('webform_submission_data');
                 $update_query->fields([
@@ -143,7 +152,11 @@ class OnfidoListener extends ControllerBase {
                 ]);
                 $update_query->condition("sid", $sid);
                 $update_query->condition("name", "onfido_report_result_" . $index);
-                $update_result = $update_query->execute();
+                $update_result_2 = $update_query->execute();
+                
+                if ($update_result_1 > 0 && $update_result_2) {
+                    \Drupal::logger("OnfidoWebhook")->notice("Submission ID: " . $sid . " " . $result_message);
+                }
 
                 return true;
             }
@@ -161,6 +174,26 @@ class OnfidoListener extends ControllerBase {
                 $update_query->execute();
             }
             return false;
+        }
+    }
+
+    private function declineLoan($sid) {
+        $update_query = \Drupal::database()->update('webform_submission_data');
+        $update_query->fields([
+            'value' => "99999",
+        ]);
+        $update_query->condition("sid", $sid);
+        $update_query->condition("name", "borrower_envelope_status");
+        $update_result_1 = $update_query->execute();
+        $update_query = \Drupal::database()->update('webform_submission_data');
+        $update_query->fields([
+            'value' => "Declined",
+        ]);
+        $update_query->condition("sid", $sid);
+        $update_query->condition("name", "loan_status");
+        $update_result_2 = $update_query->execute();
+        if ($update_result_1 > 0 && $update_result_2 > 0) {
+            \Drupal::logger("OnfidoWebhook")->notice("Declined Loan - Submission ID: " . $sid);
         }
     }
 }
