@@ -16,12 +16,12 @@ class VerifyController {
     ];
 
     const VERIFY_LIVE_HEADER = [
-        'Authorization' => 'Token token=api_sandbox_us.CA0CqeDo6Rz._VBaEBEtYbYZduvG0JoeY0cQEwjq3ABB',
+        'Authorization' => 'Token token=api_live_us.v_4qNU3OWdW.Cl_3Hso-69X3WhG5I_S_XSQctCXS-2uR',
         'Content-Type' => 'application/json',
     ];
 
-    const VERIFY_HEADER = self::VERIFY_SANDBOX_HEADER;
-    #const VERIFY_HEADER = self::VERIFY_LIVE_HEADER;
+    #const VERIFY_HEADER = self::VERIFY_SANDBOX_HEADER;
+    const VERIFY_HEADER = self::VERIFY_LIVE_HEADER;
 
     const VERIFY_HOST = 'https://api.us.onfido.com/v3.1/';
 
@@ -247,15 +247,15 @@ class VerifyController {
     }
 
     public function checkPhotos(array &$form, FormStateInterface $form_state) {
-        #$this->elements = WebformFormHelper::flattenElements($form);
-        
         try {
             $client = \Drupal::httpClient();
             $header = self::VERIFY_HEADER;
             $url = self::VERIFY_HOST . "checks";
             
             $request_data = $this->getCheckData();
-
+            if (empty($request_data)) {
+                return;
+            }
             $response = $client->request('POST', $url, [
                 'headers' => $header,
                 'body' => $request_data,
@@ -297,13 +297,13 @@ class VerifyController {
 
     public function getCheckData() {
         $applicant_id = $this->elements["onfido_applicant_id"]["#default_value"];
-        
+        if (empty($applicant_id)) {
+            return "";
+        }
+
         $check_data = new stdClass();
         $check_data->applicant_id = $applicant_id;
-        $check_data->report_names = [
-                                        "document",
-                                        "facial_similarity_photo",
-        ];
+        
         $document_ids = [];
         for ($i = 1; $i <= 2; $i++) {
             if (!empty($this->elements["onfido_document_id_" . $i]["#default_value"])) {
@@ -311,6 +311,13 @@ class VerifyController {
             }
         }
         $check_data->document_ids = $document_ids;
+        if (!empty($document_ids)) {
+            $check_data->report_names[] = "document";
+        }
+        $livephoto_id = $this->elements["onfido_livephoto_id"]["#default_value"];
+        if (!empty($livephoto_id)) {
+            $check_data->report_names[] = "facial_similarity_photo";
+        }
 
         $webhook_ids = [];
         $webhook_ids[] = "19dc8881-9754-4db5-b681-4ef70bf74fc0";
@@ -356,7 +363,25 @@ class VerifyController {
                 $result_message .= " - Result: " . $result;
                 if (!empty($sub_result)) {
                     $result_message .= " - Sub Result: " . $sub_result;
-                } 
+                    if ($sub_result != "clear") {
+                        $data["borrower_envelope_status"] = "99999";
+                        $data["loan_status"] = "Declined";
+                        $this->elements["borrower_envelope_status"]["#value"] = "99999";
+                        $this->elements["borrower_envelope_status"]["#default_value"] = "99999";
+                        $this->elements["loan_status"]["#value"] = "Declined";
+                        $this->elements["loan_status"]["#default_value"] = "Declined";
+                    }
+                }
+                else {
+                    if ($result != "clear") {
+                        $data["borrower_envelope_status"] = "99999";
+                        $data["loan_status"] = "Declined";
+                        $this->elements["borrower_envelope_status"]["#value"] = "99999";
+                        $this->elements["borrower_envelope_status"]["#default_value"] = "99999";
+                        $this->elements["loan_status"]["#value"] = "Declined";
+                        $this->elements["loan_status"]["#default_value"] = "Declined";
+                    }
+                }
                 $entity = $form_state->getFormObject()->getEntity();
                 $data = $entity->getData();
                 $data["onfido_report_result_" . $index] = $result;
