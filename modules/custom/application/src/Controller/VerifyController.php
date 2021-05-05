@@ -311,7 +311,7 @@ class VerifyController {
             }
         }
         $check_data->document_ids = $document_ids;
-        if (!empty($documents_ids)) {
+        if (!empty($document_ids)) {
             $check_data->report_names[] = "document";
         }
         $livephoto_id = $this->elements["onfido_livephoto_id"]["#default_value"];
