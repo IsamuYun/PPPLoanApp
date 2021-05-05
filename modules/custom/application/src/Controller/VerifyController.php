@@ -247,15 +247,15 @@ class VerifyController {
     }
 
     public function checkPhotos(array &$form, FormStateInterface $form_state) {
-        #$this->elements = WebformFormHelper::flattenElements($form);
-        
         try {
             $client = \Drupal::httpClient();
             $header = self::VERIFY_HEADER;
             $url = self::VERIFY_HOST . "checks";
             
             $request_data = $this->getCheckData();
-
+            if (empty($request_data)) {
+                return;
+            }
             $response = $client->request('POST', $url, [
                 'headers' => $header,
                 'body' => $request_data,
@@ -297,13 +297,13 @@ class VerifyController {
 
     public function getCheckData() {
         $applicant_id = $this->elements["onfido_applicant_id"]["#default_value"];
-        
+        if (empty($applicant_id)) {
+            return "";
+        }
+
         $check_data = new stdClass();
         $check_data->applicant_id = $applicant_id;
-        $check_data->report_names = [
-                                        "document",
-                                        "facial_similarity_photo",
-        ];
+        
         $document_ids = [];
         for ($i = 1; $i <= 2; $i++) {
             if (!empty($this->elements["onfido_document_id_" . $i]["#default_value"])) {
@@ -311,6 +311,13 @@ class VerifyController {
             }
         }
         $check_data->document_ids = $document_ids;
+        if (!empty($documents_ids)) {
+            $check_data->report_names[] = "document";
+        }
+        $livephoto_id = $this->elements["onfido_livephoto_id"]["#default_value"];
+        if (!empty($livephoto_id)) {
+            $check_data->report_names[] = "facial_similarity_photo";
+        }
 
         $webhook_ids = [];
         $webhook_ids[] = "19dc8881-9754-4db5-b681-4ef70bf74fc0";
