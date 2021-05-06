@@ -49,6 +49,10 @@ class VerifyController {
 
             $this->uploadLivePhoto($form, $form_state);
         }
+        else {
+            $this->uploadPhoto($form, $form_state);
+            $this->uploadLivePhoto($form, $form_state);
+        }
         $this->checkPhotos($form, $form_state);
     }
 
@@ -130,10 +134,13 @@ class VerifyController {
         try {
             $file_list = $this->elements["government_issued_id"]["#default_value"];
             $index = 1;
-            //$document_type = $this->elements["document_type"]["#default_value"];
+            
             $entity = $form_state->getFormObject()->getEntity();
             $data = $entity->getData();
             foreach ($file_list as $file) {
+                if (!empty($this->elements["onfido_document_id_" . $index]["#default_value"])) {
+                    break;
+                }
                 $file_id = $file["government_issued_id_file"];
                 if (empty($file_id)) {
                     break;
@@ -188,6 +195,9 @@ class VerifyController {
 
         $applicant_id = $this->elements["onfido_applicant_id"]["#default_value"];
         if (empty($applicant_id)) {
+            return;
+        }
+        if (!empty($this->elements["onfido_livephoto_id"]["#default_value"])) {
             return;
         }
         $client = \Drupal::httpClient();
@@ -364,7 +374,7 @@ class VerifyController {
                 $result_message .= " - Result: " . $result;
                 if (!empty($sub_result)) {
                     $result_message .= " - Sub Result: " . $sub_result;
-                    if ($sub_result != "clear") {
+                    if ($sub_result == "suspected" || $sub_result == "rejected") {
                         $data["borrower_envelope_status"] = "99999";
                         $data["loan_status"] = "Declined";
                         $this->elements["borrower_envelope_status"]["#value"] = "99999";
