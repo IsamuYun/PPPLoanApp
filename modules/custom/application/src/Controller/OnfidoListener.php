@@ -124,7 +124,7 @@ class OnfidoListener extends ControllerBase {
                 $result_message .= " - Result: " . $result;
                 if (!empty($sub_result)) {
                     $result_message .= " - Sub Result: " . $sub_result;
-                    if ($sub_result != "clear") {
+                    if ($sub_result == "suspected" || $sub_result == "rejected") {
                         $this->declineLoan($sid);
                         $result_message .= " Declined Loan";
                     }
