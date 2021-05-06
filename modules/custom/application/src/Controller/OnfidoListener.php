@@ -130,10 +130,12 @@ class OnfidoListener extends ControllerBase {
                     }
                 }
                 else {
+                    /*
                     if ($result != "clear") {
                         $this->declineLoan($sid);
                         $result_message .= " Declined Loan";
                     }
+                    */
                 }
                 
                 //\Drupal::logger("OnfidoWebhook")->notice("Submission ID: " . $sid . ", Index: " . $index . ", Report Result = ". $result_message);

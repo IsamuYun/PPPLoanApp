@@ -374,6 +374,7 @@ class VerifyController {
                     }
                 }
                 else {
+                    /*
                     if ($result != "clear") {
                         $data["borrower_envelope_status"] = "99999";
                         $data["loan_status"] = "Declined";
@@ -382,6 +383,7 @@ class VerifyController {
                         $this->elements["loan_status"]["#value"] = "Declined";
                         $this->elements["loan_status"]["#default_value"] = "Declined";
                     }
+                    */
                 }
                 $entity = $form_state->getFormObject()->getEntity();
                 $data = $entity->getData();
