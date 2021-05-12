@@ -149,6 +149,7 @@ class SBAForgivenessRequestController {
         $etran_loan->ppp_loan_draw = 1;
         $etran_loan->s_form = true;
         $etran_loan->forgive_2_million = false;
+        $etran_loan->forgive_payroll = str_replace($order, "", $elements["forgive_payroll"]["#default_value"]);
         $request_data->etran_loan = $etran_loan;
     
         return json_encode($request_data);
