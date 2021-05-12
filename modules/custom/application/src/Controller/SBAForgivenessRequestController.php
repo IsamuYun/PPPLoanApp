@@ -148,6 +148,7 @@ class SBAForgivenessRequestController {
         $etran_loan->naics_code = $elements["naics_code"]["#default_value"];
         $etran_loan->ppp_loan_draw = 1;
         $etran_loan->s_form = true;
+        $etran_loan->forgive_2_million = false;
         $request_data->etran_loan = $etran_loan;
     
         return json_encode($request_data);
