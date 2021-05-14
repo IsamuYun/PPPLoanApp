@@ -106,6 +106,13 @@ class SBAForgivenessRequestController {
         
         $time = strtotime($elements["ppp_loan_disbursement_date"]["#default_value"]);
         $funding_date = date('Y-m-d', $time);
+
+        $time = strtotime($elements["forgive_covered_period_from"]["#default_value"]);
+        $forgive_covered_period_from = date('Y-m-d', $time);
+        $etran_loan->forgive_covered_period_from = $forgive_covered_period_from;
+        $time = strtotime($elements["forgive_covered_period_to"]["#default_value"]);
+        $forgive_covered_period_to = date('Y-m-d', $time);
+        $etran_loan->forgive_covered_period_to = $forgive_covered_period_to;
     
         $etran_loan->bank_notional_amount = $bank_notional_amount;
         $etran_loan->sba_number = $elements["sba_ppp_loan_number"]["#default_value"];
