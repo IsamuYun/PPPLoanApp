@@ -676,3 +676,142 @@ function application_webform_element_alter(array &$element, FormStateInterface $
     ];
   }
 }
+
+// CFI PPP Loan form
+function application_form_webform_submission_cfi_ppp_loan_edit_all_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
+    $entity = $form_state->getFormObject()->getEntity();
+    if ($entity->isLocked()) {
+        return $form["elements"]["loan_officer_page"];
+    }
+    
+    $elements = WebformFormHelper::flattenElements($form);
+    $application_controller = new ApplicationController($elements);
+    $application_controller->login();
+    $application_controller->downloadBorrowerForm($form, $form_state);
+    $application_controller->downloadSBADocuments($form, $form_state);
+    
+    $form["elements"]["loan_officer_page"]["#prefix"] = '<div id="loan-officer-ajax-wrapper">';
+    $form["elements"]["loan_officer_page"]["#suffix"] = "</div>";
+    
+    $form["elements"]["verify_id_page"]["#prefix"] = '<div id="verify-id-ajax-wrapper">';
+    $form["elements"]["verify_id_page"]["#suffix"] = '</div>';
+
+    $form["elements"]["verify_id_page"]["btn_verify_id"] = [
+        "#type" => "button",
+        "#value" => "Verify ID Photos",
+        "#ajax" => [
+            "callback" => "application_verify_id",
+            "event" => "click",
+            "wrapper" => "verify-id-ajax-wrapper",
+            "progress" => [
+                "type" => "throbber",
+                "message" => "Verifing...",
+            ],
+        ]
+    ];
+
+    $form["elements"]["loan_officer_page"]["btn_save_status"] = [
+        "#type" => "button",
+        "#value" => "Save Status",
+        "#ajax" => [
+            "callback" => "application_save_status",
+            "event" => "click",
+            "wrapper" => "loan-officer-ajax-wrapper",
+            "progress" => [
+                "type" => "throbber",
+                "message" => "Saving...",
+            ],
+        ]
+    ];
+
+    $form["elements"]["loan_officer_page"]["btn_send_borrower_form"] = [
+        "#type" => "button",
+        "#value" => "Send Borrower App",
+        "#ajax" => [
+            "callback" => 'application_send_borrower_docusign_form',
+            "event" => "click",
+            "wrapper" => "loan-officer-ajax-wrapper",
+            "progress" => [
+                "type" => "throbber",
+                "message" => "Sending...",
+            ],
+        ]
+    ];
+    
+    $form["elements"]["loan_officer_page"]["btn_request_to_sba"] = [
+        "#type" => "button",
+        "#value" => "Submit to SBA",
+        "#ajax" => [
+            "callback" => 'cfi_request_to_sba',
+            "event" => "click",
+            "wrapper" => "loan-officer-ajax-wrapper",
+            "progress" => [
+                "type" => "throbber",
+                "message" => "Requesting...",
+            ],
+        ]
+    ];
+
+    $form["elements"]["loan_officer_page"]["btn_send_sba_note"] = [
+        "#type" => "button",
+        "#value" => "Send Note/EO",
+        "#ajax" => [
+            "callback" => 'application_send_sba_note',
+            "event" => "click",
+            "wrapper" => "loan-officer-ajax-wrapper",
+            "progress" => [
+                "type" => "throbber",
+                "message" => "Requesting...",
+            ],
+        ]
+    ];
+
+    $form["elements"]["loan_officer_page"]["btn_send_lender_form"] = [
+        "#type" => "button",
+        "#value" => "Send Lender Form",
+        "#ajax" => [
+            "callback" => 'application_send_lender_docusign_form',
+            "event" => "click",
+            "wrapper" => "loan-officer-ajax-wrapper",
+            "progress" => [
+                "type" => "throbber",
+                "message" => "Sending...",
+            ],
+        ]
+    ];
+    
+    application_assign_loan_officer($form, $form_state);
+    
+    if (empty($elements["adjusted_loan_amount"]["#default_value"])) {
+        $elements["adjusted_loan_amount"]["#value"] = $application_controller->getLoanAmount();
+        $elements["adjusted_loan_amount"]["#default_value"] = $application_controller->getLoanAmount();
+    }
+
+    if (empty($elements["adjusted_average_payroll"]["#default_value"])) {
+        $elements["adjusted_average_payroll"]["#value"] = $application_controller->getAveragePayrollAmount();
+        $elements["adjusted_average_payroll"]["#default_value"] = $application_controller->getAveragePayrollAmount();
+    }
+    
+    $controller = new LenderController();
+    // 需要增加处理函数
+    $controller->createLenderFormPDF($form, $form_state);
+
+
+
+    $sba_controller = new SBALoanController();
+    $sba_controller->changeHeader();
+    $sba_controller->getLoanStatus($form, $form_state);
+    //
+
+    $verify_controller = new VerifyController();
+    $verify_controller->retrieveReports($form, $form_state);
+    
+    return $form["elements"]["loan_officer_page"];
+}
+
+function cfi_request_to_sba(array &$form, FormStateInterface $form_state) {
+    $controller = new SBALoanController();
+    $controller->changeHeader();
+    $controller->sendLoanRequest($form, $form_state);
+    return $form["elements"]["loan_officer_page"];
+}
