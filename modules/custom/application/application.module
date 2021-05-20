@@ -141,6 +141,10 @@ function application_form_webform_submission_apply_for_ppp_loan_edit_all_form_al
     $controller->createLenderFormPDF($form, $form_state);
 
     $sba_controller = new SBALoanController();
+    if (!empty($form["elements"]["loan_officer_page"]["lender"]["#default_value"])
+        && $form["elements"]["loan_officer_page"]["lender"]["#default_value"] == "") {
+        $sba_controller->changeHeader();
+    }
     $sba_controller->getLoanStatus($form, $form_state);
 
     $verify_controller = new VerifyController();
@@ -396,6 +400,10 @@ function application_submit_borrower_form(array &$form, FormStateInterface &$for
         $elements["draw_status"]["#value"] = "First Draw";
         $elements["draw_status"]["#default_value"] = "First Draw";
     }
+
+    // Set lender name 
+    $data["lender"] = "ECCC";
+
     $entity->setData($data);
     $entity->save();
     
@@ -455,6 +463,11 @@ function application_send_borrower_docusign_form(array &$form, FormStateInterfac
 
 function application_request_to_sba(array &$form, FormStateInterface $form_state) {
     $controller = new SBALoanController();
+    if (!empty($form["elements"]["loan_officer_page"]["lender"]["#default_value"])
+        && $form["elements"]["loan_officer_page"]["lender"]["#default_value"] == "") {
+        $controller->changeHeader();
+    }
+
     $controller->sendLoanRequest($form, $form_state);
     return $form["elements"]["loan_officer_page"];
 }
