@@ -37,7 +37,7 @@ class FLPSearchForm extends FormBase {
 
         $form['description'] = [
             '#type' => 'item',
-            '#markup' => $this->t('Please enter your Primary Contact and Business TIN (EIN, SSN) to fetch your saved application.'),
+            '#markup' => $this->t('Please enter your Primary Contact / Business TIN (EIN, SSN) / ALC Loan Number to fetch your saved application.'),
         ];
 
         $form['primary_name'] = [
@@ -47,10 +47,15 @@ class FLPSearchForm extends FormBase {
 
         $form['ein'] = [
             '#type' => 'textfield',
-            '#required' => true,
+            '#required' => false,
             '#title' => $this->t('Business TIN (EIN, SSN)'),
         ];
 
+        $form['loan_number'] = [
+            '#type' => 'textfield',
+            '#required' => false,
+            '#title' => $this->t('ALC Loan Number'),
+        ];
 
         $form['actions'] = [
             '#type' => 'actions',
@@ -93,9 +98,12 @@ class FLPSearchForm extends FormBase {
     public function validateForm(array &$form, FormStateInterface $form_state) {
         $primary_name = trim($form_state->getValue('primary_name'));
         $ein = trim($form_state->getValue('ein'));
-        if (empty($ein) && empty($primary_name)) {
-            $form_state->setErrorByName('ein', $this->t('Please enter your Primary Contact and Business TIN (EIN, SSN) to fetch your saved application.'));
-            $form_state->setErrorByName('primary_name', $this->t('Please enter your Primary Contact and Business TIN (EIN, SSN) to fetch your saved application.'));
+        $loan_number = trim($form_state->getValue('loan_number'));
+
+        if (empty($ein) && empty($primary_name) && empty($loan_number)) {
+            $form_state->setErrorByName('primary_name', $this->t('Please enter your Primary Contact to fetch your saved application.'));
+            $form_state->setErrorByName('ein', $this->t('Please enter your Business TIN (EIN, SSN) to fetch your saved application.'));
+            $form_state->setErrorByName('loan_number', $this->t('Please enter your Loan Number to fetch your saved application.'));
         }
     }
 
@@ -112,29 +120,33 @@ class FLPSearchForm extends FormBase {
     public function submitForm(array &$form, FormStateInterface $form_state) {
         $primary_name = $form_state->getValue('primary_name');
         $ein = $form_state->getValue('ein');
+        $loan_number = $form_state->getValue('loan_number');
         $title = empty($primary_name) ? $ein : $primary_name;
-        $data = $this->searchFlpResult($primary_name, $ein);
-        if(empty($data)){
+        $data = $this->searchFlpResult($primary_name, $ein, $loan_number);
+        if (empty($data)) {
             $this->messenger()->addMessage($this->t('Sorry, cannot find any saved application of %title. Please check it.', ['%title' => $title]));
-        }else{
+        }
+        else {
             $draft_token = '';
             $ret = $this->checkFlpSubmission($data->ein);
 
-            if($ret['saved']) {
+            if ($ret['saved']) {
                 if (empty($ret['token'])) {
                     $this->messenger()->addMessage($this->t('Sorry, you have submitted the application of %title. All submissions must be unique. Please try another one.', ['%title' => $title]));
                     return;
                 }
                 $draft_token = $ret['token'];
-            } else {
+            } 
+            else {
                 $draft_token = $this->createFlpWebformDraft($data);
             }
 
-            if(!empty($draft_token)){
+            if (!empty($draft_token)) {
                 $response = new RedirectResponse("flp?token=$draft_token");
                 $response->send();
                 return;
-            }else{
+            }
+            else {
                 $title = empty($data->primary_name) ? $data->ein : $data->primary_name;
                 $this->messenger()->addMessage($this->t('Sorry, cannot find any saved application of %title. Please check it!', ['%title' => $title]));
             }
@@ -150,11 +162,12 @@ class FLPSearchForm extends FormBase {
      * @param string $ein
      *   The string value of Business TIN (EIN, SSN).
      */
-    public function searchFlpResult($primary_name='', $ein='') {
+    public function searchFlpResult($primary_name = '', $ein = '', $loan_number = '') {
         $database = \Drupal::database();
-        $query = $database->query("SELECT * FROM {lfa_data} WHERE LOWER(primary_name) = :primary_name OR ein = :ein", [
+        $query = $database->query("SELECT * FROM {lfa_data} WHERE LOWER(primary_name) = :primary_name OR ein = :ein OR loan_number = :loan_number", [
             ':primary_name' => strtolower($primary_name),
-            ':ein' => $ein
+            ':ein' => $ein,
+            ':loan_number' => $loan_number,
         ]);
         $result = $query->fetch();
         return $result;
@@ -188,7 +201,9 @@ class FLPSearchForm extends FormBase {
             $current_user = $this->currentUser();
             $uid = $current_user->id();
             $ret = ['saved' => true, 'token' => ''];
-            if ($webform_submission->isDraft() && $uid == $webform_submission->getOwnerId()) $ret['token'] = $webform_submission->getToken();
+            if ($webform_submission->isDraft() && $uid == $webform_submission->getOwnerId()) {
+                $ret['token'] = $webform_submission->getToken();
+            }
 
         }
         return $ret;
@@ -200,12 +215,12 @@ class FLPSearchForm extends FormBase {
     /**
      * Create draft FLP webform submission based flp result from database.
      *
-     * @param string $data
+     * @param object $data
      *   Object describing the current user from database.
      */
-    public function createFlpWebformDraft($data=NULL) :String {
+    public function createFlpWebformDraft($data = []) :String {
         $ret = '';
-        if($data){
+        if ($data) {
             $current_user = $this->currentUser();
             $uid = $current_user->id();
             // Get submission values and data.
@@ -225,10 +240,13 @@ class FLPSearchForm extends FormBase {
                 'eidl_application_number_if_applicable' => $data->forgive_eidl_application_number,
                 'eidl_advance_amount_if_applicable_' => $data->forgive_eidl_amount,
                 'forgiveness_calculation' => $data->bank_notional_amount,
+                'forgive_covered_period_from' => $data->covered_period_from,
+                'forgive_covered_period_to' => $data->covered_period_to,
+                'naics_code' => $data->naics_code,
+                'forgive_payroll' => $data->bank_notional_amount,
+                'employees_at_time_of_forgiveness_application' => $data->forgive_fte_at_forgiveness_application,
             ];
-
-            if($data->forgive_fte_at_forgiveness_application) $value_data['employees_at_time_of_forgiveness_application'] = $data->forgive_fte_at_forgiveness_application;
-
+            
             $values = [
                 'webform_id' => FLP_WEBFORM_ID,
                 'entity_type' => NULL,
