@@ -245,6 +245,7 @@ class FLPSearchForm extends FormBase {
                 'naics_code' => $data->naics_code,
                 'forgive_payroll' => $data->bank_notional_amount,
                 'employees_at_time_of_forgiveness_application' => $data->forgive_fte_at_forgiveness_application,
+                'loan_officer' => $data->loan_officer,
             ];
             
             $values = [
