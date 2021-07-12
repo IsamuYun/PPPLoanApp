@@ -128,7 +128,7 @@ class FLPSearchForm extends FormBase {
         }
         else {
             $draft_token = '';
-            $ret = $this->checkFlpSubmission($data->ein);
+            $ret = $this->checkFlpSubmission($data->loan_number);
 
             if ($ret['saved']) {
                 if (empty($ret['token'])) {
@@ -164,11 +164,30 @@ class FLPSearchForm extends FormBase {
      */
     public function searchFlpResult($primary_name = '', $ein = '', $loan_number = '') {
         $database = \Drupal::database();
-        $query = $database->query("SELECT * FROM {lfa_data} WHERE LOWER(primary_name) = :primary_name OR ein = :ein OR loan_number = :loan_number", [
-            ':primary_name' => strtolower($primary_name),
-            ':ein' => $ein,
-            ':loan_number' => $loan_number,
-        ]);
+        $condition = " WHERE ";
+        $params = [];
+        if (!empty($paimary_name)) {
+            $condition .= "LOWER(primary_name) = :primary_name";
+            $params[':primary_name'] = strtolower($primary_name);
+        }
+        if (!empty($ein)) {
+            if (!empty($params)) {
+                $condition .= " OR ";
+            }
+            $condition .= "ein = :ein";
+            $params[":ein"] = $ein;
+        }
+        if (!empty($loan_number)) {
+            if (!empty($params)) {
+                $condition .= " OR ";
+            }
+            $condition .= "loan_number = :loan_number";
+            $params[":loan_number"] = $loan_number;
+        }
+        if (empty($params)) {
+            return "";
+        }
+        $query = $database->query("SELECT * FROM {lfa_data} " . $condition, $params);
         $result = $query->fetch();
         return $result;
     }
@@ -182,14 +201,14 @@ class FLPSearchForm extends FormBase {
      * @param string $ein
      *   The string value of Business TIN (EIN, SSN).
      */
-    public function checkFlpSubmission($ein='') :Array {
+    public function checkFlpSubmission($loan_number = '') :Array {
         $ret = ['saved' => false, 'token' => ''];
         $database = \Drupal::database();
         $select = $database->select('webform_submission_data', 'wsd')
             ->fields('wsd', array('sid'))
             ->condition('wsd.webform_id', FLP_WEBFORM_ID, '=')
-            ->condition('wsd.name', 'business_tin_ein_ssn_', '=')
-            ->condition('wsd.value', $ein, '=');
+            ->condition('wsd.name', 'lender_ppp_loan_number', '=')
+            ->condition('wsd.value', $loan_number, '=');
         $executed = $select->execute();
         // Get all the results.
         $results = $executed->fetchAll();
@@ -246,6 +265,7 @@ class FLPSearchForm extends FormBase {
                 'forgive_payroll' => $data->bank_notional_amount,
                 'employees_at_time_of_forgiveness_application' => $data->forgive_fte_at_forgiveness_application,
                 'loan_offer' => $data->loan_officer,
+                'sba_loan_draw' => $data->draw,
             ];
             
             $values = [

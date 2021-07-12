@@ -15,6 +15,9 @@ use DocuSign\eSign\Model\Signer;
 use DocuSign\eSign\Model\SignHere;
 use DocuSign\eSign\Model\Tabs;
 use DocuSign\eSign\Model\Text;
+use DocuSign\eSign\Model\DateSigned;
+use DocuSign\eSign\Model\Checkbox;
+
 use NumberFormatter;
 use SplFileObject;
 
@@ -29,8 +32,8 @@ class SBALFAController {
     /**
      * Path for the directory with documents
      */
-    public const FORM_PATH = __DIR__ . '/../../documents/' . "PPP Loan Forgiveness Application Form 3508S.pdf";
-
+    # public const FORM_PATH = __DIR__ . '/../../documents/' . "PPP Loan Forgiveness Application Form 3508S.pdf";
+    public const FORM_PATH = __DIR__ . "/../../documents/" . "PPP Forgiveness Application and Instructions 3508S.pdf";
     /** ClientService */
     private $clientService;
 
@@ -149,7 +152,7 @@ class SBALFAController {
             'base_path' => $_SESSION['ds_base_path'],
             'ds_access_token' => $_SESSION['ds_access_token'],
             'envelope_id' => $envelope_id,
-            'document_id' => "1",
+            #'document_id' => "1",
         ];
 
         return $args;
@@ -219,8 +222,8 @@ class SBALFAController {
             return;
         }
 
-        $host_name = "https://alcppp.com";
-        #$host_name = "http://127.0.0.1";
+        #$host_name = "https://alcppp.com";
+        $host_name = "http://127.0.0.1";
         $file_path = "/sites/default/files/private/webform/3508s_form/" . $file_name;
         $file_url = $host_name . $file_path;
 
@@ -248,6 +251,7 @@ class SBALFAController {
 
     public function sendForm() {
         $result = $this->worker($this->args);
+
         return $result;
     }
 
@@ -266,7 +270,6 @@ class SBALFAController {
         # 1. Create the envelope request object
         $envelope_definition = $this->make_envelope($args["envelope_args"]);
         $envelope_api = $this->clientService->getEnvelopeApi();
-       
         # 2. call Envelopes::create API method
         # Exceptions will be caught by the calling function
         try {
@@ -275,7 +278,6 @@ class SBALFAController {
             $this->clientService->showErrorTemplate($e);
             exit;
         }
-        
         return ['envelope_id' => $results->getEnvelopeId()];
     }
 
@@ -315,23 +317,22 @@ class SBALFAController {
             'file_extension' => 'pdf',  # many different document types are accepted
             'document_id' => '1'  # a label used to reference the doc
         ]);
-        
         // 001 - entity_name
         $entity_name_text = new Text(['document_id' => "1", 'page_number' => "1",
-            "x_position" => "40", "y_position" => "84",
+            "x_position" => "50", "y_position" => "90",
             "font" => "Arial", "font_size" => "size9", 
             "value" => $this->elements["business_legal_name_borrower"]["#default_value"],
             "height" => "20", "width" => "240", "required" => "false"]);
         // 002 - dba_name
         $dba_name_text = new Text(['document_id' => "1", 'page_number' => "1",
-            "x_position" => "330", "y_position" => "84",
+            "x_position" => "400", "y_position" => "90",
             "font" => "Arial", "font_size" => "size9",
             "value" => $this->elements["dba_or_trade_name_if_applicable"]["#default_value"],
             "height" => "20", "width" => "160", "required" => "false"
         ]);
         // 003 - address1
         $address1_text = new Text(['document_id' => "1", "page_number" => "1",
-            "x_position" => "40", "y_position" => "106",
+            "x_position" => "50", "y_position" => "114",
             "font" => "Arial", "font_size" => "size9",
             "value" => $this->elements["business_street_address"]["#default_value"],
             "height" => "20", "width" => "200", "required" => "false"
@@ -339,49 +340,57 @@ class SBALFAController {
         // 004 - ein
         $ein_text = new Text([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "330", "y_position" => "106",
+            "x_position" => "360", "y_position" => "114",
             "font" => "Arial", "font_size" => "size9",
             "value" => $this->elements["business_tin_ein_ssn_"]["#default_value"],
             "height" => "20", "width" => "140", "required" => "false"
         ]);
         // 005 - phone_number
         $phone_number_text = new Text(['document_id' => "1", "page_number" => "1",
-            "x_position" => "464", "y_position" => "106",
+            "x_position" => "466", "y_position" => "114",
             "font" => "Arial", "font_size" => "size9",
             "value" => $this->elements["phone_number"]["#default_value"],
             "height" => "20", "width" => "140", "required" => "false"
         ]);
         // address_2
         $address2_text = new Text(['document_id' => "1", "page_number" => "1",
-            "x_position" => "40", "y_position" => "131",
+            "x_position" => "50", "y_position" => "134",
             "font" => "Arial", "font_size" => "size9",
             "value" => $this->elements["city_state_zip"]["#default_value"],
             "height" => "20", "width" => "140", "required" => "false"
         ]);
+        // NAICS Code
+        $naics_code = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "300", "y_position" => "124",
+            "font" => "Arial", "font_size" => "size9",
+            "value" => $this->elements["naics_code"]["#default_value"],
+            "height" => "20", "width" => "140", "required" => "false"
+        ]);
         // 007 - primary_name
         $primary_name_text = new Text(['document_id' => "1", "page_number" => "1",
-            "x_position" => "330", "y_position" => "131",
+            "x_position" => "360", "y_position" => "136",
             "font" => "Arial", "font_size" => "size9",
             "value" => $this->elements["primary_contact"]["#default_value"],
             "height" => "20", "width" => "140", "required" => "false"
         ]);
         // 008 - primary_email
         $primary_email_text = new Text(['document_id' => "1", "page_number" => "1",
-            "x_position" => "462", "y_position" => "131",
+            "x_position" => "462", "y_position" => "136",
             "font" => "Arial", "font_size" => "size9",
             "value" => $this->elements["email_address"]["#default_value"],
             "height" => "20", "width" => "140", "required" => "false"
         ]);
         // 009 - sba_number
         $sba_number_text = new Text(['document_id' => "1", "page_number" => "1",
-            "x_position" => "150", "y_position" => "146",
+            "x_position" => "156", "y_position" => "184",
             "font" => "Arial", "font_size" => "size11",
             "value" => $this->elements["sba_ppp_loan_number"]["#default_value"],
             "height" => "20", "width" => "140", "required" => "false"
         ]);
         // 010 - loan_number
         $loan_number_text = new Text(['document_id' => "1", "page_number" => "1",
-            "x_position" => "414", "y_position" => "146",
+            "x_position" => "430", "y_position" => "184",
             "font" => "Arial", "font_size" => "size11",
             "value" => $this->elements["lender_ppp_loan_number"]["#default_value"],
             "height" => "20", "width" => "140", "required" => "false"
@@ -389,23 +398,24 @@ class SBALFAController {
         // 011 - bank_notional_amount
         $bank_notional_amount_text = new Text([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "127", "y_position" => "169",
+            "x_position" => "148", "y_position" => "208",
             "font" => "Arial", "font_size" => "size11",
             "value" => $this->elements["ppp_loan_amount"]["#default_value"],
             "height" => "20", "width" => "140", "required" => "false"
         ]);
         // 012 - funding_date
-        $funding_date_text = new Text([
+        $funding_date = new Text([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "424", "y_position" => "169",
+            "x_position" => "440", "y_position" => "208",
             "font" => "Arial", "font_size" => "size11",
-            "value" => $this->elements["ppp_loan_disbursement_date"]["#default_value"],
+            "value" => $this->getDate($this->elements["ppp_loan_disbursement_date"]["#default_value"]),
             "height" => "20", "width" => "140", "required" => "false"
         ]);
+
         // 013 - forgive_fte_at_loan_application
         $forgive_fte_at_loan_application_text = new Text([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "216", "y_position" => "191",
+            "x_position" => "224", "y_position" => "232",
             "font" => "Arial", "font_size" => "size11",
             "value" => $this->elements["employees_at_time_of_loan_application"]["#default_value"],
             "height" => "20", "width" => "140", "required" => "false"
@@ -413,19 +423,29 @@ class SBALFAController {
         // 014 - forgive_fte_at_forgiveness_application
         $forgive_fte_at_forgiveness_application_text = new Text([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "497", "y_position" => "191",
+            "x_position" => "516", "y_position" => "232",
             "font" => "Arial", "font_size" => "size11",
             "value" => $this->elements["employees_at_time_of_forgiveness_application"]["#default_value"],
             "height" => "20", "width" => "100", "required" => "false"
         ]);
-        // 015 - forgive_eidl_amount
-        $forgive_eidl_amount_text = new Text([
+
+        $forgive_covered_period_from = new Text([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "147", "y_position" => "212",
+            "x_position" => "128", "y_position" => "254",
             "font" => "Arial", "font_size" => "size11",
-            "value" => $this->elements["eidl_advance_amount_if_applicable_"]["#default_value"],
-            "height" => "20", "width" => "100", "required" => "false"
+            "value" => $this->getDate($this->elements["forgive_covered_period_from"]["#default_value"]),
+            "height" => "20", "width" => "140", "required" => "false"
         ]);
+
+        $forgive_covered_period_to = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "254", "y_position" => "254",
+            "font" => "Arial", "font_size" => "size11",
+            "value" => $this->getDate($this->elements["forgive_covered_period_to"]["#default_value"]),
+            "height" => "20", "width" => "140", "required" => "false"
+        ]);
+        
+        /*
         // 016 - forgive_eidl_application_number
         $forgive_eidl_application_number_text = new Text([
             'document_id' => "1", "page_number" => "1",
@@ -434,23 +454,43 @@ class SBALFAController {
             "value" => $this->elements["eidl_application_number_if_applicable"]["#default_value"],
             "height" => "14", "width" => "100", "required" => "false"
         ]);
+        */
+
+        // 015 - forgive_eidl_amount
+        $forgive_eidl_amount_text = new Text([
+            'document_id' => "1", "page_number" => "1",
+            "x_position" => "220", "y_position" => "314",
+            "font" => "Arial", "font_size" => "size11",
+            "value" => $this->elements["eidl_advance_amount_if_applicable_"]["#default_value"],
+            "height" => "20", "width" => "100", "required" => "false"
+        ]);
         // 033 - forgive_amount
         #$forgive_amount = $this->elements["forgiveness_calculation"]["#default_value"];
         $forgive_amount = $this->elements["ppp_loan_amount"]["#default_value"];
         $forgive_amount_text = new Text([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "131", "y_position" => "232",
+            "x_position" => "470", "y_position" => "314",
             "font" => "Arial", "font_size" => "size12",
             "value" => $forgive_amount,
             "height" => "14", "width" => "100", "required" => "false"
         ]);
         // forgive_date
+        /*
         $forgive_date_text = new Text([
             'document_id' => "1", "page_number" => "1",
             "x_position" => "400", "y_position" => "703",
             "font" => "Arial", "font_size" => "size12",
             "value" => date("m-j-Y"),
             "height" => "20", "width" => "100", "required" => "false"
+        ]);
+        */
+
+        $dateSigned = new DateSigned([
+            'document_id' => "1", 'page_number' => "1",
+            "x_position" => "400", "y_position" => "690",
+            #"font" => "Arial", "font_size" => "size12",
+            #"value" => date("m-j-Y"),
+            "height" => "20", "width" => "140",
         ]);
 
         // print_name
@@ -462,15 +502,17 @@ class SBALFAController {
         ]);
 
         // title
-        $title_text = new Text(['document_id' => "1", "page_number" => "1",
+        $title_text = new Text([
+            'document_id' => "1", "page_number" => "1",
             "x_position" => "400", "y_position" => "735",
             "font" => "Arial", "font_size" => "size10",
             "value" => $this->elements["borrow_title"]["#default_value"],
             "height" => "20", "width" => "140", "required" => "false"
         ]);
 
-        $sign_here = new SignHere(['document_id' => "1", 'page_number' => "1",
-        'x_position' => '40', 'y_position' => '692']);
+        $sign_here = new SignHere([
+            'document_id' => "1", 'page_number' => "1",
+            'x_position' => '50', 'y_position' => '666']);
 
         # Create the signer recipient model
         $signer = new Signer([
@@ -480,10 +522,13 @@ class SBALFAController {
         # to the recipients. Parallel routing order is supported by using the
         # same integer as the order for two or more recipients.
         
+        $checkbox_list = $this->getCheckBoxList();
+
         $initial_here_list = $this->getInitialList();
         
         $signer->setTabs(new Tabs(['sign_here_tabs' => [$sign_here],
             'initial_here_tabs' => $initial_here_list,
+            'checkbox_tabs' => $checkbox_list,
             'text_tabs' => [
                 $entity_name_text,
                 $dba_name_text,
@@ -493,19 +538,23 @@ class SBALFAController {
                 $phone_number_text,
                 $primary_name_text,
                 $primary_email_text,
+                $naics_code,
                 $sba_number_text,
                 $loan_number_text,
                 $bank_notional_amount_text,
-                $funding_date_text,
+                $funding_date,
                 $forgive_fte_at_loan_application_text,
                 $forgive_fte_at_forgiveness_application_text,
-                $forgive_eidl_application_number_text,
+                $forgive_covered_period_from,
+                $forgive_covered_period_to,
+                #$forgive_eidl_application_number_text,
                 $forgive_eidl_amount_text,
                 $forgive_amount_text,
-                $forgive_date_text,
+                #$forgive_date_text,
                 $print_name_text,
                 $title_text
-            ]
+            ],
+            'date_signed_tabs' => [$dateSigned],
         ]));
 
         # Add the recipients to the envelope object
@@ -524,63 +573,59 @@ class SBALFAController {
         return $envelope_definition;
     }
 
+    private function getCheckBoxList() {
+        $draw = $this->elements["sba_loan_draw"]["#default_value"];
+
+        $first_draw = "false";
+        $second_draw = "false";
+
+        if ($draw == "First") {
+            $first_draw = "true";
+        }
+        else {
+            $second_draw = "true";
+        }
+
+        $checkbox_1 = new CheckBox([
+            'document_id' => '1', 'page_number' => '1',
+            'x_position' => "40", 'y_position' => "163",
+            'selected' => $first_draw,
+        ]);
+
+        $checkbox_2 = new CheckBox([
+            'document_id' => '1', 'page_number' => '1',
+            'x_position' => "148", 'y_position' => "163",
+            'selected' => $second_draw,
+        ]);
+
+        return [$checkbox_1, $checkbox_2];
+    }
+
     private function getInitialList() {
         $Initial_1 = new InitialHere([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "32", "y_position" => "270",
+            "x_position" => "48", "y_position" => "352",
             "height" => "12", "width" => "40", "required" => "false"
         ]);
 
         $Initial_2 = new InitialHere([
             'document_id' => "1", "page_number" => "1",
-            "x_position" => "32", "y_position" => "370",
-            "height" => "12", "width" => "40", "required" => "false"
-        ]);
-        
-        $Initial_3 = new InitialHere([
-            'document_id' => "1", "page_number" => "1",
-            "x_position" => "32", "y_position" => "400",
-            "height" => "12", "width" => "40", "required" => "false"
-        ]);
-
-        $Initial_4 = new InitialHere([
-            'document_id' => "1", "page_number" => "1",
-            "x_position" => "32", "y_position" => "428",
-            "height" => "12", "width" => "40", "required" => "false"
-        ]);
-
-        $Initial_5 = new InitialHere([
-            'document_id' => "1", "page_number" => "1",
-            "x_position" => "32", "y_position" => "470",
-            "height" => "12", "width" => "40", "required" => "false"
-        ]);
-
-        $Initial_6 = new InitialHere([
-            'document_id' => "1", "page_number" => "1",
-            "x_position" => "32", "y_position" => "545",
-            "font" => "Arial", "font_size" => "size10",
-            "height" => "12", "width" => "40", "required" => "false"
-        ]);
-
-        $Initial_7 = new InitialHere([
-            'document_id' => "1", "page_number" => "1",
-            "x_position" => "32", "y_position" => "596",
-            "font" => "Arial", "font_size" => "size10",
+            "x_position" => "48", "y_position" => "470",
             "height" => "12", "width" => "40", "required" => "false"
         ]);
         
         return [
             $Initial_1,
             $Initial_2,
-            $Initial_3,
-            $Initial_4,
-            $Initial_5,
-            $Initial_6,
-            $Initial_7
         ];
     }
 
-    public function sendToSBA() {
+    private function getDate($date_str) {
+        if (empty($date_str)) {
+            return "";
+        }
+        $date = date_create_from_format('Y-m-d', $date_str);
+        return date_format($date, 'm/d/Y');
 
     }
 }

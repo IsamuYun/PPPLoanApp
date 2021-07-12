@@ -518,7 +518,7 @@ function application_form_webform_submission_apply_for_flp_loan_edit_all_form_al
         '#type' => 'button',
         '#value' => 'Send Form',
         '#ajax' => [
-            'callback' => 'application_send_document',
+            'callback' => 'application_send_fogive_form',
             'event' => 'click',
             'wrapper' => 'lender-confirmation-ajax-wrapper',
             'progress' => [
@@ -627,20 +627,12 @@ function application_upload_document(array &$form, FormStateInterface $form_stat
     return $form["elements"]["lender_confirmation"];
 }
 
-function application_send_document(array &$form, FormStateInterface $form_state) {
-    $elements = WebformFormHelper::flattenElements($form);
-    $controller = new ForgivenessForm($elements);
-    $controller->login();
-    $controller->sendForm($form, $form_state);
-    return $form["elements"]["lender_confirmation"];
-}
-
 function application_send_fogive_form(array &$form, FormStateInterface $form_state) {
-    //$elements = WebformFormHelper::flattenElements($form);
-    //$controller = new SBALFAController($elements);
-    //$controller->login();
-    //$result = $controller->sendForm();
-    /*
+    $elements = WebformFormHelper::flattenElements($form);
+    $controller = new SBALFAController($elements);
+    $controller->login();
+    $result = $controller->sendForm();
+
     if (!empty($result) && isset($result["envelope_id"])) {
         $entity = $form_state->getFormObject()->getEntity();
         $data = $entity->getData();
@@ -656,7 +648,7 @@ function application_send_fogive_form(array &$form, FormStateInterface $form_sta
         $form["elements"]["lender_confirmation"]["envelope_id"]["#value"] = $result["envelope_id"];
         $form["elements"]["lender_confirmation"]["envelope_id"]["#default_value"] = $result["envelope_id"];
     }
-    */
+    
     return $form["elements"]["lender_confirmation"];
 }
 
