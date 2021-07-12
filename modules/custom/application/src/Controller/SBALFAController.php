@@ -222,8 +222,8 @@ class SBALFAController {
             return;
         }
 
-        #$host_name = "https://alcppp.com";
-        $host_name = "http://127.0.0.1";
+        $host_name = "https://alcppp.com";
+        #$host_name = "http://127.0.0.1";
         $file_path = "/sites/default/files/private/webform/3508s_form/" . $file_name;
         $file_url = $host_name . $file_path;
 
