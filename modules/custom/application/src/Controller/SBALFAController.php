@@ -461,7 +461,7 @@ class SBALFAController {
             'document_id' => "1", "page_number" => "1",
             "x_position" => "220", "y_position" => "314",
             "font" => "Arial", "font_size" => "size11",
-            "value" => $this->elements["eidl_advance_amount_if_applicable_"]["#default_value"],
+            "value" => $this->elements["forgiveness_calculation"]["#default_value"],
             "height" => "20", "width" => "100", "required" => "false"
         ]);
         // 033 - forgive_amount

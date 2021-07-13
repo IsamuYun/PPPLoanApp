@@ -527,7 +527,7 @@ function application_form_webform_submission_apply_for_flp_loan_edit_all_form_al
             ],
         ]
     ];
-    
+    /*
     // Button of re-create docusign form
     $form["elements"]["lender_confirmation"]["btn_resend_forgive_form"] = [
         '#type' => 'button',
@@ -542,7 +542,8 @@ function application_form_webform_submission_apply_for_flp_loan_edit_all_form_al
             ],
         ],
     ];
-
+    */
+    
     $form["elements"]["lender_confirmation"]["btn_send_request"] = [
         '#type' => 'button',
         '#value' => 'Send to SBA',
