@@ -4,7 +4,8 @@ application.content:
         _controller: '\Drupal\application\Controller\LFADraftController::content'
         _title: 'Create LFA Draft'
     requirements:
-        _permission: 'access content'
+        #_permission: 'access content'
+        _access: 'TRUE'
 
 application.flp_search_form:
   path: '/flp-search'
@@ -12,7 +13,8 @@ application.flp_search_form:
     _form:  '\Drupal\application\Form\FLPSearchForm'
     _title: 'FLP form search'
   requirements:
-    _permission: 'access content'
+    #_permission: 'access content'
+    _access: 'TRUE'
 
 application.dslistener:
     path: '/dslistener'
