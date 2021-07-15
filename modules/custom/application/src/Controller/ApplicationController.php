@@ -686,7 +686,6 @@ class ApplicationController {
             $results = $this->download_worker($args);
         }
         catch (ApiException $e) {
-            dpm($e);
             return false;
         }
         ob_clean();
