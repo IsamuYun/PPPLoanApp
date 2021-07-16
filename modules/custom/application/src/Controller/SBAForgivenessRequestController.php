@@ -177,6 +177,9 @@ class SBAForgivenessRequestController {
             if ($sba_upload_status == "uploaded") {
                 return;
             }
+            if ($elements["envelope_status"]["#default_value"] != "completed") {
+                return;
+            }
             
             $file_url = $elements["form_file_name"]["#default_value"];
             $file_name_array = explode('/', $file_url);
